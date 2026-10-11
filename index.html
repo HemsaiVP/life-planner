@@ -2,256 +2,318 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Life Planner</title>
-<meta name="theme-color" content="#2b5c8a">
+<meta name="theme-color" content="#f3f4f7">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* ---------- themes (set per device in Setup) ---------- */
 :root{
-  --bg:#f4f3ef; --panel:#ffffff; --panel2:#f9f8f5; --ink:#1c1c1e; --muted:#66666c; --line:#e1dfd8;
-  --accent:#2b5c8a; --accent-ink:#ffffff; --bad:#b23d1c; --good:#2a7a4a; --warn:#a86a00;
-  --routine:#6f7887; --meal:#c48a10; --lse:#7445b0; --study:#2d6cb0; --academy:#11877a; --gym:#c4443a;
-  --business:#2b8a4c; --travel:#8b9099; --chores:#9b6530; --free:#a8a397; --admin:#4c5c8e;
-  --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.04);
+  --bg:#f3f4f7; --panel:#ffffff; --panel2:#f7f8fa; --ink:#1b1d22; --muted:#555b67; --line:#e3e6ec;
+  --accent:#3557c7; --accent-ink:#ffffff; --soft:#e6ebfb; --soft-ink:#23409c;
+  --bad:#b4441c; --bad-soft:#fbeee6; --good:#2f7d4f; --warn:#8a5a00; --warn-soft:#fdf0e4;
+  --routine:#6f7887; --meal:#b7791f; --lse:#7a4fc2; --study:#2f6fd0; --academy:#0f8a7e; --gym:#c4443a;
+  --business:#2f8a4f; --career:#b04a7f; --travel:#7d8591; --chores:#9b6530; --free:#a3a29b; --admin:#4c5c8e;
+  --shadow:0 1px 2px rgba(20,30,60,.05),0 4px 16px rgba(20,30,60,.05);
   color-scheme:light;
 }
 @media (prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#121316; --panel:#1b1d21; --panel2:#202227; --ink:#ebebee; --muted:#9b9da4; --line:#2d3036;
-    --accent:#80b2e3; --accent-ink:#0d1b29; --bad:#f07c5c; --good:#6cc28f; --warn:#e3b04f;
-    --routine:#9aa3b2; --meal:#e0a93a; --lse:#a77ee0; --study:#6aa2e0; --academy:#3fb9aa; --gym:#e8746a;
-    --business:#5cbf7d; --travel:#9aa0aa; --chores:#c99055; --free:#8d887d; --admin:#8596cc;
+    --bg:#141517; --panel:#1d2023; --panel2:#24272b; --ink:#ecebe6; --muted:#a3a29b; --line:#2c3034;
+    --accent:#8fc7a8; --accent-ink:#10261b; --soft:#23322a; --soft-ink:#b8dcc8;
+    --bad:#f08a6c; --bad-soft:#33231d; --good:#8fc7a8; --warn:#ebbd76; --warn-soft:#2a241b;
+    --routine:#9aa3b2; --meal:#e0b25e; --lse:#b39ae8; --study:#7fa8e0; --academy:#6cc3b5; --gym:#ef7f73;
+    --business:#9fd0a0; --career:#f2a7c9; --travel:#9aa0aa; --chores:#d0a070; --free:#7d7c76; --admin:#96a3d4;
     --shadow:none; color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#121316; --panel:#1b1d21; --panel2:#202227; --ink:#ebebee; --muted:#9b9da4; --line:#2d3036;
-  --accent:#80b2e3; --accent-ink:#0d1b29; --bad:#f07c5c; --good:#6cc28f; --warn:#e3b04f;
-  --routine:#9aa3b2; --meal:#e0a93a; --lse:#a77ee0; --study:#6aa2e0; --academy:#3fb9aa; --gym:#e8746a;
-  --business:#5cbf7d; --travel:#9aa0aa; --chores:#c99055; --free:#8d887d; --admin:#8596cc;
+  --bg:#141517; --panel:#1d2023; --panel2:#24272b; --ink:#ecebe6; --muted:#a3a29b; --line:#2c3034;
+  --accent:#8fc7a8; --accent-ink:#10261b; --soft:#23322a; --soft-ink:#b8dcc8;
+  --bad:#f08a6c; --bad-soft:#33231d; --good:#8fc7a8; --warn:#ebbd76; --warn-soft:#2a241b;
+  --routine:#9aa3b2; --meal:#e0b25e; --lse:#b39ae8; --study:#7fa8e0; --academy:#6cc3b5; --gym:#ef7f73;
+  --business:#9fd0a0; --career:#f2a7c9; --travel:#9aa0aa; --chores:#d0a070; --free:#7d7c76; --admin:#96a3d4;
   --shadow:none; color-scheme:dark;
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
-button{font:inherit;color:inherit}
-h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,-apple-system,"Segoe UI",sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+h1,h2,h3{margin:0;font-weight:750;letter-spacing:-.015em}
 .muted{color:var(--muted)}
-.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
-
-/* header */
-.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
-.top .wrap{display:flex;align-items:center;gap:14px;min-height:58px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
-.logo{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800}
-.brand .name{font-weight:700}
-.brand .sub{font-size:12.5px;color:var(--muted)}
-.clock{font-weight:600;font-size:14px}
-.tabs{display:flex;gap:2px;overflow-x:auto;padding:6px 0;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tabs button{border:0;background:none;padding:7px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:550;white-space:nowrap}
-.tabs button:hover{background:var(--panel2);color:var(--ink)}
-.tabs button[aria-current="page"]{background:var(--panel);color:var(--ink);box-shadow:var(--shadow);outline:1px solid var(--line)}
-.pill{display:inline-block;min-width:18px;padding:0 6px;margin-left:4px;border-radius:9px;background:var(--bad);color:#fff;font-size:11.5px;line-height:18px;text-align:center}
-.pill:empty{display:none}
-
-main{padding:18px 0 60px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
-.card+.card{margin-top:14px}
-.card h2{font-size:15px;margin-bottom:10px}
-.btn{border:1px solid var(--line);background:var(--panel);padding:7px 12px;border-radius:9px;cursor:pointer;font-weight:550}
-.btn:hover{border-color:color-mix(in srgb,var(--ink) 30%,var(--line))}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.btn.small{padding:4px 9px;font-size:13px}
-.btn.danger{color:var(--bad)}
-.row-flex{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-
-/* day bar */
-.daybar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.daybar h1{font-size:22px}
-.daybar h1 span{color:var(--muted);font-weight:500}
-.navbtn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:18px;line-height:1}
-.grid2{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
-@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+.small{font-size:14px}
+a{color:var(--accent)}
 
 /* category colour hook */
 .c-routine{--c:var(--routine)} .c-meal{--c:var(--meal)} .c-lse{--c:var(--lse)} .c-study{--c:var(--study)}
 .c-academy{--c:var(--academy)} .c-gym{--c:var(--gym)} .c-business{--c:var(--business)} .c-travel{--c:var(--travel)}
-.c-chores{--c:var(--chores)} .c-free{--c:var(--free)} .c-admin{--c:var(--admin)}
+.c-chores{--c:var(--chores)} .c-free{--c:var(--free)} .c-admin{--c:var(--admin)} .c-career{--c:var(--career)}
 
-/* now card */
-.now{border-radius:16px;padding:18px 18px 16px;margin-bottom:16px;background:color-mix(in srgb,var(--c,var(--accent)) 12%,var(--panel));border:1px solid color-mix(in srgb,var(--c,var(--accent)) 35%,var(--line))}
-.now .lbl{font-size:12.5px;font-weight:650;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--c,var(--accent)) 75%,var(--ink))}
-.now .big{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:4px 0 6px;line-height:1.2}
-.now p{margin:0 0 10px;color:var(--muted)}
-.prog{height:6px;border-radius:3px;background:color-mix(in srgb,var(--c,var(--accent)) 18%,transparent);overflow:hidden;margin:6px 0 12px}
-.prog i{display:block;height:100%;background:var(--c,var(--accent))}
-.nowfoot{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+/* ---------- shell ---------- */
+#app{min-height:100vh}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px}
+main{padding:14px 0 calc(110px + env(safe-area-inset-bottom))}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 0 4px}
+.topbar h1{font-size:30px;line-height:1.15}
+.topbar .sub{color:var(--muted);font-size:15px;margin-top:2px}
+.pillbtn{border:0;border-radius:999px;background:var(--soft);color:var(--soft-ink);font-weight:700;font-size:14px;padding:8px 13px;white-space:nowrap}
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;background:var(--panel);border-top:1px solid var(--line);padding:6px 4px calc(8px + env(safe-area-inset-bottom))}
+.bottomnav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;min-height:54px;padding:4px;color:var(--muted);font-size:12.5px;font-weight:600;position:relative}
+.bottomnav .ic{display:flex;padding:4px 18px;border-radius:999px}
+.bottomnav button[aria-current="page"]{color:var(--ink);font-weight:750}
+.bottomnav button[aria-current="page"] .ic{background:var(--soft);color:var(--soft-ink)}
+.badge{position:absolute;top:2px;right:10px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center}
+.badge:empty{display:none}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
-/* timeline */
-.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
-.row{display:grid;grid-template-columns:96px minmax(0,1fr) 34px;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;padding:8px 10px 8px 12px;cursor:pointer}
-.row:hover{border-color:color-mix(in srgb,var(--c) 50%,var(--line));border-left-color:var(--c)}
-.row .time{font-size:13px;color:var(--muted);font-weight:550}
-.row .ttl{font-weight:600}
-.row .note{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.row.c-free{background:transparent;border-style:dashed;border-left-style:solid}
-.row.c-free .ttl{font-weight:500;color:var(--muted)}
-.row.c-travel{background:transparent}
-.row.cur{background:color-mix(in srgb,var(--c) 10%,var(--panel));outline:2px solid color-mix(in srgb,var(--c) 60%,transparent)}
-.row.past:not(.cur){opacity:.72}
-.row.done .ttl{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--ink) 35%,transparent)}
-.tag{display:inline-block;font-size:11px;font-weight:650;padding:1px 6px;border-radius:5px;background:var(--panel2);color:var(--muted);vertical-align:1px;margin-left:4px;border:1px solid var(--line)}
-.tag.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
-.chk{width:32px;height:32px;border-radius:50%;border:2px solid color-mix(in srgb,var(--c) 55%,var(--line));background:transparent;cursor:pointer;color:transparent;font-weight:800;font-size:15px;display:grid;place-items:center}
-.chk:hover{color:color-mix(in srgb,var(--c) 60%,transparent)}
+/* layout C: sidebar dashboard */
+body.L-C .wrap{max-width:1360px}
+body.L-C #app{display:grid;grid-template-columns:232px minmax(0,1fr)}
+.sidenav{position:sticky;top:0;height:100vh;padding:20px 14px;border-right:1px solid var(--line);background:var(--panel);display:flex;flex-direction:column;gap:4px}
+.sidenav .brand{display:flex;align-items:center;gap:10px;padding:4px 8px 16px}
+.sidenav .logo{width:34px;height:34px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800}
+.sidenav .clock{font-size:13px;color:var(--muted)}
+.sidenav button.nav{display:flex;align-items:center;gap:12px;border:0;background:none;border-radius:12px;padding:10px 12px;color:var(--muted);font-weight:600;text-align:left;position:relative}
+.sidenav button.nav:hover{background:var(--panel2);color:var(--ink)}
+.sidenav button.nav[aria-current="page"]{background:var(--soft);color:var(--soft-ink)}
+.sidenav button.nav .badge{position:static;margin-left:auto}
+.sidenav .spacer{flex:1}
+body.L-C main{padding:22px 8px 60px}
+@media (max-width:860px){
+  body.L-C #app{display:block}
+  body.L-C .sidenav{position:sticky;top:0;z-index:30;height:auto;flex-direction:row;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid var(--line)}
+  body.L-C .sidenav .brand,body.L-C .sidenav .spacer{display:none}
+  body.L-C .sidenav button.nav{white-space:nowrap;padding:8px 10px}
+}
+.dash{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,.95fr);gap:18px;align-items:start}
+.dash>div{display:flex;flex-direction:column;gap:16px}
+@media (max-width:1180px){.dash{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}.dash>div:nth-child(3){grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}}
+@media (max-width:760px){.dash{grid-template-columns:1fr}.dash>div:nth-child(3){display:flex}}
+
+/* ---------- cards & controls ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:16px 18px;box-shadow:var(--shadow)}
+.card+.card{margin-top:14px}
+.dash .card+.card,.cols .card+.card{margin-top:0}
+.card h2{font-size:17px;margin-bottom:10px;display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.card h2 .r{font-size:14px;font-weight:700;color:var(--muted)}
+.sec{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px}
+.btn{border:1px solid var(--line);background:var(--panel);min-height:44px;padding:8px 14px;border-radius:14px;font-weight:650;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:color-mix(in srgb,var(--ink) 25%,var(--line))}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.soft{background:var(--soft);border-color:transparent;color:var(--soft-ink)}
+.btn.small{min-height:36px;padding:5px 11px;font-size:14px;border-radius:12px}
+.btn.danger{color:var(--bad)}
+.btn.wide{width:100%}
+.row-flex{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grow{flex:1;min-width:0}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:1px 7px;border-radius:7px;background:var(--panel2);color:var(--muted);vertical-align:1px;margin-left:5px;border:1px solid var(--line)}
+.tag.bad{color:var(--bad);background:var(--bad-soft);border-color:transparent}
+.tag.warn{color:var(--warn);background:var(--warn-soft);border-color:transparent}
+.tag.good{color:var(--good);border-color:transparent;background:color-mix(in srgb,var(--good) 14%,transparent)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);flex-wrap:wrap}
+.seg button{border:0;background:none;min-height:40px;padding:6px 14px;color:var(--muted);font-weight:650}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+input[type=text],input[type=number],input[type=date],input[type=time],select,textarea{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:9px 11px;min-height:44px;min-width:0;width:100%}
+textarea{min-height:110px;font-family:ui-monospace,Consolas,monospace;font-size:12.5px}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:650;color:var(--muted)}
+.fgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fgrid .full{grid-column:1/-1}
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+@media (max-width:900px){.cols{grid-template-columns:1fr}}
+body:not(.L-C) .cols{grid-template-columns:1fr}
+
+/* week strip & tiles */
+.strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:12px}
+.strip button{min-height:56px;border:0;border-radius:16px;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;box-shadow:var(--shadow)}
+.strip button span{font-size:12px;font-weight:600;color:var(--muted)}
+.strip button b{font-size:17px}
+.strip button[aria-current="date"]{background:var(--accent);color:var(--accent-ink)}
+.strip button[aria-current="date"] span{color:inherit}
+.strip button.today:not([aria-current="date"]) b{color:var(--accent)}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.tile{border:0;text-align:left;padding:10px 12px;border-radius:16px;background:var(--panel);display:flex;flex-direction:column;gap:1px;box-shadow:var(--shadow);min-width:0}
+.tile span{font-size:12.5px;font-weight:650;color:var(--muted)}
+.tile b{font-size:15.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile.warn{background:var(--warn-soft)} .tile.warn span,.tile.warn b{color:var(--warn)}
+
+/* agenda list */
+.agenda{list-style:none;margin:12px 0 0;padding:6px;background:var(--panel);border-radius:24px;box-shadow:var(--shadow);border:1px solid var(--line)}
+.it{display:flex;align-items:center;gap:12px;padding:11px 10px;border-radius:16px;cursor:pointer}
+.it:hover{background:var(--panel2)}
+.it .tm{width:46px;flex:none;font-size:14px;color:var(--muted);font-weight:600}
+.it .dot{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
+.it .tx{flex:1;min-width:0}
+.it .tt{font-size:16px;font-weight:650;line-height:1.3}
+.it .sb{font-size:13.5px;color:var(--muted);margin-top:1px}
+.it .sb.bad{color:var(--bad);font-weight:700}
+.it .sb.hint{color:var(--soft-ink)}
+.it.cur{background:var(--soft)}
+.it.cur .tm,.it.cur .sb{color:var(--soft-ink)}
+.it.done .tt{color:var(--muted);text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--ink) 30%,transparent)}
+.it.missed .dot{background:var(--bad)}
+.it.travel .tt{font-weight:550}
+.chk{width:34px;height:34px;border-radius:50%;border:2px solid color-mix(in srgb,var(--c) 45%,var(--line));background:transparent;display:grid;place-items:center;flex:none;color:transparent;padding:0}
+.chk svg{width:18px;height:18px;stroke:currentColor;stroke-width:2.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .chk.on{background:var(--c);border-color:var(--c);color:#fff}
-.chk.none{border:0;cursor:default}
+.chk:hover:not(.on){color:color-mix(in srgb,var(--c) 70%,transparent)}
+.freeln{padding:6px 10px 8px 68px;font-size:13.5px;color:var(--muted)}
+.fold{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:10px;color:var(--muted);font-size:14px;font-weight:650;text-align:left;border-radius:14px}
+.fold:hover{background:var(--panel2)}
+.ticks{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.tk{border:1px solid var(--line);background:var(--panel2);border-radius:10px;min-height:34px;padding:3px 10px;font-size:13px;font-weight:700;color:var(--muted);display:inline-flex;align-items:center;gap:4px}
+.tk.on{background:var(--good);border-color:var(--good);color:#fff}
+:root[data-theme="dark"] .tk.on{color:#10261b}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tk.on{color:#10261b}}
+.fab{position:fixed;right:18px;bottom:calc(96px + env(safe-area-inset-bottom));z-index:25;width:58px;height:58px;border-radius:18px;border:0;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:0 6px 18px rgba(30,50,120,.28)}
+body.L-C .fab{bottom:24px;right:24px}
 
-/* side stats */
-.stat{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}
-.stat:first-of-type{border-top:0}
-.stat b{font-size:20px;min-width:28px}
-.stat.bad b{color:var(--bad)} .stat.good b{color:var(--good)} .stat.warn b{color:var(--warn)}
-.stat .grow{flex:1}
-.bars{display:flex;flex-direction:column;gap:9px}
-.bar{display:grid;grid-template-columns:112px 1fr 96px;gap:8px;align-items:center;font-size:13.5px}
-.bar .track{height:8px;border-radius:4px;background:var(--panel2);border:1px solid var(--line);overflow:hidden}
-.bar .track i{display:block;height:100%;background:var(--c,var(--accent))}
-.bar .v{text-align:right;color:var(--muted)}
-.due{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;padding:7px 0;border-top:1px solid var(--line);font-size:13.5px}
-.due:first-of-type{border-top:0}
-.due .when{grid-column:2;color:var(--muted);font-size:12.5px}
-.due.over .when{color:var(--bad);font-weight:600}
-.code{font-size:11px;font-weight:700;padding:2px 6px;border-radius:5px;background:var(--panel2);border:1px solid var(--line);height:fit-content;letter-spacing:.02em}
+/* focus layout A */
+.focus{margin-top:18px;padding:22px;background:var(--panel);border-radius:28px;display:flex;flex-direction:column;gap:14px;border:1px solid var(--line);box-shadow:var(--shadow)}
+.focus .lbl{font-size:12.5px;font-weight:800;letter-spacing:.12em;color:var(--c,var(--accent));text-transform:uppercase}
+.focus .big{font-size:34px;line-height:1.12;font-weight:750;letter-spacing:-.02em}
+.focus p{margin:0;color:var(--muted);font-size:16px}
+.prog{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.prog i{display:block;height:100%;border-radius:3px;background:var(--c,var(--accent))}
+.focus .acts{display:flex;gap:10px}
+.focus .acts .btn{min-height:52px;border-radius:16px;font-size:16px}
+.focus .acts .btn.primary{flex:1;background:var(--c,var(--accent));border-color:var(--c,var(--accent));color:var(--panel)}
+.nextlist{margin-top:22px}
+.nextlist .it{padding:12px 4px;border-radius:0;border-top:1px solid var(--line)}
+.nextlist .it:first-of-type{border-top:0}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:8px 12px;font-size:14px;font-weight:650}
+.chip.warn{background:var(--warn-soft);border-color:transparent;color:var(--warn)}
+
+/* stats bars */
+.bars{display:grid;grid-template-columns:minmax(80px,auto) minmax(0,1fr) auto;gap:10px 12px;align-items:center;font-size:14.5px}
+.bars .lb{font-weight:650}
+.bars .track{height:8px;border-radius:4px;background:var(--panel2);border:1px solid var(--line);overflow:hidden;display:block}
+.bars .track i{display:block;height:100%;background:var(--c,var(--accent))}
+.bars .v{text-align:right;color:var(--muted);white-space:nowrap}
+
+/* lists in Behind / Deadlines */
+.li{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
+.card h2+.li,.li.first{border-top:0}
+.li .tx{flex:1;min-width:0}
+.li .t{font-weight:650}
+.li .s{font-size:13.5px;color:var(--muted)}
+.li .s.bad{color:var(--bad);font-weight:700}
+.li .s.hint{color:var(--soft-ink)}
+.code{font-size:11.5px;font-weight:800;color:var(--muted);letter-spacing:.03em;width:54px;flex:none}
+.empty{color:var(--muted);margin:4px 0}
+details>summary{cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
 
 /* week grid */
-.wkhead{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
-.wkhead h1{font-size:22px}
-.wk{display:grid;grid-template-columns:48px repeat(7,minmax(0,1fr));background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.wk .dh{padding:8px 6px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);font-size:13px;font-weight:650;text-align:center}
+.wk{display:grid;grid-template-columns:48px repeat(7,minmax(0,1fr));background:var(--panel);border:1px solid var(--line);border-radius:20px;overflow:hidden;margin-top:14px}
+.wk .dh{padding:8px 4px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);font-size:13.5px;font-weight:750;text-align:center}
 .wk .dh small{display:block;color:var(--muted);font-weight:500}
 .wk .dh.today{color:var(--accent)}
-.wk .gut{position:relative;border-right:1px solid var(--line)}
-.wk .gut span{position:absolute;right:6px;font-size:11px;color:var(--muted);transform:translateY(-6px)}
-.wk .col{position:relative;border-left:1px solid var(--line);background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 46px}
-.wk .col.today{background-color:color-mix(in srgb,var(--accent) 4%,transparent)}
-.blk{position:absolute;left:3px;right:3px;border-radius:6px;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 16%,var(--panel));font-size:11.5px;line-height:1.25;padding:2px 5px;overflow:hidden;cursor:pointer}
+.wk .gut{position:relative}
+.wk .gut span{position:absolute;right:6px;font-size:11px;color:var(--muted);transform:translateY(-7px)}
+.wk .col{position:relative;border-left:1px solid var(--line);background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 48px}
+.wk .col.today{background-color:color-mix(in srgb,var(--accent) 5%,transparent)}
+.blk{position:absolute;left:3px;right:3px;border-radius:8px;background:color-mix(in srgb,var(--c) 17%,var(--panel));border-left:3px solid var(--c);font-size:11.5px;line-height:1.25;padding:2px 5px;overflow:hidden;cursor:pointer}
 .blk.c-free{background:transparent;border-left-style:dotted;color:var(--muted)}
-.blk.c-travel{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--c) 14%,transparent) 5px 10px)}
 .blk b{font-weight:650;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.blk.tiny{padding:0 5px;font-size:9.5px;line-height:1.1}
-.blk.tiny b{font-weight:600}
 .blk .t{color:var(--muted);font-size:10.5px}
-.blk.done::after{content:"✓";position:absolute;right:4px;top:2px;font-weight:800;color:var(--c)}
-.blk.missed{outline:1px dashed color-mix(in srgb,var(--bad) 60%,transparent)}
+.blk.done{opacity:.55}
+.blk.missed{outline:1.5px dashed color-mix(in srgb,var(--bad) 70%,transparent)}
 .nowline{position:absolute;left:0;right:0;height:2px;background:var(--bad);z-index:3}
-.nowline::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--bad)}
 .wklist{display:none}
-@media (max-width:820px){.wk{display:none}.wklist{display:block}.wklist h3{margin:16px 0 8px;font-size:15px}}
-.legend{display:flex;flex-wrap:wrap;gap:10px 14px;margin-top:12px;font-size:12.5px;color:var(--muted)}
-.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--c);margin-right:5px;vertical-align:-1px}
+body:not(.L-C) .wk{display:none} body:not(.L-C) .wklist{display:block}
+@media (max-width:900px){body.L-C .wk{display:none}body.L-C .wklist{display:block}}
+.wklist h3{margin:18px 0 0;font-size:16px}
 
-/* catch-up / deadlines lists */
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
-.seg button{border:0;background:none;padding:6px 12px;cursor:pointer;color:var(--muted);font-weight:550}
-.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
-.wkgroup{margin-top:18px}
-.wkgroup h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
-.lrow{display:grid;grid-template-columns:150px 70px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:6px}
-.lrow .d{font-size:13px;color:var(--muted)}
-.lrow.behind{border-left:4px solid var(--bad)}
-.lrow.future{opacity:.55}
-.tg{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--muted)}
-.tg.on{background:var(--good);border-color:var(--good);color:#fff}
-@media (max-width:640px){.lrow{grid-template-columns:1fr auto}.lrow .d,.lrow .code{grid-column:1}}
-.drow{display:grid;grid-template-columns:34px 64px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:6px}
-.drow .t{font-weight:600}
-.drow .n{font-size:12.5px;color:var(--muted)}
-.drow .w{font-size:13px;color:var(--muted);text-align:right;white-space:nowrap}
-.drow.over{border-left:4px solid var(--bad)} .drow.over .w{color:var(--bad);font-weight:650}
-.drow.soon .w{color:var(--warn);font-weight:650}
-.drow.isdone{opacity:.55}.drow.isdone .t{text-decoration:line-through}
-.drow .chk{--c:var(--good)}
-@media (max-width:640px){.drow{grid-template-columns:34px minmax(0,1fr)}.drow .code{display:none}.drow .w{grid-column:2;text-align:left}}
-.form{display:grid;grid-template-columns:130px minmax(0,1fr) 150px 110px auto;gap:8px}
-.form input,.form select,textarea{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 9px;min-width:0}
-@media (max-width:760px){.form{grid-template-columns:1fr 1fr}.form .wide{grid-column:1/-1}}
-h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:22px 0 8px}
+/* gym */
+.ex{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.ex+.ex{margin-top:12px}
+.ex .hd{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ex .nm{font-size:18px;font-weight:750}
+.ex .rx{font-size:13.5px;color:var(--muted);text-align:right}
+.ex .last{font-size:14px;color:var(--muted)}
+.ex .up{font-size:14px;color:var(--good);font-weight:650}
+.setrow{display:grid;grid-template-columns:52px minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center}
+.setrow span{font-size:13.5px;color:var(--muted)}
+.setrow input{text-align:center;font-size:16px}
+.gymhead{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 
 /* food */
-.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
-.cols>.card+.card{margin-top:0}
-@media (max-width:820px){.cols{grid-template-columns:1fr}}
-table{border-collapse:collapse;width:100%;font-size:14px}
-th,td{text-align:left;padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-top:0}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:8px;border-top:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-top:0}
+td input{min-height:38px;padding:6px 8px;font-size:14px}
 .tablewrap{overflow-x:auto}
 .shop{list-style:none;margin:0;padding:0}
-.shop li{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid var(--line)}
+.shop li{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--line)}
 .shop li:first-child{border-top:0}
-.shop input{width:18px;height:18px;accent-color:var(--good)}
+.shop input[type=checkbox]{width:22px;height:22px;accent-color:var(--good);flex:none}
 .shop li.got span{text-decoration:line-through;color:var(--muted)}
-.shop .x{margin-left:auto;border:0;background:none;color:var(--muted);cursor:pointer}
-.prose p{margin:0 0 10px}.prose ul{margin:0 0 10px;padding-left:20px}.prose li{margin:3px 0}
+.shop .x{margin-left:auto;border:0;background:none;color:var(--muted);min-width:36px;min-height:36px;font-size:16px}
+.prose p{margin:0 0 10px}.prose ul{margin:0 0 10px;padding-left:20px}.prose li{margin:4px 0}
+.spark{width:100%;height:90px;display:block}
+
+/* setup */
+.sw{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:11px 0;border-top:1px solid var(--line)}
+.card h2+.sw{border-top:0}
+.sw small{display:block;color:var(--muted);font-size:13.5px}
+.tog{position:relative;width:50px;height:30px;border-radius:15px;border:0;background:var(--line);flex:none}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.tog[aria-checked="true"]{background:var(--good)}
+.tog[aria-checked="true"]::after{left:23px}
+.cat{border:1px solid var(--line);background:var(--panel2);border-radius:16px;padding:6px 12px;font-size:14px;font-weight:600;color:var(--muted)}
+.cat[aria-pressed="true"]{background:color-mix(in srgb,var(--c) 18%,var(--panel));border-color:var(--c);color:var(--ink)}
+.lay{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.lay button{border:2px solid var(--line);background:var(--panel2);border-radius:18px;padding:12px;text-align:left;display:flex;flex-direction:column;gap:3px;min-height:92px}
+.lay button b{font-size:16px}
+.lay button span{font-size:13px;color:var(--muted)}
+.lay button[aria-pressed="true"]{border-color:var(--accent);background:var(--soft)}
+@media (max-width:520px){.lay{grid-template-columns:1fr}}
+.swatches{display:flex;gap:10px;flex-wrap:wrap}
+.swatches button{width:40px;height:40px;border-radius:50%;border:3px solid transparent}
+.swatches button[aria-pressed="true"]{border-color:var(--ink)}
 
 /* overlays */
-.banner{position:fixed;left:50%;transform:translateX(-50%);top:70px;z-index:50;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:min(560px,calc(100% - 32px));cursor:pointer}
+.banner{position:fixed;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top));z-index:50;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:min(560px,calc(100% - 32px));cursor:pointer}
 .banner b{display:block;font-size:16px}
-.night{position:fixed;inset:0;z-index:100;background:rgba(8,9,12,.94);color:#f1f1f3;display:grid;place-items:center;padding:24px}
+.night{position:fixed;inset:0;z-index:100;background:rgba(8,9,12,.95);color:#f1f1f3;display:grid;place-items:center;padding:24px}
 .night .box{max-width:460px;text-align:center}
 .night .clockbig{font-size:64px;font-weight:300;letter-spacing:-.03em}
 .night h2{font-size:26px;margin:6px 0 10px}
 .night p{color:#b9bac2;margin:0 0 22px}
 .night .btn{background:transparent;color:#f1f1f3;border-color:#4a4c55}
 .night .btn.primary{background:#f1f1f3;color:#111;border-color:#f1f1f3}
-dialog{border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);padding:0;max-width:min(480px,calc(100% - 32px));width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-dialog::backdrop{background:rgba(0,0,0,.35)}
-.dlg{padding:18px;border-top:5px solid var(--c,var(--accent))}
-.dlg h3{font-size:19px;margin:2px 0 4px}
+dialog{border:1px solid var(--line);border-radius:24px;background:var(--panel);color:var(--ink);padding:0;max-width:min(520px,calc(100% - 24px));width:100%;max-height:calc(100vh - 40px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+.dlg{padding:20px;border-top:6px solid var(--c,var(--accent))}
+.dlg h3{font-size:22px;margin:2px 0 4px;line-height:1.2}
 .dlg p{margin:10px 0}
-.dlg .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
-.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;z-index:60;font-size:14px}
-.welcome{background:color-mix(in srgb,var(--accent) 9%,var(--panel));border-color:color-mix(in srgb,var(--accent) 30%,var(--line));margin-bottom:16px}
-.welcome ul{margin:6px 0 12px;padding-left:20px}
-textarea{width:100%;min-height:90px;font-family:ui-monospace,Consolas,monospace;font-size:12px}
-.sw{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;border-top:1px solid var(--line)}
-.card h2+.sw{border-top:0}
-.sw small{display:block;color:var(--muted);font-size:12.5px}
-.tog{position:relative;width:46px;height:28px;border-radius:14px;border:0;background:var(--line);cursor:pointer;flex:none}
-.tog::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
-.tog[aria-checked="true"]{background:var(--good)}
-.tog[aria-checked="true"]::after{left:21px}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.chip{border:1px solid var(--line);background:var(--panel2);border-radius:16px;padding:5px 11px;cursor:pointer;font-size:13px;font-weight:550;color:var(--muted)}
-.chip[aria-pressed="true"]{background:color-mix(in srgb,var(--c) 18%,var(--panel));border-color:var(--c);color:var(--ink)}
-.update{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:70;background:var(--panel);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.2);border-radius:12px;padding:10px 12px 10px 16px;display:flex;gap:12px;align-items:center;white-space:nowrap}
-main{padding-bottom:calc(60px + env(safe-area-inset-bottom))}
+.dlg .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
+.dlg hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+.toast{position:fixed;bottom:calc(100px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 8px 8px 16px;border-radius:14px;z-index:60;font-size:15px;display:flex;align-items:center;gap:12px;max-width:calc(100% - 32px)}
+body.L-C .toast{bottom:24px}
+.toast button{border:0;background:transparent;color:var(--bg);font-weight:800;text-decoration:underline;min-height:36px;padding:0 8px}
+.toast:not(.has-undo){padding:10px 16px}
+.update{position:fixed;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top));z-index:70;background:var(--panel);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.2);border-radius:16px;padding:8px 8px 8px 16px;display:flex;gap:12px;align-items:center;white-space:nowrap}
+.restbar{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom));z-index:55;background:var(--gym);color:#fff;border-radius:18px;padding:8px 8px 8px 18px;display:flex;gap:14px;align-items:center;font-weight:750;font-size:18px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.restbar button{border:0;background:rgba(255,255,255,.2);color:#fff;border-radius:12px;min-height:40px;padding:0 12px;font-weight:700;font-size:14px}
 </style>
 </head>
 <body>
-<header class="top">
-  <div class="wrap">
-    <div class="brand"><div class="logo">✓</div><div><div class="name">Life Planner</div><div class="sub" id="periodLbl"></div></div></div>
-    <button class="btn small primary" id="installBtn" hidden>Install app</button>
-    <div class="clock" id="clock"></div>
-  </div>
-  <div class="wrap">
-    <nav class="tabs" id="tabs" aria-label="Sections">
-      <button data-tab="today">Today</button>
-      <button data-tab="week">Week</button>
-      <button data-tab="catch">Catch-up<span class="pill" id="pillCatch"></span></button>
-      <button data-tab="deadlines">Deadlines<span class="pill" id="pillDl"></span></button>
-      <button data-tab="food">Food</button>
-      <button data-tab="setup">Setup</button>
-    </nav>
-  </div>
-</header>
-<main class="wrap" id="view"></main>
+<div id="app">
+  <nav class="sidenav" id="side" hidden aria-label="Sections"></nav>
+  <main class="wrap" id="view"></main>
+</div>
+<nav class="bottomnav" id="bottom" hidden aria-label="Sections"></nav>
+<button class="fab" id="fab" hidden aria-label="Add something"><svg class="i" viewBox="0 0 24 24" style="stroke-width:2.4"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="banner" id="banner" hidden></div>
+<div class="restbar" id="restBar" hidden><span id="restTxt"></span><button id="restAdd">+30 s</button><button id="restStop">Stop</button></div>
 <div class="night" id="night" hidden>
   <div class="box">
     <div class="clockbig" id="nightClock"></div>
@@ -264,8 +326,9 @@ main{padding-bottom:calc(60px + env(safe-area-inset-bottom))}
   </div>
 </div>
 <dialog id="dlg"></dialog>
-<div class="toast" id="toast" hidden></div>
+<div class="toast" id="toast" hidden><span id="toastTxt"></span><button id="toastUndo" hidden>Undo</button></div>
 <div class="update" id="updateBar" hidden><span>A new version is ready.</span><button class="btn small primary" id="updateGo">Update</button></div>
+<button id="installBtn" hidden></button>
 
 <script>
 (function(){
@@ -297,39 +360,106 @@ const hrs = x => (Math.round(x * 4) / 4) + 'h';
 const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
-const KEY = 'hlp1_state';
-const APP_VERSION = '2.0';
+const KEY = 'hlp1_state', DKEY = 'hlp1_device';
+const APP_VERSION = '3.0';
 const APP_URL = 'hemsaivp.github.io/life-planner';
+const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
-  cats:{lse:true, study:true, academy:true, gym:true, business:true, meal:true, chores:true, admin:true}});
-const blank = () => ({v:2, done:{}, notes:{}, custom:[], shop:{}, shopExtra:{sat:[], wed:[]}, nights:{}, snoozeUntil:0, alerts:defAlerts(), welcomed:false, lastBackup:null, lastVersion:null});
+  cats:{lse:true, study:true, academy:true, gym:true, business:true, career:true, meal:true, chores:true, admin:true}});
+const defPrefs = () => ({budget:35, careerMin:60, careerBreakMin:120, gymMin:4, gymMax:5, homeMin:2, homeMax:3,
+  proteinLo:120, proteinHi:130, startKg:58, goalKg:65});
+const SHOP_DEF = {
+  sat:['Chicken thighs, about 1.5 kg (curry, stir-fry, wraps)','Eggs ×15','Milk, 4 pints','Greek-style yoghurt 1 kg','Oats 1 kg',
+       'Rice 1 kg','Pasta 1 kg','Wraps ×8','Bread, 1 loaf','Potatoes 2.5 kg','Onions, garlic','Tinned tomatoes ×3',
+       'Red lentils 500 g (or 2 tins)','Chickpeas ×2','Tuna ×3 tins','Frozen mixed veg and spinach','Peanut butter','Bananas, apples'],
+  wed:['Milk','Bananas','Peppers ×3','Cheese (block), if low','Bread or wraps, if low','Anything you ran out of']
+};
+const PLAN_DEF = [
+  ['Mon','Oats: milk, banana, peanut butter','Chicken curry + rice (Sunday batch)','Tuna pasta with frozen veg'],
+  ['Tue','3 eggs on toast + fruit','Chicken curry + rice','Chicken stir-fry, rice, frozen veg'],
+  ['Wed','Oats + yoghurt','Chicken curry + rice','Lentil bolognese pasta bake (Wednesday batch)'],
+  ['Thu','Overnight oats (made Wed night)','Pasta bake','Chicken wraps, peppers, yoghurt'],
+  ['Fri','Eggs on toast','Pasta bake','Chicken wraps + salad (Friday fakeaway)'],
+  ['Sat','Oats or eggs','Jacket potato, tuna, cheese','Egg fried rice with veg'],
+  ['Sun','Eggs and beans on toast','Leftovers or eggs','Chicken curry (Sunday batch, first portion)']
+];
+const blank = () => ({v:3, done:{}, att:{}, wat:{}, notes:{}, custom:[], edits:[], shop:{},
+  shopList:{sat:SHOP_DEF.sat.slice(), wed:SHOP_DEF.wed.slice()}, meals:PLAN_DEF.map(r => r.slice()),
+  nights:{}, snoozeUntil:0, alerts:defAlerts(), prefs:defPrefs(), gym:{sessions:[], next:1, home:[], draft:null},
+  weights:{}, welcomed:false, lastBackup:null, lastVersion:null});
+
 function normalise(obj){
   const st = Object.assign(blank(), obj);
   const a = obj.alerts || {};
   st.alerts = Object.assign(defAlerts(), a);
   st.alerts.cats = Object.assign(defAlerts().cats, a.cats || {});
-  st.shopExtra = Object.assign({sat:[], wed:[]}, obj.shopExtra || {});
+  st.prefs = Object.assign(defPrefs(), obj.prefs || {});
+  st.gym = Object.assign({sessions:[], next:1, home:[], draft:null}, obj.gym || {});
+  for (const k of ['done','att','wat','notes','shop','nights','weights']) if (!st[k] || typeof st[k] !== 'object') st[k] = {};
+  for (const k of ['custom','edits']) if (!Array.isArray(st[k])) st[k] = [];
+  if (!st.shopList || !Array.isArray(st.shopList.sat)) st.shopList = {sat:SHOP_DEF.sat.slice(), wed:SHOP_DEF.wed.slice()};
+  if (!Array.isArray(st.meals) || st.meals.length !== 7) st.meals = PLAN_DEF.map(r => r.slice());
+  if (!obj.v || obj.v < 3){
+    // Version 2 had one tick per session ("attended or watched"). Keep it as attended (in person) or watched (at home).
+    const base = buildSessions([]);
+    for (const x of base.all){
+      if (!obj.done || !obj.done[x.id]) continue;
+      const campus = (base.byDate[x.date] || []).some(y => y.kind === 'class' || y.kind === 'workshop');
+      const inPerson = x.kind === 'class' || x.kind === 'workshop' || x.kind === 'qa' || (x.kind === 'lecture' && campus);
+      if (inPerson) st.att[x.id] = true; else st.wat[x.id] = true;
+    }
+    const ex = obj.shopExtra || {};
+    st.shopList = {sat:[...SHOP_DEF.sat, ...(ex.sat || [])], wed:[...SHOP_DEF.wed, ...(ex.wed || [])]};
+    st.shop = {};
+    delete st.shopExtra;
+    st.v = 3;
+  }
   delete st.sound;
   return st;
 }
 let S;
 const sid = (d, c, k, s) => 's|' + d + '|' + c + '|' + k + '|' + s;
 function seed(){
-  // Copied from Timetable_Tracker.xlsx (weeks 1–2): watched/attended + notes made.
-  const W = [['2026-09-28','EC2C1','lecture','11:00'],['2026-09-29','EC2B1','lecture','09:00'],['2026-09-29','EC2C1','lecture','15:00'],
-             ['2026-10-01','EC2A1','lecture','12:00'],['2026-10-02','FM214','lecture','11:00'],['2026-10-05','EC2B1','class','14:00'],
-             ['2026-10-08','EC2A1','lecture','12:00']];
-  for (const [d,c,k,s] of W){ const id = sid(d,c,k,s); S.done[id] = true; S.notes[id] = true; }
+  // Copied from Timetable_Tracker.xlsx (weeks 1–2).
+  const W = [['2026-09-28','EC2C1','lecture','11:00','w'],['2026-09-29','EC2B1','lecture','09:00','w'],['2026-09-29','EC2C1','lecture','15:00','w'],
+             ['2026-10-01','EC2A1','lecture','12:00','w'],['2026-10-02','FM214','lecture','11:00','w'],['2026-10-05','EC2B1','class','14:00','a'],
+             ['2026-10-08','EC2A1','lecture','12:00','a']];
+  for (const [d,c,k,s,how] of W){ const id = sid(d,c,k,s); (how === 'a' ? S.att : S.wat)[id] = true; S.notes[id] = true; }
 }
 function load(){
   let obj = null;
   try { const r = localStorage.getItem(KEY); if (r) obj = JSON.parse(r); } catch(e) {}
-  if (obj && typeof obj === 'object' && obj.done) { S = normalise(obj); }
+  if (obj && typeof obj === 'object' && obj.done) { S = normalise(obj); save(); }
   else { S = blank(); seed(); save(); }
 }
 function save(){
   try { localStorage.setItem(KEY, JSON.stringify(S)); return true; }
   catch(e) { toast('This browser blocked saving. Export a backup from Setup.'); return false; }
+}
+
+/* ---------- this device's look (not part of backups) ---------- */
+const ACCENTS = {light:['#3557c7','#0f7a70','#6a4bc4','#b4542a'], dark:['#8fc7a8','#9db8e8','#e6b37a','#c9a7f0']};
+let DEV = {};
+const looksLikePhone = () => matchMedia('(max-width: 760px)').matches || (matchMedia('(pointer: coarse)').matches && Math.min(screen.width, screen.height) < 600);
+function loadDev(){
+  let d = null;
+  try { d = JSON.parse(localStorage.getItem(DKEY) || 'null'); } catch(e) {}
+  const phone = looksLikePhone();
+  DEV = Object.assign({phone, layout: phone ? 'B' : 'C', theme: phone ? 'light' : 'dark', accent:null}, d && typeof d === 'object' ? d : {});
+}
+function saveDev(){ try { localStorage.setItem(DKEY, JSON.stringify(DEV)); } catch(e) {} }
+const isDark = () => DEV.theme === 'dark' || (DEV.theme === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+function applyDev(){
+  const r = document.documentElement;
+  if (DEV.theme === 'auto') r.removeAttribute('data-theme'); else r.dataset.theme = DEV.theme;
+  const pal = isDark() ? ACCENTS.dark : ACCENTS.light;
+  const acc = DEV.accent != null && pal[DEV.accent] ? pal[DEV.accent] : null;
+  if (acc){ r.style.setProperty('--accent', acc); r.style.setProperty('--c-accent', acc); }
+  else { r.style.removeProperty('--accent'); }
+  document.body.classList.remove('L-A', 'L-B', 'L-C');
+  document.body.classList.add('L-' + DEV.layout);
+  const tc = getComputedStyle(document.body).getPropertyValue('--bg').trim();
+  const m = document.querySelector('meta[name="theme-color"]'); if (m && tc) m.setAttribute('content', tc);
 }
 
 /* ================= LSE timetable (from your Google Calendar) ================= */
@@ -369,19 +499,48 @@ const RULES = [
   ['EC2A1','class',  5,'16:00','17:00',null,null,null,['2027-04-30']]
 ];
 const KINDNAME = {lecture:'lecture', class:'class', help:'help lecture', qa:'Q&A (Zoom)', workshop:'workshop'};
-const SESS = {}; const ALLSESS = [];
-for (const r of RULES){
-  const [code, kind, wd, s, e, from, to, except, only, label] = r;
-  const dates = [];
-  if (only) dates.push(...only); else for (let d = from; d <= to; d = addD(d, 7)) dates.push(d);
-  for (const d of dates){
-    if (except && except.includes(d)) continue;
-    const x = {id:sid(d, code, kind, s), date:d, code, kind, wd, s:hm(s), e:hm(e), label: label || (code + ' ' + KINDNAME[kind])};
-    (SESS[d] = SESS[d] || []).push(x); ALLSESS.push(x);
+const COURSES = ['EC2A1','EC2B1','EC2C1','FM214','FM215','EC260P','OTHER'];
+let SESS = {}, ALLSESS = [];
+// Timetable = RULES (from your calendar) + your own changes (S.edits). Rebuilt after every change.
+function buildSessions(edits){
+  const E = edits || [];
+  const byDate = {}, all = [];
+  const cancelled = new Set(E.filter(e => e.kind === 'sessCancel').map(e => e.sid));
+  const stops = E.filter(e => e.kind === 'sessStop');
+  const moves = {}; for (const e of E) if (e.kind === 'sessMove') moves[e.sid] = e;
+  const put = x => {
+    if (cancelled.has(x.id)) return;
+    if (stops.some(c => c.code === x.code && c.sk === x.kind && c.wd === x.wd && c.s === x.s && x.date >= c.from && (!c.src || c.src === x.src))) return;
+    const mv = moves[x.id];
+    if (mv){ x.orig = x.date; x.date = mv.date; x.s = mv.s; x.e = mv.e; x.moved = true; }
+    (byDate[x.date] = byDate[x.date] || []).push(x); all.push(x);
+  };
+  for (const r of RULES){
+    const [code, kind, wd, s, e, from, to, except, only, label] = r;
+    const dates = [];
+    if (only) dates.push(...only); else for (let d = from; d <= to; d = addD(d, 7)) dates.push(d);
+    const last = dates[dates.length - 1];
+    for (const d of dates){
+      if (except && except.includes(d)) continue;
+      put({id:sid(d, code, kind, s), date:d, code, kind, wd, s:hm(s), e:hm(e), label: label || (code + ' ' + KINDNAME[kind]), ruleTo:last, src:'cal'});
+    }
   }
+  for (const e of E){
+    if (e.kind !== 'sessAdd') continue;
+    const label = e.label || ((e.code === 'OTHER' ? '' : e.code + ' ') + KINDNAME[e.sk]);
+    if (e.date) put({id:'u|' + e.id + '|' + e.date, date:e.date, code:e.code, kind:e.sk, wd:dow(e.date), s:e.s, e:e.e, label, ruleTo:e.date, src:e.id});
+    else {
+      let d = e.from; while (dow(d) !== e.wd) d = addD(d, 1);
+      for (; d <= e.to; d = addD(d, 7)) put({id:'u|' + e.id + '|' + d, date:d, code:e.code, kind:e.sk, wd:e.wd, s:e.s, e:e.e, label, ruleTo:e.to, src:e.id});
+    }
+  }
+  all.sort((a,b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.s - b.s);
+  return {byDate, all};
 }
-ALLSESS.sort((a,b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.s - b.s);
+function rebuildSessions(){ const r = buildSessions(S.edits); SESS = r.byDate; ALLSESS = r.all; }
 const sessionsOn = d => (SESS[d] || []).slice().sort((a,b) => a.s - b.s);
+const findSess = id => ALLSESS.find(x => x.id === id);
+const covered = id => !!(S.att[id] || S.wat[id]);
 
 /* ================= periods ================= */
 const PERIODS = [
@@ -417,16 +576,16 @@ const N = {
   batchSun:'Cook the curry (Food tab): 4 portions for tonight and Mon, Tue and Wed lunches. Box them up.',
   batchWed:'Cook the pasta bake (Food tab): 3 portions for tonight and Thu and Fri lunches.',
   shopWed:'Midweek top-up list is in the Food tab. 45 minutes max.',
-  shopSat:'Main shop list is in the Food tab. Budget: £50 a week in total.',
+  shopSat:'Main shop list is in the Food tab. Budget: £35 a week in total.',
   business:'Open a new chat in the Business project. Hard stop at the end of this block. Coursework deadlines come first.',
   sunadmin:'Business Sunday check: open a new chat and type "Sunday check. Done this week: … Hours: … Learned: …"',
   decision:'Decision Day. Sort every reply into real pain / covered / no reply, then follow the table in playbook.md.',
   review:'Tick what you did. Add next week\'s deadlines from Moodle (Deadlines tab). Look at Catch-up. Export a backup (Setup).',
   academy:'One academy at a time. Which one depends on your IB vs quant decision.',
-  catchup:'Open the Catch-up tab and watch the oldest lecture you are behind on.',
+  catchup:'Open Behind and watch the oldest lecture you are behind on.',
   dayoff:'Day off. No study and no business. See people, rest, get outside.',
   library:'In the library between sessions.',
-  watch:'If there is no live stream, watch the recording in your next study block. Tick it here or in Catch-up.',
+  watch:'If there is no live stream, watch the recording later. Tick Watched back when you do: if you don\'t, it goes to Behind with a study block suggested.',
   inperson:'In person, because you have a class on campus today.',
   travel:'40 minutes by bike.',
   qa:'Optional Zoom Q&A. Post questions on the Moodle doc beforehand.',
@@ -622,8 +781,7 @@ const WIND = () => B('22:30','23:00','routine','Wind down',{tk:true,n:N.wind});
 const overlap = (a, b) => a.s < b.e && b.s < a.e;
 const cache = new Map();
 const CONFLICTS = [];
-function dayBlocks(d){
-  if (cache.has(d)) return cache.get(d);
+function autoBlocks(d){
   const p = periodOf(d), w = dow(d), ss = sessionsOn(d);
   const campus = ss.some(x => x.kind === 'class' || x.kind === 'workshop');
   const ctx = {campus, p, d};
@@ -634,7 +792,7 @@ function dayBlocks(d){
     let t = x.label, n = 'In person.';
     if (x.kind === 'lecture'){ t += inPerson ? ' · in person' : ' · watch at home'; n = inPerson ? N.inperson : N.watch; }
     if (x.kind === 'qa') n = N.qa;
-    const b = {s:x.s, e:x.e, cat:'lse', t, n, id:x.id, sess:x, opt:x.kind === 'qa'};
+    const b = {s:x.s, e:x.e, cat:'lse', t, n, id:x.id, sess:x, opt:x.kind === 'qa', plan: inPerson ? 'attend' : 'watch'};
     out.push(b); busy.push(b);
   }
   let leave = null;
@@ -672,11 +830,85 @@ function dayBlocks(d){
   }
   out.sort((a, b) => a.s - b.s || a.e - b.e);
   for (const b of out) if (!b.id) b.id = 'b|' + d + '|' + tm(b.s) + '|' + b.cat;
-  const res = out; res.campus = campus; res.leave = leave;
-  cache.set(d, res);
-  return res;
+  addCareer(d, out, p, w);
+  for (const b of out) b.key = b.sess ? null : tm(b.s) + '|' + b.cat;
+  out.campus = campus; out.leave = leave;
+  return out;
+}
+
+/* Career: 1 hour each weekday (2 in the breaks), taken from free time, else from a plain study block. */
+const CAREER_N = 'Internships, jobs and income: applications, networking emails you already owe, CV, a winter job. LSE CareerHub or general. Hard stop at the end.';
+function addCareer(d, out, p, w){
+  if (d < V3_START || w === 0 || w === 6 || HOLIDAYS[d]) return;
+  let need = (p.tpl === 'BREAK' || p.tpl === 'SUMMER') ? S.prefs.careerBreakMin : S.prefs.careerMin;
+  if (!(need > 0)) return;
+  const take = (b, len, fromEnd) => {
+    const s = fromEnd ? b.e - len : b.s, e = s + len;
+    const cb = {s, e, cat:'career', t:'Career', n:CAREER_N, id:'b|' + d + '|' + tm(s) + '|career'};
+    const i = out.indexOf(b);
+    const rest = fromEnd ? [b.s, s] : [e, b.e];
+    out.splice(i, 1, cb);
+    if (rest[1] - rest[0] >= 15) out.push(o(b, {s:rest[0], e:rest[1], id:'b|' + d + '|' + tm(rest[0]) + '|' + b.cat}));
+    need -= len;
+  };
+  const frees = () => out.filter(b => b.cat === 'free' && b.s >= 12 * 60 && b.e <= 22 * 60 + 30 && b.e - b.s >= 45).sort((a, b) => a.s - b.s);
+  let f = frees().find(b => b.e - b.s >= need);
+  if (f) take(f, need, false);
+  else for (const b of frees()){ if (need <= 0) break; take(b, Math.min(need, b.e - b.s), false); }
+  if (need >= 30){
+    const st = out.filter(b => b.cat === 'study' && b.t === 'Study' && b.e - b.s >= need).sort((a, b) => b.s - a.s)[0];
+    if (st) take(st, need, true);
+    else {
+      const big = out.filter(b => b.cat === 'study' && b.e - b.s >= need + 60 && b.s >= 12 * 60).sort((a, b) => (b.e - b.s) - (a.e - a.s))[0];
+      if (big) take(big, need, true);
+    }
+  }
+  out.sort((a, b) => a.s - b.s || a.e - b.e);
+}
+
+/* Your own changes to blocks: move, rename, delete, add. For one day or every week. */
+function blockEditMatches(e, b, d){
+  if (e.kind !== 'blk') return false;
+  if (e.scope === 'day') return e.d === d && e.bid === b.id;
+  return e.wd === dow(d) && d >= e.from && (!e.pid || e.pid === periodOf(d).id) && e.key === b.key;
+}
+function addMatches(e, d){
+  if (e.kind !== 'blkAdd') return false;
+  if (e.scope === 'day') return e.d === d;
+  return e.wd === dow(d) && d >= e.from && (!e.pid || e.pid === periodOf(d).id);
+}
+function dayBlocks(d){
+  if (cache.has(d)) return cache.get(d);
+  const auto = autoBlocks(d);
+  let out = [];
+  for (const e of S.edits) if (addMatches(e, d)) out.push({id:'x|' + e.id + '|' + d, key:'x|' + e.id, s:e.s, e:e.e, cat:e.cat, t:e.t, n:e.n || '', user:true, eid:e.id});
+  out = [...auto, ...out];
+  const res = [];
+  for (const b of out){
+    let x = b, gone = false;
+    for (const e of S.edits) if (blockEditMatches(e, b, d)){
+      if (e.op === 'del'){ gone = true; break; }
+      x = o(x, {edited:true});
+      if (e.s != null) x.s = e.s; if (e.e != null) x.e = e.e; if (e.t) x.t = e.t;
+    }
+    if (!gone) res.push(x);
+  }
+  // free time is whatever is left over
+  const solid = res.filter(b => b.cat !== 'free' && !b.opt);
+  const fin = [];
+  for (const b of res){
+    if (b.cat !== 'free'){ fin.push(b); continue; }
+    let pieces = [[b.s, b.e]];
+    for (const x of solid) pieces = pieces.flatMap(([a, z]) => (x.e <= a || x.s >= z) ? [[a, z]] : [[a, Math.max(a, x.s)], [Math.min(z, x.e), z]].filter(([p1, q]) => q - p1 >= 15));
+    for (const [a, z] of pieces) fin.push(a === b.s ? o(b, {s:a, e:z}) : o(b, {s:a, e:z, id:'b|' + d + '|' + tm(a) + '|free'}));
+  }
+  fin.sort((a, b) => a.s - b.s || a.e - b.e);
+  fin.campus = auto.campus; fin.leave = auto.leave;
+  cache.set(d, fin);
+  return fin;
 }
 const tickable = b => b.tk || !['travel','free','routine'].includes(b.cat);
+const dayHasEdits = d => S.edits.some(e => e.d === d || e.date === d);
 
 /* ================= deadlines ================= */
 const DL = [];
@@ -713,128 +945,485 @@ function untilText(x){
 }
 const dueWhen = x => { const [d, t] = x.due.split('T'); return niceDate(d, true) + ', ' + t; };
 
-/* ================= derived stats ================= */
-function behindLectures(){
-  const n = now();
-  return ALLSESS.filter(x => x.kind === 'lecture' && at(x.date, x.e) <= n && !S.done[x.id]);
+/* ================= gym programme ================= */
+// [name, sets, low, high, rest, extra] · unit defaults to reps
+const PROG = {
+  1:{name:'Back', mins:'45–50 min', ex:[
+    ['Lat pulldown',3,6,12,'2:30'],['Horizontal rows',4,6,12,'2:30'],['Shrugs',3,10,15,'1:30'],
+    ['Scapula / serratus',3,12,15,'0:45–1:00'],['Neck flexion, front + side',2,12,15,'0:30–0:45']]},
+  2:{name:'Chest & triceps', mins:'45–55 min', ex:[
+    ['Incline press',3,6,12,'3:00'],['Flat press',3,6,12,'2:30'],['Dips',3,8,12,'2:00'],['Tricep extensions',3,8,12,'1:30'],
+    ['Pushdown',3,10,15,'1:30'],['Pec deck, light',2,10,15,'1:00']]},
+  3:{name:'Legs, quad focus', mins:'50–60 min', ex:[
+    ['Squats',3,6,8,'3:00',{note:'2–3 ramp sets first, not logged: light 6–10 · moderate 3–5 · heavier 1–2'}],
+    ['Bulgarian split squats',3,8,12,'2:00',{side:1}],['Leg extensions',3,10,15,'1:15'],['Standing calf raises',3,8,12,'1:15'],
+    ['Tibialis raises',3,12,20,'0:45–1:00'],['Sprints',6,15,30,'2:00',{opt:1,unit:'m'}]]},
+  4:{name:'Biceps, forearms, core', mins:'50–60 min', ex:[
+    ['Pull-ups',3,6,12,'3:00'],['Incline DB curls',4,8,12,'1:30'],['Reverse curls',3,10,12,'1:15'],['Hammer curls',3,8,12,'1:15'],
+    ['Forearm cable / wrist roller',3,null,null,'1:00',{note:'2–3 burnout sets'}],['Pronation / supination',2,12,15,'1:00',{opt:1}],
+    ['Hanging leg raises',3,10,15,'0:45–1:00'],['Side planks',2,20,40,'1:00',{unit:'s',side:1}]]},
+  5:{name:'Shoulders', mins:'45–55 min', ex:[
+    ['Shoulder press',3,6,10,'3:00'],['Lateral raises',4,10,15,'1:00'],['Rear delt flies',3,10,15,'1:00'],
+    ['Face pulls / external rotation',3,10,15,'1:00'],['Incline DB press',3,8,12,'2:00']]},
+  6:{name:'Legs, posterior', mins:'60–70 min', note:'Keep this order.', ex:[
+    ['RDLs',3,6,10,'3:00'],['Lying leg curl',4,8,12,'1:30'],['Pendulum or split squat',3,8,12,'2:30'],['Back extensions',3,10,15,'1:30'],
+    ['Hip adduction',3,12,20,'1:00'],['Seated calf raises',3,12,20,'1:15'],['Tibialis raises',2,15,20,'0:45']]},
+  7:{name:'Conditioning', mins:'25–40 min', note:'Optional and floating. Pick the day, or skip it: your biking and walking already count.', ex:[
+    ['Bike',1,10,10,'',{unit:'min',done:1}],['Sprints 6 × 15–30 m, or 1 km hard run + 10 min walk',1,null,null,'2:00',{done:1}],
+    ['Extra sets: forearms, calves, neck or abs',2,null,null,'1:00',{opt:1,done:1}]]}
+};
+const exObj = a => o({name:a[0], sets:a[1], lo:a[2], hi:a[3], rest:a[4], unit:'reps'}, a[5] || {});
+const restSec = r => { const m = /(\d+):(\d\d)/.exec(r || ''); return m ? +m[1] * 60 + +m[2] : 90; };
+const nextDay = n => n % 6 + 1;
+const sessionsOf = d => S.gym.sessions.filter(x => x.date === d);
+function gymPlanMap(){
+  const map = {}; let n = S.gym.next; const t = today(), m = nowM();
+  for (let i = 0; i < 21; i++){
+    const d = addD(t, i);
+    for (const b of dayBlocks(d)) if (b.cat === 'gym'){
+      if (S.done[b.id]) continue;
+      if (i === 0 && b.e <= m) continue;
+      map[d + '|' + b.id] = n; n = nextDay(n);
+    }
+  }
+  return map;
 }
+let GP = {};
+function gymDayOf(d, b){
+  if (S.done[b.id]){ const s = S.gym.sessions.find(x => x.bid === b.id) || sessionsOf(d).find(x => x.day <= 6); return s ? s.day : null; }
+  return GP[d + '|' + b.id] || null;
+}
+function gymTitle(d, b){ const n = gymDayOf(d, b); return b.t + (n ? ' · Day ' + n + ' ' + PROG[n].name : ''); }
+function lastSets(name, beforeId){
+  for (let i = S.gym.sessions.length - 1; i >= 0; i--){
+    const s = S.gym.sessions[i]; if (s.id === beforeId) continue;
+    const v = s.sets && s.sets[name];
+    if (v && v.some(r => r && (r[0] || r[1]))) return {date:s.date, sets:v};
+  }
+  return null;
+}
+function upSuggestion(ex, last){
+  if (!last || ex.hi == null || ex.unit !== 'reps') return '';
+  const v = last.sets.slice(0, ex.sets);
+  if (v.length < ex.sets || v.some(r => !r || !(+r[1] >= ex.hi))) return '';
+  const kg = v.map(r => +r[0] || 0);
+  if (kg.some(k => k !== kg[0])) return '';
+  return 'Every set hit ' + ex.hi + ' last time. Add the smallest weight step today' + (kg[0] ? ' (from ' + kg[0] + ' kg)' : '') + '.';
+}
+const fmtSets = (ex, v) => v.filter(r => r && (r[0] || r[1])).map(r => (r[0] ? r[0] + ' kg × ' : '') + (r[1] || '–')).join(' / ') + (ex.unit !== 'reps' && ex.unit ? ' ' + ex.unit : '');
+function weekGym(ws){
+  const we = addD(ws, 6), r = {main:0, d7:0, home:0, days:[]};
+  const seen = new Set();
+  for (const s of S.gym.sessions) if (s.date >= ws && s.date <= we){ if (s.day <= 6){ r.main++; seen.add(s.date); r.days.push(s); } else r.d7++; }
+  for (let i = 0; i < 7; i++){ const d = addD(ws, i); if (seen.has(d)) continue;
+    if (dayBlocks(d).some(b => b.cat === 'gym' && S.done[b.id])) r.main++; }
+  r.home = (S.gym.home || []).filter(d => d >= ws && d <= we).length;
+  return r;
+}
+function tickGym(d, b){
+  if (S.done[b.id]){
+    const s = S.gym.sessions.find(x => x.bid === b.id);
+    if (s && s.sets && Object.keys(s.sets).length && !confirm('This session has logged sets. Remove the session and its log?')) return;
+    if (s){
+      S.gym.sessions = S.gym.sessions.filter(x => x !== s);
+      const lastMain = S.gym.sessions.filter(x => x.day <= 6).pop();
+      if (s.day <= 6 && (!lastMain || lastMain.date <= s.date)) S.gym.next = s.day;
+    }
+    delete S.done[b.id];
+  } else {
+    const dr = S.gym.draft;
+    if (dr && dr.date === d && Object.keys(dr.sets || {}).length){ finishDraft(b); return; }
+    S.done[b.id] = true;
+    if (!sessionsOf(d).some(x => x.day <= 6)){
+      const day = GP[d + '|' + b.id] || S.gym.next;
+      S.gym.sessions.push({id:'g' + Date.now(), date:d, day, sets:{}, bid:b.id});
+      S.gym.sessions.sort((a, z) => a.date < z.date ? -1 : a.date > z.date ? 1 : 0);
+      if (day <= 6) S.gym.next = nextDay(day);
+    }
+  }
+}
+function draft(){
+  const dr = S.gym.draft, empty = !dr || !Object.keys(dr.sets || {}).length;
+  if (!dr || (empty && dr.date !== today())) S.gym.draft = {date:today(), day:S.gym.next, sets:{}};
+  else if (empty && !dr.chosen) dr.day = S.gym.next;
+  return S.gym.draft;
+}
+function finishDraft(blockHint){
+  const dr = S.gym.draft; if (!dr) return;
+  const s = {id:'g' + Date.now(), date:dr.date, day:dr.day, sets:dr.sets || {}};
+  if (dr.day <= 6){
+    const b = blockHint || dayBlocks(dr.date).find(x => x.cat === 'gym' && !S.done[x.id]);
+    if (b){ S.done[b.id] = true; s.bid = b.id; }
+    S.gym.next = nextDay(dr.day);
+  }
+  // replace a quick tick from the same day with the logged session
+  const quick = dr.day <= 6 ? S.gym.sessions.find(x => x.date === dr.date && x.day <= 6 && !Object.keys(x.sets || {}).length) : null;
+  if (quick){ s.bid = s.bid || quick.bid; S.gym.sessions = S.gym.sessions.filter(x => x !== quick); }
+  S.gym.sessions.push(s);
+  S.gym.sessions.sort((a, z) => a.date < z.date ? -1 : a.date > z.date ? 1 : 0);
+  S.gym.draft = null;
+  save(); toast('Session saved: Day ' + s.day + ' ' + PROG[s.day].name + '.');
+}
+
+/* ================= lectures and catch-up ================= */
+const isPastS = x => at(x.date, x.e) <= now();
+const behindLectures = () => ALLSESS.filter(x => x.kind === 'lecture' && isPastS(x) && !covered(x.id));
+const missedClasses = () => ALLSESS.filter(x => (x.kind === 'class' || x.kind === 'workshop') && isPastS(x) && !covered(x.id) && !S.done['sol|' + x.id]);
+const notesToWrite = () => ALLSESS.filter(x => (x.kind === 'lecture' || x.kind === 'help') && isPastS(x) && covered(x.id) && !S.notes[x.id]);
+const helpSkipped = () => ALLSESS.filter(x => x.kind === 'help' && isPastS(x) && !covered(x.id) && daysBetween(x.date, today()) <= 28);
+const sessWhen = x => dayName(x.date, true) + ' ' + niceDate(x.date).replace(/ (\w{3})\w*$/, ' $1');
+// Oldest lecture first, into the next plain study or catch-up blocks.
+let CP = {byLec:{}, byBlock:{}};
+function catchPlan(){
+  const beh = behindLectures(), res = {byLec:{}, byBlock:{}};
+  if (!beh.length) return res;
+  const t = today(), m = nowM(), slots = [];
+  for (let i = 0; i < 10; i++){
+    const d = addD(t, i);
+    for (const b of dayBlocks(d)) if ((b.cat === 'study' || b.cat === 'academy') && (i > 0 || b.s >= m - 10) && !S.done[b.id] && b.e - b.s >= 45){
+      // plain study and catch-up blocks first, then study blocks not tied to a deadline, then academy time
+      const rank = b.cat === 'academy' ? 3 : (b.t === 'Study' || /^Catch-up/.test(b.t)) ? 1 : /due|submit|finish|Revision|help-lecture/i.test(b.t) ? 9 : 2;
+      if (rank < 9) slots.push({d, b, left:b.e - b.s, rank});
+    }
+  }
+  for (const x of beh){
+    const need = x.e - x.s, fit = s => s.left >= Math.min(need, 60);
+    const sl = slots.find(s => s.rank === 1 && fit(s)) || slots.find(s => s.rank === 2 && fit(s)) || slots.find(s => s.rank === 3 && fit(s));
+    if (!sl) continue;
+    sl.left -= need; res.byLec[x.id] = sl;
+    (res.byBlock[sl.d + '|' + sl.b.id] = res.byBlock[sl.d + '|' + sl.b.id] || []).push(x);
+  }
+  return res;
+}
+const slotText = sl => (sl.d === today() ? 'today' : dayName(sl.d, true) + ' ' + dOf(sl.d).getDate()) + ' at ' + tm(sl.b.s);
+
+/* ================= stats ================= */
 function weekStats(ws){
-  const r = {gym:{d:0,p:0}, study:{d:0,p:0}, academy:{d:0,p:0}, business:{d:0,p:0}, bed:{d:0,p:0}, wake:{d:0,p:0}};
+  const r = {study:{d:0,p:0}, academy:{d:0,p:0}, business:{d:0,p:0}, career:{d:0,p:0}, bed:{d:0,p:0}, wake:{d:0,p:0}, lect:{d:0,p:0}};
   const t = today(), m = nowM();
   for (let i = 0; i < 7; i++){
     const d = addD(ws, i);
     for (const b of dayBlocks(d)){
       const dur = (b.e - b.s) / 60, done = !!S.done[b.id];
-      if (b.cat === 'gym'){ if (!b.opt) r.gym.p++; if (done) r.gym.d++; }
-      if (b.cat === 'study' || b.cat === 'academy' || b.cat === 'business'){ if (!b.opt) r[b.cat].p += dur; if (done) r[b.cat].d += dur; }
+      if (r[b.cat] && b.cat !== 'lect'){ if (!b.opt) r[b.cat].p += dur; if (done) r[b.cat].d += dur; }
       if (b.tk && b.s === 22 * 60 + 30){ if (d < t || (d === t && m >= 23 * 60)) r.bed.p++; if (done) r.bed.d++; }
       if (b.tk && b.s === 7 * 60){ if (d <= t) r.wake.p++; if (done) r.wake.d++; }
     }
+    for (const x of sessionsOn(d)) if (x.kind === 'lecture' && isPastS(x)){ r.lect.p++; if (covered(x.id)) r.lect.d++; }
   }
+  r.gym = weekGym(ws);
   return r;
+}
+
+/* ================= body weight ================= */
+const wEntries = () => Object.keys(S.weights).sort().map(d => ({d, kg:+S.weights[d]})).filter(x => x.kg > 0);
+function avg7(d){
+  const from = addD(d, -6), v = wEntries().filter(x => x.d >= from && x.d <= d);
+  return v.length >= 3 ? v.reduce((a, x) => a + x.kg, 0) / v.length : null;
+}
+function weightAdvice(){
+  const e = wEntries(); if (!e.length) return {txt:'Weigh yourself first thing in the morning, after the toilet, a few times a week. The 7-day average is what counts, not single days.'};
+  const last = e[e.length - 1].d, a = avg7(last), b14 = avg7(addD(last, -14)), b21 = avg7(addD(last, -21));
+  if (a == null) return {txt:'A few more weigh-ins this week and the 7-day average appears.'};
+  if (b14 == null) return {avg:a, txt:'Keep logging. After two weeks the app compares your averages.'};
+  const ch = a - b14;
+  if (ch < 0.15){
+    const flat3 = b21 != null && a - b21 < 0.2;
+    return {avg:a, ch, flat:true, txt:'Your average has been flat for ' + (flat3 ? 'three' : 'two') + ' weeks (' + (ch >= 0 ? '+' : '') + ch.toFixed(1) + ' kg). If you have eaten the plan consistently, eat a little more: add one snack a day, such as a pint of milk, or peanut butter on toast. Check again in two weeks.'};
+  }
+  if (ch > 1.0) return {avg:a, ch, txt:'Up ' + ch.toFixed(1) + ' kg in two weeks. That is quicker than a lean bulk needs; keep portions as they are and check again next week.'};
+  return {avg:a, ch, txt:'Up ' + ch.toFixed(1) + ' kg in two weeks. On track for a lean bulk toward ' + S.prefs.goalKg + ' kg. Keep going.'};
+}
+
+/* ================= copy week for Claude ================= */
+function weekText(){
+  const t = today(), ws = weekStart(t), r = weekStats(ws), g = r.gym, beh = behindLectures(), n = now();
+  const L = [];
+  L.push('Planner week: ' + niceDate(ws) + ' to ' + niceDate(addD(ws, 6)) + ' (' + periodLabel(t) + '). Today: ' + dayName(t) + ' ' + niceDate(t) + '.');
+  L.push('Lectures this week: ' + r.lect.d + ' of ' + r.lect.p + ' covered so far.');
+  L.push('Behind: ' + (beh.length ? beh.length + ' lectures, ' + hrs(beh.reduce((a, x) => a + (x.e - x.s) / 60, 0)) + ' (' + beh.map(x => x.code + ' ' + niceDate(x.date, true)).join('; ') + ')' : 'none') + '.');
+  const mc = missedClasses(), nw = notesToWrite();
+  if (mc.length) L.push('Class solutions to go through: ' + mc.map(x => x.code + ' ' + niceDate(x.date, true)).join('; ') + '.');
+  L.push('Notes to write: ' + nw.length + '.');
+  L.push('Hours ticked / planned: study ' + hrs(r.study.d) + '/' + hrs(r.study.p) + ', academy ' + hrs(r.academy.d) + '/' + hrs(r.academy.p) +
+    ', business ' + hrs(r.business.d) + '/' + hrs(r.business.p) + ', career ' + hrs(r.career.d) + '/' + hrs(r.career.p) + '.');
+  L.push('Gym: ' + g.main + ' sessions (target ' + S.prefs.gymMin + '–' + S.prefs.gymMax + '), Day 7: ' + g.d7 + ', home sessions: ' + g.home + ' (target ' + S.prefs.homeMin + '–' + S.prefs.homeMax + '). Next in rotation: Day ' + S.gym.next + '.');
+  for (const s of g.days){
+    const best = Object.entries(s.sets || {}).slice(0, 3).map(([k, v]) => k + ' ' + fmtSets({unit:'reps'}, v)).join('; ');
+    L.push('  ' + niceDate(s.date, true) + ' Day ' + s.day + ' ' + PROG[s.day].name + (best ? ': ' + best : ''));
+  }
+  const wa = weightAdvice(), e = wEntries();
+  L.push('Bodyweight: ' + (e.length ? 'latest ' + e[e.length - 1].kg + ' kg on ' + niceDate(e[e.length - 1].d, true) + (wa.avg ? ', 7-day average ' + wa.avg.toFixed(1) + ' kg' : '') + (wa.ch != null ? ', ' + (wa.ch >= 0 ? '+' : '') + wa.ch.toFixed(1) + ' kg over 2 weeks' : '') : 'not logged') + '.');
+  L.push('Up at 07:00: ' + r.wake.d + '/' + r.wake.p + '. In bed by 23:00: ' + r.bed.d + '/' + r.bed.p + '.');
+  const od = allDL().filter(x => !isDone(x) && dueDate(x) < n), soon = allDL().filter(x => !isDone(x) && dueDate(x) >= n && dueDate(x) <= new Date(n.getTime() + 7 * 864e5));
+  if (od.length) L.push('Overdue: ' + od.map(x => x.code + ' ' + x.title + ' (' + dueWhen(x) + ')').join('; ') + '.');
+  L.push('Due next 7 days: ' + (soon.length ? soon.map(x => x.code + ' ' + x.title + ' (' + dueWhen(x) + ')').join('; ') : 'nothing') + '.');
+  const ch = S.edits.length; if (ch) L.push('Changes I made in the app: ' + ch + '.');
+  return L.join('\n');
 }
 
 /* ================= UI shell ================= */
 const $ = s => document.querySelector(s);
 const view = $('#view');
-let TAB = 'today', viewDay = null, viewWeek = null, catchFilter = 'behind', dlFilter = 'ALL';
+const IC = {
+  today:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  week:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  gym:'<path d="M6.5 7.5v9M17.5 7.5v9M3.5 10v4M20.5 10v4M6.5 12h11"/>',
+  behind:'<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/>',
+  more:'<path d="M5 12h.01M12 12h.01M19 12h.01" style="stroke-width:2.8"/>',
+  deadlines:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
+  food:'<path d="M4 11h16a8 8 0 0 1-16 0zM8 7c0-2 2-2 2-4M13 7c0-2 2-2 2-4"/>',
+  setup:'<circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M2.5 12h3M18.5 12h3M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"/>',
+  check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+  down:'<path d="M6 9l6 6 6-6"/>',
+  left:'<path d="M15 6l-6 6 6 6"/>', right:'<path d="M9 6l6 6-6 6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>'
+};
+const ic = (k, st) => '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"' + (st ? ' style="' + st + '"' : '') + '>' + IC[k] + '</svg>';
+const VIEWS = ['today','week','behind','deadlines','gym','food','setup','more'];
+const NAMES = {today:'Today', week:'Week', behind:'Behind', deadlines:'Deadlines', gym:'Gym', food:'Food & body', setup:'Setup', more:'More'};
+let TAB = 'today', viewDay = null, viewWeek = null, aFull = false, aEx = 0, behindMode = 'todo', trackAll = false, dlFilter = 'ALL', editMeals = false;
+
 function setTab(t){
-  TAB = t;
-  try { history.replaceState(null, '', '#' + t + (location.search ? '' : '')); } catch(e) {}
-  document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.tab === t ? 'page' : 'false'));
-  render();
-  window.scrollTo(0, 0);
+  TAB = VIEWS.includes(t) ? t : 'today';
+  try { history.replaceState(null, '', '#' + TAB); } catch(e) {}
+  render(); window.scrollTo(0, 0);
+}
+function navHtml(){
+  const behindN = behindLectures().length, odN = allDL().filter(x => !isDone(x) && dueDate(x) < now()).length;
+  const badge = k => k === 'behind' ? behindN : k === 'deadlines' ? odN : k === 'more' ? odN : 0;
+  if (DEV.layout === 'C'){
+    $('#side').hidden = false; $('#bottom').hidden = true;
+    const n = now();
+    $('#side').innerHTML = '<div class="brand"><div class="logo">✓</div><div><div style="font-weight:800">Life Planner</div><div class="clock">' + dayName(iso(n), true) + ' ' + niceDate(iso(n)) + ' · ' + tm(nowM()) + '</div></div></div>' +
+      ['today','week','behind','deadlines','gym','food','setup'].map(k => '<button class="nav" data-act="go" data-tab="' + k + '"' + (TAB === k ? ' aria-current="page"' : '') + '>' + ic(k) + '<span>' + NAMES[k] + '</span><span class="badge">' + (badge(k) || '') + '</span></button>').join('') +
+      '<div class="spacer"></div><button class="nav" data-act="copyweek">' + ic('copy') + '<span>Copy week for Claude</span></button>';
+  } else {
+    $('#side').hidden = true; $('#bottom').hidden = false;
+    const cur = ['today','week','gym','behind'].includes(TAB) ? TAB : 'more';
+    $('#bottom').innerHTML = ['today','week','gym','behind','more'].map(k => '<button data-act="go" data-tab="' + k + '"' + (cur === k ? ' aria-current="page"' : '') + '><span class="ic">' + ic(k) + '</span><span>' + (k === 'today' && DEV.layout === 'A' ? 'Now' : NAMES[k]) + '</span><span class="badge">' + (badge(k) || '') + '</span></button>').join('');
+  }
+  $('#fab').hidden = !(TAB === 'week' || (TAB === 'today' && DEV.layout !== 'A'));
 }
 function render(){
-  ({today:renderToday, week:renderWeek, catch:renderCatch, deadlines:renderDeadlines, food:renderFood, setup:renderSetup}[TAB] || renderToday)();
-  updateChrome();
+  GP = gymPlanMap(); CP = catchPlan();
+  ({today:renderToday, week:renderWeek, behind:renderBehind, deadlines:renderDeadlines, gym:renderGym, food:renderFood, setup:renderSetup, more:renderMore}[TAB] || renderToday)();
+  navHtml();
 }
-function updateChrome(){
-  const n = now(), t = iso(n);
-  $('#clock').textContent = dayName(t, true) + ' ' + niceDate(t).replace(/ (\w{3})\w*$/, ' $1') + ' · ' + tm(n.getHours() * 60 + n.getMinutes());
-  $('#periodLbl').textContent = periodLabel(t);
-  const b = behindLectures().length; $('#pillCatch').textContent = b ? b : '';
-  const od = allDL().filter(x => !isDone(x) && dueDate(x) < n).length; $('#pillDl').textContent = od ? od : '';
+function toast(msg, undo){
+  const el = $('#toast'); $('#toastTxt').textContent = msg; el.hidden = false;
+  const u = $('#toastUndo'); u.hidden = !undo; el.classList.toggle('has-undo', !!undo);
+  u.onclick = () => { el.hidden = true; if (undo) undo(); };
+  clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, undo ? 7000 : 3200);
 }
-function toast(msg){ const el = $('#toast'); el.textContent = msg; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 3200); }
 
-/* ================= TODAY ================= */
-function rowHtml(b, d, isToday, m){
-  const tk = tickable(b), done = !!S.done[b.id];
-  const past = d < today() || (isToday && b.e <= m);
-  const cur = isToday && b.s <= m && m < b.e;
-  const missed = tk && past && !done && !b.opt;
-  return '<li class="row c-' + b.cat + (cur ? ' cur' : '') + (past ? ' past' : '') + (done ? ' done' : '') + (missed ? ' missed' : '') + '" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '">' +
-    '<span class="time">' + tm(b.s) + '–' + tm(b.e) + '</span>' +
-    '<div class="main"><div class="ttl">' + esc(b.t) + (b.opt ? ' <span class="tag">optional</span>' : '') + (b.moved ? ' <span class="tag">moved</span>' : '') + (missed ? ' <span class="tag bad">missed</span>' : '') + '</div>' +
-    (b.n ? '<div class="note">' + esc(b.n) + '</div>' : '') + '</div>' +
-    (tk ? '<button class="chk' + (done ? ' on' : '') + '" data-act="tick" data-id="' + esc(b.id) + '" aria-pressed="' + done + '" aria-label="Mark done">✓</button>' : '<span class="chk none"></span>') +
-    '</li>';
+/* ================= shared pieces ================= */
+const bTitle = (b, d) => b.cat === 'gym' ? gymTitle(d, b) : b.t;
+const doneB = b => b.cat === 'lse' ? covered(b.id) : !!S.done[b.id];
+function stOf(b, d){
+  const t = today(), m = nowM(), isT = d === t;
+  const past = d < t || (isT && b.e <= m), cur = isT && b.s <= m && m < b.e, done = doneB(b);
+  return {past, cur, done, missed: tickable(b) && past && !done && !b.opt, isT, m};
 }
-function nowCard(blocks, m){
-  if (m < 7 * 60 || m >= 23 * 60) return '<div class="now c-routine"><div class="lbl">Now</div><div class="big">Sleep</div><p>Up at 07:00.</p></div>';
-  const cur = blocks.find(b => b.s <= m && m < b.e), nxt = blocks.find(b => b.s > m);
-  const nextLine = nxt ? '<span class="muted">Next at ' + tm(nxt.s) + ': ' + esc(nxt.t) + '</span>' : '';
-  if (!cur) return '<div class="now c-free"><div class="lbl">Now</div><div class="big">Short gap</div><div class="nowfoot">' + nextLine + '</div></div>';
-  const left = cur.e - m, pct = Math.round((m - cur.s) / (cur.e - cur.s) * 100), done = !!S.done[cur.id];
-  return '<div class="now c-' + cur.cat + '"><div class="lbl">Now · until ' + tm(cur.e) + ' · ' + left + ' min left</div>' +
-    '<div class="big">' + esc(cur.t) + '</div>' + (cur.n ? '<p>' + esc(cur.n) + '</p>' : '') +
-    '<div class="prog"><i style="width:' + pct + '%"></i></div><div class="nowfoot">' +
-    (tickable(cur) ? '<button class="btn primary" data-act="tick" data-id="' + esc(cur.id) + '">' + (done ? 'Done ✓' : 'Mark done') + '</button>' : '') + nextLine + '</div></div>';
+function subOf(b, d, st){
+  const p = [];
+  if (st.cur) p.push('Now · ' + (b.e - st.m) + ' min left');
+  if (b.cat === 'lse'){
+    const x = b.sess;
+    if (x.kind === 'qa') p.push('Optional, on Zoom');
+    else if (st.missed && x.kind === 'lecture') return {t:'Not covered yet: it is in Behind', cls:'bad'};
+    else if (st.missed) return {t:'Missed: go through the class solutions (in Behind)', cls:'bad'};
+    else if (!st.cur) p.push(b.plan === 'attend' ? 'Attend in person' : 'Watch at home');
+    if (x.moved) p.push('moved by you');
+  } else if (b.cat === 'gym'){ const n = gymDayOf(d, b); if (n) p.push(PROG[n].mins + (b.opt ? ' · optional' : '')); else if (b.opt) p.push('Optional'); }
+  else if ((b.cat === 'study' || b.cat === 'academy') && CP.byBlock[d + '|' + b.id]) return {t:'Catch up: ' + CP.byBlock[d + '|' + b.id].map(x => x.code + ' lecture (' + sessWhen(x) + ')').join(', '), cls:'hint'};
+  else if (st.missed) return {t:'Not ticked', cls:'bad'};
+  else if (b.cat === 'career' && !st.cur) p.push('Internships, jobs and income');
+  if (b.edited || b.user) p.push('changed by you');
+  return {t:p.join(' · '), cls:''};
 }
-function behindPanel(){
-  const lec = behindLectures(), h = lec.reduce((a, x) => a + (x.e - x.s) / 60, 0), n = now();
-  const od = allDL().filter(x => !isDone(x) && dueDate(x) < n);
-  const t = today(), m = nowM();
-  const missed = dayBlocks(t).filter(b => tickable(b) && !b.opt && b.e <= m && !S.done[b.id]).length;
-  return '<section class="card"><h2>Where you are behind</h2>' +
-    '<div class="stat ' + (lec.length ? 'bad' : 'good') + '"><b>' + lec.length + '</b><span class="grow">lecture' + (lec.length === 1 ? '' : 's') + ' to catch up' + (lec.length ? ' (' + hrs(h) + ')' : '') + '</span><button class="btn small" data-act="go" data-tab="catch">Catch-up</button></div>' +
-    '<div class="stat ' + (od.length ? 'bad' : 'good') + '"><b>' + od.length + '</b><span class="grow">overdue deadline' + (od.length === 1 ? '' : 's') + '</span>' + (od.length ? '<button class="btn small" data-act="go" data-tab="deadlines">Fix</button>' : '') + '</div>' +
-    '<div class="stat ' + (missed ? 'warn' : 'good') + '"><b>' + missed + '</b><span class="grow">block' + (missed === 1 ? '' : 's') + ' not ticked today</span></div></section>';
+function lseTicks(id, compact){
+  const x = findSess(id);
+  const t = (f, l) => '<button class="tk' + (S[f][id] ? ' on' : '') + '" data-act="lt" data-f="' + f + '" data-id="' + esc(id) + '" aria-pressed="' + !!S[f][id] + '">' + (S[f][id] ? ic('check', 'width:14px;height:14px;stroke-width:3') : '') + l + '</button>';
+  return '<div class="ticks">' + t('att', 'Attended') + t('wat', compact ? 'Watched' : 'Watched back') + (x && x.kind !== 'qa' ? t('notes', 'Notes made') : '') + '</div>';
 }
-function duePanel(){
-  const n = now(), lim = new Date(n.getTime() + 7 * 864e5);
-  const list = allDL().filter(x => !isDone(x) && dueDate(x) <= lim).slice(0, 7);
-  return '<section class="card"><h2>Due in the next 7 days</h2>' + (list.length ? list.map(x =>
-    '<div class="due' + (dueDate(x) < n ? ' over' : '') + '"><span class="code">' + esc(x.code) + '</span><span>' + esc(x.title) + '</span><span class="when">' + esc(dueWhen(x)) + ' · ' + untilText(x) + '</span></div>').join('')
-    : '<p class="muted" style="margin:0">Nothing due. Add deadlines from Moodle in the Deadlines tab.</p>') + '</section>';
+function itemHtml(b, d, st){
+  st = st || stOf(b, d);
+  const sb = subOf(b, d, st), tk = tickable(b);
+  const showTicks = b.cat === 'lse' && (st.past || st.cur || d < today());
+  return '<li class="it c-' + b.cat + (st.cur ? ' cur' : '') + (st.done ? ' done' : '') + (st.missed ? ' missed' : '') + (b.cat === 'travel' ? ' travel' : '') + '" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '">' +
+    '<span class="tm">' + tm(b.s) + '</span><span class="dot"></span><div class="tx"><div class="tt">' + esc(bTitle(b, d)) + '</div>' +
+    (sb.t ? '<div class="sb ' + sb.cls + '">' + esc(sb.t) + '</div>' : '') + (showTicks ? lseTicks(b.id, true) : '') + '</div>' +
+    (tk && b.cat !== 'lse' ? '<button class="chk' + (st.done ? ' on' : '') + '" data-act="tick" data-d="' + d + '" data-id="' + esc(b.id) + '" aria-pressed="' + st.done + '" aria-label="Mark done">' + ic('check') + '</button>' : '') + '</li>';
 }
-function weekPanel(ws, title){
-  const r = weekStats(ws);
-  const bar = (label, cat, d, p, unit) => { const pct = p ? Math.min(100, Math.round(d / p * 100)) : 0;
-    return '<div class="bar c-' + cat + '"><span>' + label + '</span><span class="track"><i style="width:' + pct + '%"></i></span><span class="v">' + (unit ? hrs(d) + ' / ' + hrs(p) : d + ' / ' + p) + '</span></div>'; };
-  return '<section class="card"><h2>' + (title || 'This week') + '</h2><div class="bars">' +
-    bar('Gym sessions', 'gym', r.gym.d, r.gym.p) + bar('Study', 'study', r.study.d, r.study.p, 1) +
-    bar('Academy', 'academy', r.academy.d, r.academy.p, 1) + bar('Business', 'business', r.business.d, r.business.p, 1) +
-    bar('Up at 07:00', 'routine', r.wake.d, r.wake.p) + bar('In bed by 23:00', 'admin', r.bed.d, r.bed.p) +
-    '</div><p class="muted" style="margin:10px 0 0;font-size:12.5px">Counts only what you tick.</p></section>';
+function agendaHtml(d, fold){
+  const bl = dayBlocks(d), folded = [], items = [];
+  for (const b of bl){
+    const st = stOf(b, d);
+    if (fold && st.isT && st.past && !st.cur && !st.missed) folded.push([b, st]); else items.push([b, st]);
+  }
+  let h = '<ol class="agenda">';
+  if (folded.length){
+    const names = folded.filter(([b]) => tickable(b) && b.cat !== 'free').map(([b]) => b.cat === 'gym' ? 'gym' : b.t.split(':')[0].split(' · ')[0].toLowerCase()).slice(0, 4);
+    h += '<li><details><summary class="fold">' + ic('check', 'width:18px;height:18px;color:var(--good);stroke-width:2.6') + '<span class="grow">' + folded.filter(([b]) => b.cat !== 'free').length + ' done earlier' + (names.length ? ' · ' + esc(names.join(', ')) : '') + '</span>' + ic('down', 'width:18px;height:18px') + '</summary><ol style="list-style:none;padding:0;margin:0">' +
+      folded.filter(([b]) => b.cat !== 'free').map(([b, st]) => itemHtml(b, d, st)).join('') + '</ol></details></li>';
+  }
+  for (const [b, st] of items){
+    if (b.cat === 'free'){ h += '<li class="freeln">' + esc(b.t === 'Free time' ? 'Free' : b.t) + ' · ' + tm(b.s) + '–' + tm(b.e) + '</li>'; continue; }
+    h += itemHtml(b, d, st);
+  }
+  return h + '</ol>';
 }
+function stripHtml(d){
+  const ws = weekStart(d), t = today();
+  return '<div class="strip">' + [0,1,2,3,4,5,6].map(i => { const x = addD(ws, i);
+    return '<button data-act="day" data-d="' + x + '"' + (x === d ? ' aria-current="date"' : '') + (x === t ? ' class="today"' : '') + '><span>' + dayName(x, true) + '</span><b>' + dOf(x).getDate() + '</b></button>'; }).join('') + '</div>';
+}
+const nextDue = () => { const n = now(); return allDL().filter(x => !isDone(x)).sort((a, b) => dueDate(a) - dueDate(b))[0]; };
+function tilesHtml(){
+  const beh = behindLectures(), nd = nextDue(), g = weekGym(weekStart(today()));
+  const ndTxt = nd ? nd.code + ' · ' + (dueDate(nd) < now() ? 'overdue' : (nd.due.split('T')[0] === today() ? nd.due.split('T')[1] : dayName(nd.due.split('T')[0], true) + ' ' + nd.due.split('T')[1])) : 'Nothing';
+  return '<div class="tiles"><button class="tile' + (beh.length ? ' warn' : '') + '" data-act="go" data-tab="behind"><span>Behind</span><b>' + (beh.length ? beh.length + ' lecture' + (beh.length === 1 ? '' : 's') : 'Up to date') + '</b></button>' +
+    '<button class="tile" data-act="go" data-tab="deadlines"><span>Next due</span><b>' + esc(ndTxt) + '</b></button>' +
+    '<button class="tile" data-act="go" data-tab="gym"><span>Gym</span><b>' + g.main + ' of ' + S.prefs.gymMin + '–' + S.prefs.gymMax + '</b></button></div>';
+}
+function dayHeadSub(d){
+  const bl = dayBlocks(d);
+  return niceDate(d) + ' · ' + (bl.campus ? 'Campus day' : 'Home day') + ' · ' + periodLabel(d);
+}
+const resetDayBtn = d => dayHasEdits(d) ? '<div class="row-flex" style="margin-top:12px"><button class="btn small" data-act="resetday" data-d="' + d + '">Reset this day to the plan</button><span class="muted small">Undoes your one-day changes.</span></div>' : '';
 function welcome(){
   if (S.welcomed) return '';
-  return '<section class="card welcome"><h2>How this works</h2><ul>' +
-    '<li>Every day from now to September 2027 is planned around your LSE timetable.</li>' +
-    '<li>You only go to campus on days with a class. Other lectures are watched at home.</li>' +
-    '<li>Tick blocks as you do them. "Where you are behind" shows what slipped.</li>' +
-    '<li>Install it on your phone and laptop, and choose your alerts: Setup tab. Alerts are visual by default.</li>' +
-    '<li>While it is open it alerts you when a block starts and stops you at 23:00. Set up the 07:00 alarm and Bedtime mode on your phone too.</li>' +
-    '</ul><div class="row-flex"><button class="btn primary" data-act="welcomed">Got it</button>' +
-    ('Notification' in window && Notification.permission === 'default' && !S.alerts.system ? '<button class="btn" data-act="tog" data-k="system">Allow notifications</button>' : '') +
-    '<button class="btn" data-act="go" data-tab="setup">Open Setup</button></div></section>';
+  return '<section class="card" style="margin-top:14px;background:var(--soft);border-color:transparent"><h2>New in version 3</h2><div class="prose"><ul>' +
+    '<li>Every lecture and class has three ticks: Attended, Watched back, Notes made. Either of the first two counts, whatever was planned.</li>' +
+    '<li>Anything you miss goes to Behind on its own, with a study block suggested to catch up in.</li>' +
+    '<li>Tap any block to move, rename or delete it, for one day or every week. Tap + to add a block, a lecture or a deadline. Undo is always one tap away.</li>' +
+    '<li>New: Career hour each weekday, gym log with your programme, bodyweight log, and Copy week for Claude.</li>' +
+    '<li>Layout and colours are set per device in Setup.</li></ul></div>' +
+    '<div class="row-flex"><button class="btn primary" data-act="welcomed">Got it</button><button class="btn" data-act="go" data-tab="setup">Open Setup</button></div></section>';
 }
+
+/* ================= TODAY ================= */
 function renderToday(){
-  const t = today(), d = viewDay || t, isToday = d === t, m = nowM(), blocks = dayBlocks(d);
-  const where = blocks.campus ? 'Campus day · leave at ' + tm(blocks.leave) : 'Home day';
-  view.innerHTML =
-    '<section class="daybar"><button class="navbtn" data-act="dprev" aria-label="Previous day">‹</button>' +
-    '<div><h1>' + (isToday ? 'Today' : dayName(d)) + ' <span>' + niceDate(d) + '</span></h1><div class="muted">' + esc(periodLabel(d)) + ' · ' + where + '</div></div>' +
-    '<button class="navbtn" data-act="dnext" aria-label="Next day">›</button>' + (isToday ? '' : '<button class="btn small" data-act="dtoday">Back to today</button>') + '</section>' +
-    '<div class="grid2"><div>' + welcome() + (isToday ? nowCard(blocks, m) : '') +
-    '<ol class="timeline">' + blocks.map(b => rowHtml(b, d, isToday, m)).join('') + '</ol></div>' +
-    '<aside>' + behindPanel() + '<div style="height:14px"></div>' + duePanel() + '<div style="height:14px"></div>' + weekPanel(weekStart(d), isToday ? 'This week' : 'That week') + '</aside></div>';
+  if (DEV.layout === 'A') return todayA();
+  if (DEV.layout === 'C') return todayC();
+  return todayB();
+}
+function todayB(){
+  const t = today(), d = viewDay || t, isT = d === t, bl = dayBlocks(d), m = nowM();
+  const leave = isT && bl.campus && bl.leave != null && m < bl.leave ? '<button class="pillbtn" data-act="open" data-d="' + d + '" data-id="' + esc((bl.find(b => b.t === 'Cycle to campus') || {}).id || '') + '">Leave ' + tm(bl.leave) + '</button>' : '';
+  view.innerHTML = '<div class="topbar"><div><h1>' + (isT ? 'Today' : dayName(d)) + '</h1><div class="sub">' + esc(dayHeadSub(d)) + '</div></div>' + leave +
+    (isT ? '' : '<button class="pillbtn" data-act="day" data-d="' + t + '">Today</button>') + '</div>' +
+    stripHtml(d) + (isT ? tilesHtml() : '') + welcome() + agendaHtml(d, isT) + resetDayBtn(d);
+}
+function focusHtml(d){
+  const bl = dayBlocks(d), m = nowM();
+  if (m < 7 * 60 || m >= 23 * 60) return '<div class="focus c-routine"><div class="lbl">Night</div><div class="big">Sleep</div><p>Up at 07:00.</p></div>';
+  const cand = bl.filter(b => b.cat !== 'free');
+  const cur = cand.find(b => b.s <= m && m < b.e && !(doneB(b) && tickable(b)));
+  const b = cur || cand.find(b => b.s > m);
+  if (!b) return '<div class="focus c-free"><div class="lbl">Evening</div><div class="big">Free until wind-down</div><p>Wind down at 22:30.</p></div>';
+  const st = stOf(b, d), pct = cur ? Math.round((m - b.s) / (b.e - b.s) * 100) : 0;
+  const lbl = cur ? 'Now · ' + (b.e - m) + ' min left' : 'Next at ' + tm(b.s);
+  const sb = subOf(b, d, st);
+  const note = sb.cls === 'hint' ? sb.t : (b.n || sb.t);
+  let acts;
+  if (b.cat === 'lse') acts = lseTicks(b.id) + '<div class="acts"><button class="btn" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '">Change</button></div>';
+  else if (tickable(b)) acts = '<div class="acts"><button class="btn primary" data-act="tick" data-d="' + d + '" data-id="' + esc(b.id) + '">' + (st.done ? 'Done ✓' : 'Done') + '</button>' +
+    (b.cat === 'gym' ? '<button class="btn" data-act="go" data-tab="gym">Open log</button>' : '<button class="btn" style="width:112px" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '">Change</button>') + '</div>';
+  else acts = '<div class="acts"><button class="btn" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '">Change</button></div>';
+  return '<div class="focus c-' + b.cat + '"><div class="lbl">' + lbl + '</div><div class="big">' + esc(bTitle(b, d)) + '</div>' + (note ? '<p>' + esc(note) + '</p>' : '') +
+    (cur ? '<div class="prog"><i style="width:' + pct + '%"></i></div>' : '') + acts + '</div>';
+}
+function todayA(){
+  const t = today(), d = t, bl = dayBlocks(d), m = nowM();
+  const beh = behindLectures(), nd = nextDue(), g = weekGym(weekStart(t)), nw = notesToWrite().length;
+  const upcoming = bl.filter(b => b.cat !== 'free' && b.s > m).filter(b => !(b.s <= m)).slice(0, 5);
+  const curId = (bl.find(b => b.cat !== 'free' && b.s <= m && m < b.e) || {}).id;
+  view.innerHTML = '<div class="topbar" style="align-items:center"><div><h1 style="font-size:20px">' + dayName(d) + ' ' + niceDate(d) + '</h1><div class="sub">' + (bl.campus ? 'Campus day · leave ' + tm(bl.leave) : 'Home day') + ' · ' + esc(periodLabel(d)) + '</div></div><div style="font-weight:750;font-size:18px">' + tm(m) + '</div></div>' +
+    welcome() + focusHtml(d) +
+    (aFull ? '<div class="sec">Whole day</div>' + agendaHtml(d, true)
+      : '<div class="nextlist"><div class="sec" style="margin-top:0">Next</div><ol style="list-style:none;padding:0;margin:0">' +
+        upcoming.filter(b => b.id !== curId).slice(0, 4).map(b => itemHtml(b, d)).join('') + '</ol></div>') +
+    '<div class="chips">' + (beh.length ? '<button class="chip warn" data-act="go" data-tab="behind">' + beh.length + ' lecture' + (beh.length === 1 ? '' : 's') + ' behind · ' + hrs(beh.reduce((a, x) => a + (x.e - x.s) / 60, 0)) + '</button>' : '') +
+    (nd ? '<button class="chip" data-act="go" data-tab="deadlines">' + esc(nd.code + ' ' + nd.title.replace(/^Problem set/, 'PS')) + ' · ' + esc(dueWhen(nd)) + '</button>' : '') +
+    '<button class="chip" data-act="go" data-tab="gym">Gym ' + g.main + ' of ' + S.prefs.gymMin + '–' + S.prefs.gymMax + '</button>' +
+    (nw ? '<button class="chip" data-act="go" data-tab="behind">' + nw + ' notes to write</button>' : '') + '</div>' +
+    '<div class="row-flex" style="margin-top:16px"><button class="btn" data-act="afull">' + (aFull ? 'One thing at a time' : 'See the whole day') + '</button></div>' + resetDayBtn(d);
+}
+function todayC(){
+  const t = today(), d = viewDay || t, isT = d === t;
+  const ws = weekStart(d);
+  view.innerHTML = '<div class="topbar" style="align-items:center;padding-top:0"><div><h1 style="font-size:28px">' + (isT ? 'Today' : dayName(d)) + ' <span class="muted" style="font-weight:600">' + niceDate(d) + '</span></h1><div class="sub">' + esc((dayBlocks(d).campus ? 'Campus day · leave at ' + tm(dayBlocks(d).leave) : 'Home day') + ' · ' + periodLabel(d)) + '</div></div>' +
+    '<div class="row-flex"><button class="btn small" data-act="dprev" aria-label="Previous day">' + ic('left', 'width:18px;height:18px') + '</button>' + (isT ? '' : '<button class="btn small" data-act="day" data-d="' + t + '">Today</button>') +
+    '<button class="btn small" data-act="dnext" aria-label="Next day">' + ic('right', 'width:18px;height:18px') + '</button><button class="btn small soft" data-act="copyweek">' + ic('copy', 'width:18px;height:18px') + 'Copy week for Claude</button></div></div>' +
+    welcome() + '<div class="dash" style="margin-top:14px"><div>' + agendaHtml(d, isT).replace('class="agenda"', 'class="agenda" style="margin-top:0"') + resetDayBtn(d) + '</div>' +
+    '<div>' + (isT ? focusHtml(d).replace('class="focus', 'style="margin-top:0" class="focus') : '') + behindCard(true) + dueCard() + '</div>' +
+    '<div>' + weekCard(ws, isT ? 'This week' : 'That week') + gymCard() + bodyCard(true) + '</div></div>';
+}
+
+/* ================= cards used in several places ================= */
+function behindCard(short){
+  const beh = behindLectures(), h = beh.reduce((a, x) => a + (x.e - x.s) / 60, 0), mc = missedClasses(), nw = notesToWrite();
+  const rows = beh.slice(0, short ? 4 : 99).map(x => { const sl = CP.byLec[x.id];
+    return '<div class="li"><span class="code">' + x.code + '</span><div class="tx"><div class="t">' + esc(x.label) + ' · ' + hrs((x.e - x.s) / 60) + '</div><div class="s ' + (sl ? 'hint' : '') + '">' + sessWhen(x) + (sl ? ' · watch it ' + slotText(sl) : ' · watch it in any study block') + '</div></div>' +
+      '<button class="btn small soft" data-act="lt1" data-f="wat" data-id="' + esc(x.id) + '">Watched</button></div>'; }).join('');
+  return '<section class="card"><h2>Lectures to catch up<span class="r" style="' + (beh.length ? 'color:var(--bad)' : '') + '">' + (beh.length ? hrs(h) : 'none') + '</span></h2>' +
+    (beh.length ? rows + (short && beh.length > 4 ? '<div class="li"><button class="btn small" data-act="go" data-tab="behind">All ' + beh.length + '</button></div>' : '') : '<p class="empty">You are up to date on lectures.</p>') +
+    (short && (mc.length || nw.length) ? '<div class="li"><div class="tx s">' + (mc.length ? mc.length + ' class solution' + (mc.length === 1 ? '' : 's') + ' to go through. ' : '') + (nw.length ? nw.length + ' set' + (nw.length === 1 ? '' : 's') + ' of notes to write.' : '') + '</div><button class="btn small" data-act="go" data-tab="behind">Open</button></div>' : '') + '</section>';
+}
+function dueCard(){
+  const n = now(), lim = new Date(n.getTime() + 7 * 864e5);
+  const list = allDL().filter(x => !isDone(x) && dueDate(x) <= lim).slice(0, 8);
+  return '<section class="card"><h2>Due in the next 7 days</h2>' + (list.length ? list.map(x =>
+    '<div class="li"><span class="code">' + esc(x.code === 'BUS' ? 'BIZ' : x.code) + '</span><div class="tx"><div class="t">' + esc(x.title) + '</div><div class="s' + (dueDate(x) < n || dueDate(x) - n < 864e5 ? ' bad' : '') + '">' + esc(dueWhen(x)) + ' · ' + untilText(x) + '</div></div>' +
+    '<button class="chk c-business" data-act="dltick" data-id="' + esc(x.id) + '" aria-label="Done">' + ic('check') + '</button></div>').join('')
+    : '<p class="empty">Nothing due. Add deadlines from Moodle with +.</p>') + '</section>';
+}
+function weekCard(ws, title){
+  const r = weekStats(ws), P = S.prefs, g = r.gym;
+  const bar = (label, cat, d, p, txt) => '<span class="lb">' + label + '</span><span class="track c-' + cat + '"><i style="width:' + (p ? Math.min(100, Math.round(d / p * 100)) : 0) + '%"></i></span><span class="v">' + txt + '</span>';
+  return '<section class="card"><h2>' + title + '</h2><div class="bars">' +
+    bar('Lectures', 'lse', r.lect.d, r.lect.p, r.lect.d + ' / ' + r.lect.p) +
+    bar('Gym', 'gym', g.main, P.gymMin, g.main + ' / ' + P.gymMin + '–' + P.gymMax) +
+    bar('Home', 'gym', g.home, P.homeMin, g.home + ' / ' + P.homeMin + '–' + P.homeMax) +
+    bar('Study', 'study', r.study.d, r.study.p, hrs(r.study.d) + ' / ' + hrs(r.study.p)) +
+    bar('Career', 'career', r.career.d, r.career.p, hrs(r.career.d) + ' / ' + hrs(r.career.p)) +
+    bar('Academy', 'academy', r.academy.d, r.academy.p, hrs(r.academy.d) + ' / ' + hrs(r.academy.p)) +
+    bar('Business', 'business', r.business.d, r.business.p, hrs(r.business.d) + ' / ' + hrs(r.business.p)) +
+    bar('Up at 7', 'routine', r.wake.d, r.wake.p, r.wake.d + ' / ' + r.wake.p) +
+    bar('Bed by 23', 'admin', r.bed.d, r.bed.p, r.bed.d + ' / ' + r.bed.p) +
+    '</div><p class="muted small" style="margin:10px 0 0">Counts only what you tick. Day 7 this week: ' + (g.d7 ? 'done' : 'not done (optional)') + '.</p></section>';
+}
+function gymCard(){
+  const n = S.gym.next, dr = S.gym.draft;
+  const day = dr ? dr.day : n;
+  return '<section class="card c-gym"><h2>Gym<span class="r">next: Day ' + n + '</span></h2><div class="t" style="font-weight:700;font-size:17px">Day ' + day + ' · ' + PROG[day].name + '</div>' +
+    '<div class="muted small">' + PROG[day].mins + ' · ' + PROG[day].ex.filter(a => !(a[5] && a[5].opt)).map(a => a[0]).join(', ') + '</div>' +
+    '<div class="row-flex" style="margin-top:12px"><button class="btn small primary" style="background:var(--gym);border-color:var(--gym);color:#fff" data-act="go" data-tab="gym">' + (dr ? 'Continue log' : 'Open gym log') + '</button></div></section>';
+}
+function sparkSvg(){
+  const e = wEntries().slice(-42); if (e.length < 2) return '';
+  const xs = e.map(x => daysBetween(e[0].d, x.d)), span = Math.max(1, xs[xs.length - 1]);
+  const av = e.map(x => avg7(x.d)), vals = e.map(x => x.kg).concat(av.filter(v => v != null));
+  const lo = Math.min(...vals) - .3, hi = Math.max(...vals) + .3, W = 300, H = 90;
+  const X = i => (xs[i] / span * (W - 12) + 6).toFixed(1), Y = v => (H - 8 - (v - lo) / (hi - lo) * (H - 16)).toFixed(1);
+  const pts = e.map((x, i) => '<circle cx="' + X(i) + '" cy="' + Y(x.kg) + '" r="2.4" fill="var(--muted)" opacity=".55"/>').join('');
+  const line = av.map((v, i) => v == null ? null : X(i) + ',' + Y(v)).filter(Boolean).join(' ');
+  return '<svg class="spark" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" role="img" aria-label="Bodyweight trend">' + pts +
+    (line.split(' ').length > 1 ? '<polyline points="' + line + '" fill="none" stroke="var(--accent)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' : '') + '</svg>';
+}
+function bodyCard(short){
+  const e = wEntries(), wa = weightAdvice(), t = today();
+  return '<section class="card"><h2>Bodyweight<span class="r">' + (wa.avg ? '7-day avg ' + wa.avg.toFixed(1) + ' kg' : S.prefs.startKg + ' → ' + S.prefs.goalKg + ' kg') + '</span></h2>' +
+    '<form class="row-flex" data-form="weight"><input type="number" name="kg" step="0.1" min="30" max="150" inputmode="decimal" placeholder="kg today" aria-label="Weight in kg" value="' + (S.weights[t] || '') + '" style="flex:1"><button class="btn primary" type="submit">Save</button></form>' +
+    sparkSvg() + '<p class="small" style="margin:10px 0 0;color:' + (wa.flat ? 'var(--warn)' : 'var(--muted)') + '">' + esc(wa.txt) + '</p>' +
+    (short ? '' : (e.length ? '<details style="margin-top:10px"><summary class="muted small">Log (' + e.length + ')</summary>' + e.slice(-21).reverse().map(x => '<div class="li"><div class="tx">' + niceDate(x.d, true) + '</div><b>' + x.kg + ' kg</b><button class="btn small" data-act="wdel" data-d="' + x.d + '">Delete</button></div>').join('') + '</details>' : '')) + '</section>';
 }
 
 /* ================= WEEK ================= */
-const PX = 46 / 60, START = 7 * 60, END = 23 * 60;
+const PX = 48 / 60, START = 7 * 60, END = 23 * 60;
 function renderWeek(){
   const t = today(), ws = viewWeek || weekStart(t), m = nowM();
   const days = [0,1,2,3,4,5,6].map(i => addD(ws, i));
@@ -845,128 +1434,139 @@ function renderWeek(){
   const cols = days.map(d => {
     const bl = dayBlocks(d).map(b => {
       const s = Math.max(b.s, START), e = Math.min(b.e, END); if (e <= s) return '';
-      const past = d < t || (d === t && b.e <= m), done = !!S.done[b.id], missed = tickable(b) && past && !done && !b.opt;
-      return '<div class="blk c-' + b.cat + (e - s < 25 ? ' tiny' : '') + (done ? ' done' : '') + (missed ? ' missed' : '') + '" style="top:' + (s - START) * PX + 'px;height:' + Math.max(10, (e - s) * PX - 2) + 'px" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '" title="' + esc(tm(b.s) + '–' + tm(b.e) + ' ' + b.t) + '">' +
-        (e - s >= 45 ? '<span class="t">' + tm(b.s) + '</span>' : '') + '<b>' + esc(b.t) + '</b></div>';
+      const st = stOf(b, d);
+      return '<div class="blk c-' + b.cat + (st.done ? ' done' : '') + (st.missed ? ' missed' : '') + '" style="top:' + (s - START) * PX + 'px;height:' + Math.max(10, (e - s) * PX - 2) + 'px" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '" title="' + esc(tm(b.s) + '–' + tm(b.e) + ' ' + bTitle(b, d)) + '">' +
+        (e - s >= 45 ? '<span class="t">' + tm(b.s) + '</span>' : '') + '<b>' + esc(bTitle(b, d)) + '</b></div>';
     }).join('');
     const nl = d === t && m >= START && m < END ? '<div class="nowline" style="top:' + (m - START) * PX + 'px"></div>' : '';
     return '<div class="col' + (d === t ? ' today' : '') + '" style="height:' + (END - START) * PX + 'px">' + bl + nl + '</div>';
   }).join('');
   const heads = '<div class="dh"></div>' + days.map(d => '<div class="dh' + (d === t ? ' today' : '') + '">' + dayName(d, true) + ' ' + dOf(d).getDate() + '<small>' + (dayBlocks(d).campus ? 'Campus' : 'Home') + '</small></div>').join('');
-  const list = days.map(d => '<h3>' + dayName(d) + ' ' + niceDate(d) + ' · ' + (dayBlocks(d).campus ? 'campus' : 'home') + '</h3><ol class="timeline">' + dayBlocks(d).map(b => rowHtml(b, d, d === t, m)).join('') + '</ol>').join('');
-  const legend = [['lse','LSE'],['study','Study'],['academy','Academy'],['gym','Gym'],['business','Business'],['meal','Food'],['chores','Shopping'],['travel','Travel'],['admin','Review'],['free','Free']]
-    .map(([c, l]) => '<span class="c-' + c + '">' + l + '</span>').join('');
-  view.innerHTML = '<section class="wkhead"><button class="navbtn" data-act="wprev" aria-label="Previous week">‹</button><div><h1>Week of ' + niceDate(ws) + '</h1><div class="muted">' + esc(periods) + '</div></div>' +
-    '<button class="navbtn" data-act="wnext" aria-label="Next week">›</button>' + (ws === weekStart(t) ? '' : '<button class="btn small" data-act="wtoday">This week</button>') + '</section>' +
-    '<div class="wk">' + heads + gut + cols + '</div><div class="wklist">' + list + '</div><div class="legend">' + legend + '</div>' +
-    '<div style="margin-top:16px;max-width:520px">' + weekPanel(ws, ws === weekStart(t) ? 'This week' : 'That week') + '</div>';
+  const list = days.map(d => '<h3>' + dayName(d) + ' ' + niceDate(d) + ' <span class="muted" style="font-weight:600;font-size:14px">· ' + (dayBlocks(d).campus ? 'campus' : 'home') + '</span></h3>' + agendaHtml(d, false)).join('');
+  view.innerHTML = '<div class="topbar" style="align-items:center"><div><h1>Week of ' + niceDate(ws) + '</h1><div class="sub">' + esc(periods) + '</div></div>' +
+    '<div class="row-flex"><button class="btn small" data-act="wprev" aria-label="Previous week">' + ic('left', 'width:18px;height:18px') + '</button>' + (ws === weekStart(t) ? '' : '<button class="btn small" data-act="wtoday">This week</button>') + '<button class="btn small" data-act="wnext" aria-label="Next week">' + ic('right', 'width:18px;height:18px') + '</button></div></div>' +
+    '<div class="wk">' + heads + gut + cols + '</div><div class="wklist">' + list + '</div>' +
+    '<div style="margin-top:16px;max-width:560px">' + weekCard(ws, ws === weekStart(t) ? 'This week' : 'That week') + '</div>';
 }
 
-/* ================= CATCH-UP ================= */
-function renderCatch(){
-  const n = now();
-  let list = ALLSESS.filter(x => x.kind === 'lecture' || x.kind === 'help' || x.kind === 'class' || x.kind === 'workshop');
-  const isPast = x => at(x.date, x.e) <= n;
-  if (catchFilter === 'behind') list = list.filter(x => x.kind === 'lecture' && isPast(x) && !S.done[x.id]);
-  else if (catchFilter === 'past') list = list.filter(isPast);
-  const beh = behindLectures(), h = beh.reduce((a, x) => a + (x.e - x.s) / 60, 0);
-  const notesDue = ALLSESS.filter(x => x.kind === 'lecture' && isPast(x) && S.done[x.id] && !S.notes[x.id]).length;
-  const groups = {};
-  for (const x of list){ const k = weekStart(x.date); (groups[k] = groups[k] || []).push(x); }
-  const keys = Object.keys(groups).sort();
-  const row = x => {
-    const past = isPast(x), done = !!S.done[x.id], behind = x.kind === 'lecture' && past && !done;
-    const inPerson = dayBlocks(x.date).campus && x.kind !== 'help';
-    const verb = x.kind === 'class' || x.kind === 'workshop' ? 'Attended' : (inPerson ? 'Attended' : 'Watched');
-    return '<div class="lrow' + (behind ? ' behind' : '') + (past ? '' : ' future') + '"><span class="d">' + dayName(x.date, true) + ' ' + niceDate(x.date).replace(/ (\w{3})\w*$/, ' $1') + ' · ' + tm(x.s) + '</span>' +
-      '<span class="code">' + x.code + '</span><span>' + esc(x.label) + (x.kind === 'help' ? ' <span class="tag">optional</span>' : '') + ' <span class="muted">· ' + hrs((x.e - x.s) / 60) + '</span></span>' +
-      '<span class="row-flex"><button class="tg' + (done ? ' on' : '') + '" data-act="tick" data-id="' + esc(x.id) + '">' + verb + '</button>' +
-      (x.kind === 'lecture' || x.kind === 'help' ? '<button class="tg' + (S.notes[x.id] ? ' on' : '') + '" data-act="note" data-id="' + esc(x.id) + '">Notes</button>' : '') + '</span></div>';
-  };
-  const seg = (k, l) => '<button data-act="cfilter" data-f="' + k + '" aria-pressed="' + (catchFilter === k) + '">' + l + '</button>';
-  view.innerHTML = '<section class="daybar"><div><h1>Catch-up</h1><div class="muted">' +
-    (beh.length ? beh.length + ' lecture' + (beh.length === 1 ? '' : 's') + ' behind, ' + hrs(h) + ' of watching. Clear the oldest first, in Sunday\'s catch-up block or any study block.' : 'Up to date on lectures.') +
-    (notesDue ? ' ' + notesDue + ' watched lecture' + (notesDue === 1 ? ' still needs' : 's still need') + ' notes.' : '') + '</div></div></section>' +
-    '<div class="seg">' + seg('behind', 'Behind') + seg('past', 'All so far') + seg('all', 'Whole year') + '</div>' +
-    (keys.length ? keys.map(k => '<div class="wkgroup"><h3>Week of ' + niceDate(k) + ' · ' + esc(periodOf(k).name) + '</h3>' + groups[k].map(row).join('') + '</div>').join('')
-      : '<p class="muted" style="margin-top:18px">Nothing here. Nice.</p>');
+/* ================= BEHIND ================= */
+function renderBehind(){
+  const mc = missedClasses(), nw = notesToWrite(), hs = helpSkipped();
+  const seg = (k, l) => '<button data-act="bmode" data-f="' + k + '" aria-pressed="' + (behindMode === k) + '">' + l + '</button>';
+  let body;
+  if (behindMode === 'todo'){
+    body = behindCard(false) +
+      '<section class="card"><h2>Class solutions to go through<span class="r">' + mc.length + '</span></h2>' + (mc.length ? mc.map(x =>
+        '<div class="li"><span class="code">' + x.code + '</span><div class="tx"><div class="t">' + esc(x.label) + ' solutions</div><div class="s">Missed ' + sessWhen(x) + '. Go through the posted solutions on Moodle.</div></div><button class="btn small soft" data-act="sol" data-id="' + esc(x.id) + '">Done</button></div>').join('')
+        : '<p class="empty">No missed classes.</p>') + '</section>' +
+      '<section class="card"><h2>Notes to write<span class="r">' + nw.length + '</span></h2>' + (nw.length ? nw.map(x =>
+        '<div class="li"><span class="code">' + x.code + '</span><div class="tx"><div class="t">' + esc(x.label) + '</div><div class="s">' + sessWhen(x) + ' · ' + (S.att[x.id] ? 'attended' : 'watched') + '</div></div><button class="btn small soft" data-act="lt1" data-f="notes" data-id="' + esc(x.id) + '">Notes made</button></div>').join('')
+        : '<p class="empty">All caught up on notes.</p>') + '</section>' +
+      dueCard() + weekCard(weekStart(today()), 'This week') +
+      (hs.length ? '<section class="card"><details><summary><h2 style="margin:0">Optional help lectures not watched<span class="r">' + hs.length + '</span></h2></summary>' + hs.map(x =>
+        '<div class="li"><span class="code">' + x.code + '</span><div class="tx"><div class="t">' + esc(x.label) + '</div><div class="s">' + sessWhen(x) + ' · optional</div></div><button class="btn small" data-act="lt1" data-f="wat" data-id="' + esc(x.id) + '">Watched</button></div>').join('') + '</details></section>' : '');
+  } else {
+    const n = now();
+    let list = ALLSESS.filter(x => x.kind !== 'qa');
+    if (!trackAll) list = list.filter(x => at(x.date, x.s) <= n);
+    const groups = {};
+    for (const x of list){ const k = weekStart(x.date); (groups[k] = groups[k] || []).push(x); }
+    const keys = Object.keys(groups).sort().reverse();
+    body = '<div class="row-flex" style="margin-top:12px"><button class="btn small" data-act="trackall">' + (trackAll ? 'Show only so far' : 'Show the whole year') + '</button></div>' +
+      keys.map(k => '<div class="sec">Week of ' + niceDate(k) + ' · ' + esc(periodOf(k).name) + '</div><section class="card" style="padding-top:6px;padding-bottom:6px">' + groups[k].map((x, i) => {
+        const past = isPastS(x), cov = covered(x.id);
+        const flag = past && !cov ? (x.kind === 'lecture' ? '<span class="tag bad">behind</span>' : x.kind === 'help' ? '<span class="tag">optional</span>' : S.done['sol|' + x.id] ? '<span class="tag good">solutions done</span>' : '<span class="tag bad">missed</span>') : '';
+        return '<div class="li' + (i ? '' : ' first') + '" style="flex-wrap:wrap' + (past ? '' : ';opacity:.6') + '"><span class="code">' + x.code + '</span><div class="tx"><div class="t">' + esc(x.label) + flag + '</div><div class="s">' + sessWhen(x) + ' · ' + tm(x.s) + '–' + tm(x.e) + '</div></div><div style="flex-basis:100%;padding-left:64px;margin-top:-4px">' + lseTicks(x.id) + '</div></div>';
+      }).join('') + '</section>').join('');
+  }
+  view.innerHTML = '<div class="topbar"><div><h1>Behind</h1><div class="sub">What slipped, what is due, and your full lecture tracker.</div></div></div>' +
+    '<div class="seg" style="margin-top:10px">' + seg('todo', 'To do') + seg('track', 'Lecture tracker') + '</div>' + body;
 }
 
 /* ================= DEADLINES ================= */
 function renderDeadlines(){
-  const n = now(), soon = new Date(n.getTime() + 3 * 864e5);
+  const n = now(), soon = new Date(n.getTime() + 3 * 864e5), wk = new Date(n.getTime() + 7 * 864e5);
   let all = allDL(); if (dlFilter !== 'ALL') all = all.filter(x => x.code === dlFilter);
   const over = all.filter(x => !isDone(x) && dueDate(x) < n);
-  const week = all.filter(x => !isDone(x) && dueDate(x) >= n && dueDate(x) <= new Date(n.getTime() + 7 * 864e5));
-  const later = all.filter(x => !isDone(x) && dueDate(x) > new Date(n.getTime() + 7 * 864e5));
+  const week = all.filter(x => !isDone(x) && dueDate(x) >= n && dueDate(x) <= wk);
+  const later = all.filter(x => !isDone(x) && dueDate(x) > wk);
   const done = all.filter(isDone).reverse();
   const row = x => { const dd = dueDate(x), d0 = isDone(x);
-    return '<div class="drow' + (d0 ? ' isdone' : dd < n ? ' over' : dd <= soon ? ' soon' : '') + '">' +
-      '<button class="chk' + (d0 ? ' on' : '') + '" data-act="dltick" data-id="' + esc(x.id) + '" aria-label="Done">✓</button>' +
-      '<span class="code">' + esc(x.code) + '</span><div><div class="t">' + esc(x.title) + '</div>' + (x.note ? '<div class="n">' + esc(x.note) + '</div>' : '') + '</div>' +
-      '<div class="w">' + esc(dueWhen(x)) + '<br>' + (d0 ? 'done' : untilText(x)) + (x.custom ? '<br><button class="btn small danger" data-act="dldel" data-id="' + esc(x.id) + '">Delete</button>' : '') + '</div></div>'; };
-  const codes = ['ALL','EC2A1','EC2B1','EC2C1','FM214','FM215','BUS','OTHER'];
-  const t = today();
-  view.innerHTML = '<section class="daybar"><div><h1>Deadlines</h1><div class="muted">Add anything new from Moodle in your Sunday weekly review.</div></div></section>' +
-    '<section class="card"><h2>Add a deadline</h2><form class="form" id="dlform">' +
-    '<select name="code" aria-label="Course">' + codes.slice(1).map(c => '<option value="' + c + '">' + (c === 'BUS' ? 'Business' : c === 'OTHER' ? 'Other' : c) + '</option>').join('') + '</select>' +
-    '<input name="title" class="wide" placeholder="What is due (e.g. Problem set 3)" required aria-label="Title">' +
-    '<input name="date" type="date" value="' + t + '" required aria-label="Date"><input name="time" type="time" value="23:59" required aria-label="Time">' +
-    '<button class="btn primary" type="submit">Add</button></form></section>' +
-    '<div class="seg" style="margin-top:16px;flex-wrap:wrap">' + codes.map(c => '<button data-act="dlfilter" data-f="' + c + '" aria-pressed="' + (dlFilter === c) + '">' + (c === 'ALL' ? 'All' : c === 'BUS' ? 'Business' : c === 'OTHER' ? 'Other' : c) + '</button>').join('') + '</div>' +
-    (over.length ? '<h2 class="sec" style="color:var(--bad)">Overdue</h2>' + over.map(row).join('') : '') +
-    '<h2 class="sec">Next 7 days</h2>' + (week.length ? week.map(row).join('') : '<p class="muted">Nothing.</p>') +
-    '<h2 class="sec">Later</h2>' + (later.length ? later.map(row).join('') : '<p class="muted">Nothing.</p>') +
-    (done.length ? '<details style="margin-top:18px"><summary class="muted" style="cursor:pointer">Done (' + done.length + ')</summary><div style="margin-top:8px">' + done.map(row).join('') + '</div></details>' : '');
-  $('#dlform').addEventListener('submit', e => {
-    e.preventDefault();
-    const f = new FormData(e.target), title = String(f.get('title') || '').trim();
-    if (!title) return;
-    S.custom.push({id:'c' + Date.now(), code:f.get('code'), title, due:f.get('date') + 'T' + f.get('time'), note:'', custom:true});
-    save(); toast('Added.'); renderDeadlines(); updateChrome();
-  });
+    return '<div class="li" style="' + (d0 ? 'opacity:.55' : '') + '"><button class="chk c-business' + (d0 ? ' on' : '') + '" data-act="dltick" data-id="' + esc(x.id) + '" aria-label="Done">' + ic('check') + '</button>' +
+      '<span class="code">' + esc(x.code === 'BUS' ? 'BIZ' : x.code) + '</span><div class="tx"><div class="t">' + esc(x.title) + '</div>' + (x.note ? '<div class="s">' + esc(x.note) + '</div>' : '') +
+      '<div class="s' + (!d0 && dd < n ? ' bad' : !d0 && dd <= soon ? ' bad' : '') + '">' + esc(dueWhen(x)) + ' · ' + (d0 ? 'done' : untilText(x)) + '</div></div>' + (x.custom ? '<button class="btn small danger" data-act="dldel" data-id="' + esc(x.id) + '">Delete</button>' : '') + '</div>'; };
+  const codes = ['ALL','EC2A1','EC2B1','EC2C1','FM214','FM215','EC260P','BUS','OTHER'];
+  const lab = c => c === 'ALL' ? 'All' : c === 'BUS' ? 'Business' : c === 'OTHER' ? 'Other' : c;
+  const card = (title, list, empty) => '<section class="card"><h2>' + title + '<span class="r">' + list.length + '</span></h2>' + (list.length ? list.map(row).join('') : '<p class="empty">' + empty + '</p>') + '</section>';
+  view.innerHTML = '<div class="topbar"><div><h1>Deadlines</h1><div class="sub">Add anything new from Moodle in your Sunday weekly review.</div></div><button class="pillbtn" data-act="add" data-k="dl">+ Add</button></div>' +
+    '<div class="seg" style="margin:10px 0 14px">' + codes.map(c => '<button data-act="dlfilter" data-f="' + c + '" aria-pressed="' + (dlFilter === c) + '">' + lab(c) + '</button>').join('') + '</div>' +
+    (over.length ? card('<span style="color:var(--bad)">Overdue</span>', over, '') : '') + card('Next 7 days', week, 'Nothing.') + card('Later', later, 'Nothing.') +
+    (done.length ? '<section class="card"><details><summary><h2 style="margin:0">Done<span class="r">' + done.length + '</span></h2></summary>' + done.map(row).join('') + '</details></section>' : '');
 }
 
-/* ================= FOOD ================= */
-const SHOP = {
-  sat:['Chicken thighs, about 1.5 kg (curry, stir-fry, wraps)','Beef mince 500 g (or 2 more tins of lentils)','Frozen salmon fillets ×2','Eggs ×15','Milk, 4 pints','Greek yoghurt 1 kg','Cheese (block)','Oats 1 kg','Basmati rice 1 kg','Pasta 1 kg','Noodles','Wraps ×8','Bread, 1 loaf','Potatoes 2.5 kg','Onions, garlic, ginger','Tinned tomatoes ×2, passata ×1','Chickpeas ×2, lentils ×2','Frozen mixed veg, broccoli, spinach','Curry paste or spices','Peanut butter','Bananas, apples'],
-  wed:['Milk','Bananas','Salad leaves, cucumber, tomatoes','Peppers ×3','Bread or wraps if low','Anything you ran out of']
-};
-const PLAN = [
-  ['Mon','Oats: milk, banana, peanut butter','Curry + rice (Sunday batch)','Salmon tray bake: potatoes, broccoli'],
-  ['Tue','3 eggs on toast + fruit','Curry + rice','Chicken stir-fry, noodles, frozen veg'],
-  ['Wed','Oats','Curry + rice','Pasta bake (Wednesday batch)'],
-  ['Thu','Overnight oats (made Wed night)','Pasta bake','Chicken or bean wraps, peppers, yoghurt'],
-  ['Fri','Eggs on toast','Pasta bake','Shawarma-style chicken wraps + salad (your Friday fakeaway)'],
-  ['Sat','Oats or eggs','Jacket potato, tuna or beans, cheese','Pasta with tuna, sweetcorn and veg'],
-  ['Sun','Eggs and beans on toast','Leftovers or eggs','Curry (Sunday batch, first portion)']
-];
+/* ================= GYM ================= */
+const HOME = ['Mobility: hips, ankles, thoracic spine (5 min)','Core: dead bugs, plank, side plank (5 min)','Push-ups: 3 sets, 1–2 short of failure','Posture: wall slides, band pull-aparts or doorway stretch'];
+function exHtml(ex, i, dr, total){
+  const v = (dr.sets[ex.name] || []), last = lastSets(ex.name), up = upSuggestion(ex, last);
+  const rx = (ex.sets > 1 || ex.lo ? ex.sets + ' × ' : '') + (ex.lo != null ? (ex.lo === ex.hi ? ex.lo : ex.lo + '–' + ex.hi) + (ex.unit === 'reps' ? '' : ' ' + ex.unit) : '') + (ex.side ? ' per side' : '') + (ex.rest ? ' · rest ' + ex.rest : '');
+  let sets = '';
+  if (ex.done){
+    const on = !!(v[0] && v[0][1]);
+    sets = '<button class="tk' + (on ? ' on' : '') + '" data-act="gdone" data-x="' + esc(ex.name) + '">' + (on ? 'Done ✓' : 'Mark done') + '</button>';
+  } else for (let s = 0; s < ex.sets; s++){
+    const r = v[s] || [], ph = last && last.sets[s] ? last.sets[s] : [];
+    sets += '<div class="setrow"><span>Set ' + (s + 1) + '</span>' +
+      '<input type="number" inputmode="decimal" step="0.5" min="0" placeholder="' + (ph[0] ? ph[0] + ' kg' : 'kg') + '" aria-label="' + esc(ex.name) + ' set ' + (s + 1) + ' weight in kg" value="' + (r[0] != null ? r[0] : '') + '" data-gx="' + esc(ex.name) + '" data-gs="' + s + '" data-gf="0">' +
+      '<input type="number" inputmode="numeric" step="1" min="0" placeholder="' + (ph[1] ? ph[1] + ' ' + (ex.unit === 'reps' ? 'reps' : ex.unit) : ex.unit) + '" aria-label="' + esc(ex.name) + ' set ' + (s + 1) + ' ' + ex.unit + '" value="' + (r[1] != null ? r[1] : '') + '" data-gx="' + esc(ex.name) + '" data-gs="' + s + '" data-gf="1"></div>';
+  }
+  return '<div class="ex c-gym"><div class="hd"><div class="nm">' + esc(ex.name) + (ex.opt ? ' <span class="tag">optional</span>' : '') + '</div><div class="rx">' + (total ? (i + 1) + ' of ' + total + '<br>' : '') + esc(rx) + '</div></div>' +
+    (ex.note ? '<div class="last">' + esc(ex.note) + '</div>' : '') +
+    (last ? '<div class="last">Last time (' + niceDate(last.date, true) + '): ' + esc(fmtSets(ex, last.sets)) + '</div>' : (ex.done ? '' : '<div class="last">No log yet. Working sets only.</div>')) +
+    (up ? '<div class="up">' + esc(up) + '</div>' : '') + sets +
+    (ex.rest ? '<button class="btn small" data-act="rest" data-sec="' + restSec(ex.rest) + '">Start ' + ex.rest.split('–')[0] + ' rest</button>' : '') + '</div>';
+}
+function renderGym(){
+  const t = today(), dr = draft(), day = dr.day, P = PROG[day], exs = P.ex.map(exObj), g = weekGym(weekStart(t));
+  const stale = dr.date !== t && Object.keys(dr.sets).length;
+  const daySeg = [1,2,3,4,5,6,7].map(n => '<button data-act="gday" data-n="' + n + '" aria-pressed="' + (day === n) + '">' + (n === 7 ? 'Day 7' : n) + '</button>').join('');
+  const home = (S.gym.home || []).includes(t);
+  let exBlock;
+  if (DEV.layout === 'A'){
+    aEx = Math.min(aEx, exs.length - 1);
+    exBlock = exHtml(exs[aEx], aEx, dr, exs.length) + '<div class="row-flex" style="margin-top:12px"><button class="btn" data-act="exprev"' + (aEx ? '' : ' disabled') + '>' + ic('left', 'width:18px;height:18px') + 'Previous</button><span class="grow"></span>' +
+      (aEx < exs.length - 1 ? '<button class="btn primary" data-act="exnext">Next exercise' + ic('right', 'width:18px;height:18px') + '</button>' : '<button class="btn primary" data-act="gfinish">Finish session</button>') + '</div>' +
+      '<details style="margin-top:14px"><summary class="muted small">All exercises</summary>' + exs.map((e, i) => '<div class="li"><div class="tx"><div class="t">' + esc(e.name) + '</div></div><button class="btn small" data-act="exgo" data-i="' + i + '">Go</button></div>').join('') + '</details>';
+  } else exBlock = exs.map((e, i) => exHtml(e, i, dr)).join('');
+  view.innerHTML = '<div class="topbar"><div><div class="sec" style="margin:0;color:var(--gym)">Gym · ' + (day === S.gym.next ? 'next in rotation' : day === 7 ? 'optional conditioning' : 'chosen by you') + '</div><h1>Day ' + day + ' · ' + esc(P.name) + '</h1><div class="sub">' + P.mins + (P.note ? ' · ' + esc(P.note) : '') + (day <= 6 ? ' · picks up where you left off' : '') + '</div></div></div>' +
+    '<div class="gymhead"><span class="chip">Gym ' + g.main + ' of ' + S.prefs.gymMin + '–' + S.prefs.gymMax + ' this week</span><span class="chip">Home ' + g.home + ' of ' + S.prefs.homeMin + '–' + S.prefs.homeMax + '</span><span class="chip">Day 7: ' + (g.d7 ? 'done' : 'optional') + '</span></div>' +
+    (stale ? '<section class="card" style="margin-top:14px;background:var(--warn-soft);border-color:transparent"><b>Unfinished log from ' + niceDate(dr.date, true) + '.</b><div class="row-flex" style="margin-top:8px"><button class="btn small primary" data-act="gfinish">Save it</button><button class="btn small" data-act="gdiscard">Discard</button></div></section>' : '') +
+    '<div class="sec">Which session</div><div class="seg">' + daySeg + '</div><p class="muted small" style="margin:6px 0 0">Days 1–6 rotate whatever the weekday. A missed session waits for you. Day 7 never moves the rotation.</p>' +
+    '<div style="margin-top:14px">' + exBlock + '</div>' +
+    (DEV.layout === 'A' ? '' : '<div class="row-flex" style="margin-top:14px"><button class="btn primary" data-act="gfinish">Finish session</button><button class="btn" data-act="gdiscard">Clear this log</button></div>') +
+    '<section class="card" style="margin-top:18px"><h2>Home session<span class="r">' + g.home + ' of ' + S.prefs.homeMin + '–' + S.prefs.homeMax + ' this week</span></h2><div class="prose"><ul>' + HOME.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>' +
+    '<button class="btn ' + (home ? 'soft' : 'primary') + '" data-act="home">' + (home ? 'Done today ✓ (tap to undo)' : 'I did a home session today') + '</button></section>' +
+    '<section class="card"><h2>Recent sessions</h2>' + (S.gym.sessions.length ? S.gym.sessions.slice(-8).reverse().map(s => '<div class="li"><div class="tx"><div class="t">Day ' + s.day + ' · ' + esc(PROG[s.day].name) + '</div><div class="s">' + niceDate(s.date, true) + ' · ' + (Object.keys(s.sets || {}).length ? Object.keys(s.sets).length + ' exercises logged' : 'ticked, no log') + '</div></div><button class="btn small" data-act="gsdel" data-id="' + esc(s.id) + '">Delete</button></div>').join('') : '<p class="empty">No sessions yet. Tick a gym block or finish a log.</p>') +
+    '<div class="row-flex" style="margin-top:10px"><label class="f" style="flex-direction:row;align-items:center;gap:8px">Next in rotation <select data-pref="gymnext" style="width:auto">' + [1,2,3,4,5,6].map(n => '<option value="' + n + '"' + (n === S.gym.next ? ' selected' : '') + '>Day ' + n + ' · ' + PROG[n].name + '</option>').join('') + '</select></label></div></section>';
+}
+
+/* ================= FOOD & BODY ================= */
 function renderFood(){
-  const list = k => {
-    const items = [...SHOP[k].map((t, i) => ({t, key:k + i})), ...S.shopExtra[k].map((t, i) => ({t, key:k + 'x' + i, x:i}))];
-    return '<ul class="shop">' + items.map(it => '<li class="' + (S.shop[it.key] ? 'got' : '') + '"><input type="checkbox" data-act="shop" data-k="' + it.key + '"' + (S.shop[it.key] ? ' checked' : '') + ' aria-label="Got it"><span>' + esc(it.t) + '</span>' +
-      (it.x != null ? '<button class="x" data-act="shopdel" data-l="' + k + '" data-i="' + it.x + '" aria-label="Remove">✕</button>' : '') + '</li>').join('') + '</ul>' +
-      '<form class="row-flex" style="margin-top:10px" data-shopform="' + k + '"><input name="item" placeholder="Add an item" style="flex:1;min-width:0;font:inherit;padding:7px 9px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:inherit"><button class="btn small" type="submit">Add</button><button class="btn small" type="button" data-act="shopclear" data-l="' + k + '">Untick all</button></form>';
-  };
-  view.innerHTML = '<section class="daybar"><div><h1>Food</h1><div class="muted">Shop twice a week (Wednesday and Saturday). Batch cook on Sunday and Wednesday. Budget £50 a week.</div></div></section>' +
-    '<div class="cols"><section class="card"><h2>How much to eat (hand portions)</h2><div class="tablewrap"><table><tr><th>Per main meal</th><th>Amount</th><th>Examples</th></tr>' +
-    '<tr><td>Protein</td><td>2 palms</td><td>Chicken, fish, 3 eggs, Greek yoghurt, tofu, paneer, a cup of lentils or chickpeas</td></tr>' +
-    '<tr><td>Veg</td><td>2 fists</td><td>Any veg. Frozen is fine and cheaper</td></tr>' +
-    '<tr><td>Carbs</td><td>2 cupped hands</td><td>Rice, pasta, potatoes, oats, 2 slices of bread</td></tr>' +
-    '<tr><td>Fats</td><td>2 thumbs</td><td>Oil, cheese, nuts, peanut butter</td></tr></table></div>' +
-    '<div class="prose" style="margin-top:12px"><ul><li>This is a common starting point for a man training 4–5 times a week. Your hand size scales it to you.</li>' +
-    '<li>After the gym: Greek yoghurt and fruit, or milk and a banana.</li><li>Water: one full bottle by lunch, another by dinner.</li>' +
-    '<li>Weigh yourself once a week, same morning. Gaining and don\'t want to? Drop one cupped hand of carbs at dinner. Losing and don\'t want to? Add one to two meals.</li></ul></div></section>' +
-    '<section class="card"><h2>This week\'s meals</h2><div class="tablewrap"><table><tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>' +
-    PLAN.map(r => '<tr><td><b>' + r[0] + '</b></td><td>' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td><td>' + esc(r[3]) + '</td></tr>').join('') + '</table></div>' +
-    '<div class="prose" style="margin-top:12px"><p><b>Sunday batch:</b> chicken (or chickpea) and spinach curry with rice. 4 portions.</p><p><b>Wednesday batch:</b> beef (or lentil) bolognese pasta bake with peppers and cheese. 3 portions.</p>' +
-    '<p class="muted">Vegetarian swaps: chicken → paneer, tofu or chickpeas; mince → lentils; salmon → eggs or tofu.</p></div></section>' +
-    '<section class="card"><h2>Saturday main shop</h2>' + list('sat') + '</section><section class="card" style="margin-top:0"><h2>Wednesday top-up</h2>' + list('wed') +
-    '<p class="muted" style="margin:12px 0 0;font-size:13px">Lidl or Aldi keeps both lists inside £50. Five meal deals a week would cost over £20 on their own.</p></section></div>';
-  view.querySelectorAll('[data-shopform]').forEach(f => f.addEventListener('submit', e => {
-    e.preventDefault(); const v = String(new FormData(f).get('item') || '').trim(); if (!v) return;
-    S.shopExtra[f.dataset.shopform].push(v); save(); renderFood();
-  }));
+  const P = S.prefs;
+  const list = k => '<ul class="shop">' + S.shopList[k].map((t, i) => '<li class="' + (S.shop[k + i] ? 'got' : '') + '"><input type="checkbox" data-act="shop" data-k="' + k + i + '"' + (S.shop[k + i] ? ' checked' : '') + ' aria-label="Got it"><span>' + esc(t) + '</span><button class="x" data-act="shopdel" data-l="' + k + '" data-i="' + i + '" aria-label="Remove ' + esc(t) + '">✕</button></li>').join('') + '</ul>' +
+    '<form class="row-flex" style="margin-top:10px" data-form="shop" data-l="' + k + '"><input type="text" name="item" placeholder="Add an item" style="flex:1"><button class="btn small" type="submit">Add</button><button class="btn small" type="button" data-act="shopclear" data-l="' + k + '">Untick all</button></form>';
+  const meals = '<div class="tablewrap"><table><tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>' + S.meals.map((r, i) => '<tr><td><b>' + esc(r[0]) + '</b></td>' +
+    [1,2,3].map(j => '<td>' + (editMeals ? '<input type="text" data-meal="' + i + ',' + j + '" value="' + esc(r[j]) + '" aria-label="' + esc(r[0]) + ' meal ' + j + '">' : esc(r[j])) + '</td>').join('') + '</tr>').join('') + '</table></div>';
+  view.innerHTML = '<div class="topbar"><div><h1>Food & body</h1><div class="sub">Lean bulk ' + P.startKg + ' → ~' + P.goalKg + ' kg. Protein ' + P.proteinLo + '–' + P.proteinHi + ' g a day. Budget £' + P.budget + ' a week.</div></div></div>' +
+    '<div class="cols" style="margin-top:14px"><div>' + bodyCard(false) +
+    '<section class="card"><h2>Protein and portions</h2><div class="prose"><p><b>' + P.proteinLo + '–' + P.proteinHi + ' g of protein a day</b> is plenty. No need to chase more.</p><ul>' +
+    '<li>Each main meal: 2 palms of protein (chicken, 3 eggs, tuna, lentils, yoghurt), 2 cupped hands of carbs, 2 fists of veg, a thumb of fat.</li>' +
+    '<li>Easy top-ups: a pint of milk (~20 g), 200 g Greek-style yoghurt (~20 g), 3 eggs (~19 g), a tin of tuna (~25 g).</li>' +
+    '<li>After the gym: yoghurt and fruit, or milk and a banana.</li>' +
+    '<li>Weigh in a few mornings a week. If the 7-day average is flat for 2–3 weeks while you eat the plan, the app tells you to eat a bit more.</li></ul></div></section></div>' +
+    '<div><section class="card"><h2>Meal plan<button class="btn small" data-act="editmeals">' + (editMeals ? 'Done' : 'Edit') + '</button></h2>' + meals +
+    '<div class="prose" style="margin-top:12px"><p><b>Sunday batch:</b> chicken (or chickpea) curry with rice, 4 portions.</p><p><b>Wednesday batch:</b> lentil bolognese pasta bake with peppers and cheese, 3 portions.</p><p class="muted">Cheap, quick and boxed up, so campus lunches are packed.</p></div></section>' +
+    '<section class="card"><h2>Saturday main shop</h2>' + list('sat') + '</section>' +
+    '<section class="card"><h2>Wednesday top-up</h2>' + list('wed') + '<p class="muted small" style="margin:12px 0 0">Aldi or Lidl own-brand keeps both lists inside £' + P.budget + '. Edit the budget in Setup.</p></section></div></div>';
 }
 
 /* ================= SETUP ================= */
@@ -974,61 +1574,74 @@ function tog(k, label, sub){
   const on = !!S.alerts[k];
   return '<div class="sw"><div>' + label + (sub ? '<small>' + sub + '</small>' : '') + '</div><button class="tog" role="switch" aria-checked="' + on + '" data-act="tog" data-k="' + k + '" aria-label="' + esc(label) + '"></button></div>';
 }
+function editText(e){
+  const wd = e.wd != null ? DAYS[e.wd] + 's' : '';
+  const when = e.scope === 'day' || e.date ? niceDate(e.d || e.date, true) : 'every ' + wd.replace(/s$/, '') + ' from ' + niceDate(e.from, true) + (e.to ? ' to ' + niceDate(e.to, true) : '');
+  if (e.kind === 'blk') return (e.op === 'del' ? 'Removed ' : 'Changed ') + '"' + (e.label || e.key || '') + '" · ' + when + (e.op !== 'del' && e.s != null ? ' → ' + tm(e.s) + '–' + tm(e.e) : '') + (e.t ? ' "' + e.t + '"' : '');
+  if (e.kind === 'blkAdd') return 'Added "' + e.t + '" ' + tm(e.s) + '–' + tm(e.e) + ' · ' + when;
+  if (e.kind === 'sessAdd') return 'Added ' + (e.code === 'OTHER' ? '' : e.code + ' ') + KINDNAME[e.sk] + ' ' + tm(e.s) + '–' + tm(e.e) + ' · ' + when;
+  if (e.kind === 'sessCancel') return 'Cancelled ' + (e.label || 'a session') + ' on ' + niceDate(e.d, true);
+  if (e.kind === 'sessMove') return 'Moved ' + (e.label || 'a session') + ' from ' + niceDate(e.d, true) + ' to ' + niceDate(e.date, true) + ' ' + tm(e.s);
+  if (e.kind === 'sessStop') return 'Stopped ' + e.code + ' ' + KINDNAME[e.sk] + ' ' + DAYS[e.wd] + ' ' + tm(e.s) + ' from ' + niceDate(e.from, true);
+  return 'Change';
+}
 function renderSetup(){
   const perm = 'Notification' in window ? Notification.permission : 'unsupported';
-  const A = S.alerts;
+  const A = S.alerts, P = S.prefs;
   const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  const isWeb = /^https?:/.test(location.protocol);
   const sysSub = perm === 'granted' ? 'Appears on your lock screen or desktop when the app is in the background.'
     : perm === 'denied' ? 'Blocked. Allow notifications for this app in Android Settings › Apps › Life Planner, or in your browser\'s site settings.'
     : perm === 'unsupported' ? 'Not available here.' : 'Turn on and you will be asked for permission.';
-  const CATS = [['lse','LSE sessions'],['study','Study'],['academy','Academy'],['gym','Gym'],['business','Business'],['meal','Meals'],['chores','Shopping'],['admin','Weekly review']];
+  const CATS = [['lse','LSE sessions'],['study','Study'],['academy','Academy'],['gym','Gym'],['career','Career'],['business','Business'],['meal','Meals'],['chores','Shopping'],['admin','Weekly review']];
   const bed = (v, l) => '<button data-act="bed" data-v="' + v + '" aria-pressed="' + (A.bedtime === v) + '">' + l + '</button>';
-  view.innerHTML = '<section class="daybar"><div><h1>Setup</h1><div class="muted">Install, alerts and backups · version ' + APP_VERSION + '</div></div></section>' +
-    '<div class="cols">' +
-    '<section class="card prose"><h2>Install on your phone and laptop</h2>' +
-    (installed ? '<p><b>Installed on this device.</b></p>' : '') +
-    '<p><b>Android phone:</b> open <b>' + APP_URL + '</b> in Chrome, then menu ⋮ › <b>Install app</b> (or Add to home screen). Open it from the new icon.</p>' +
-    '<p><b>Laptop:</b> open the same link in Chrome or Edge, then click the install icon at the right of the address bar (or menu › Apps › Install). It opens in its own window. Right-click its taskbar icon › Pin.</p>' +
+  const lay = (k, n, d) => '<button data-act="layout" data-v="' + k + '" aria-pressed="' + (DEV.layout === k) + '"><b>' + k + ' · ' + n + '</b><span>' + d + '</span></button>';
+  const th = (k, l) => '<button data-act="theme" data-v="' + k + '" aria-pressed="' + (DEV.theme === k) + '">' + l + '</button>';
+  const pal = isDark() ? ACCENTS.dark : ACCENTS.light;
+  const num = (k, l, step, unit) => '<label class="f">' + l + '<input type="number" data-pref="' + k + '" value="' + P[k] + '" step="' + (step || 1) + '" min="0">' + (unit ? '' : '') + '</label>';
+  const edits = S.edits.slice().reverse();
+  view.innerHTML = '<div class="topbar"><div><h1>Setup</h1><div class="sub">Version ' + APP_VERSION + ' · this device: ' + (DEV.phone ? 'phone' : 'laptop') + '</div></div></div>' +
+    '<div class="cols" style="margin-top:14px"><div>' +
+    '<section class="card"><h2>Layout on this device</h2><div class="lay">' +
+      lay(DEV.phone ? 'B' : 'C', DEV.phone ? 'Agenda' : 'Dashboard', DEV.phone ? 'See everything, like a normal phone app.' : 'See everything at once.') +
+      lay('A', 'Calm focus', 'One thing at a time. Tap "See the whole day" when you want it.') +
+      lay(DEV.phone ? 'C' : 'B', DEV.phone ? 'Dashboard' : 'Agenda', DEV.phone ? 'Laptop overview.' : 'Phone-style list.') + '</div>' +
+      '<div class="sec">Colours on this device</div><div class="seg">' + th('light', 'Light') + th('dark', 'Dark') + th('auto', 'Match the device') + '</div>' +
+      '<div class="sec">Accent</div><div class="swatches">' + pal.map((c, i) => '<button data-act="accent" data-v="' + i + '" aria-pressed="' + ((DEV.accent == null ? 0 : DEV.accent) === i) + '" style="background:' + c + '" aria-label="Accent ' + (i + 1) + '"></button>').join('') + '</div>' +
+      '<p class="muted small" style="margin:12px 0 0">Saved on this device only, so your phone and laptop can look different. Backups do not change it.</p></section>' +
+    '<section class="card"><h2>Your numbers</h2><div class="fgrid">' + num('budget', 'Food budget (£ a week)') + num('careerMin', 'Career, minutes each weekday', 15) + num('careerBreakMin', 'Career in the breaks (min)', 15) +
+      num('gymMin', 'Gym sessions a week, at least') + num('gymMax', 'Gym sessions a week, at most') + num('homeMin', 'Home sessions, at least') + num('homeMax', 'Home sessions, at most') +
+      num('proteinLo', 'Protein g a day, from') + num('proteinHi', 'Protein g a day, to') + num('goalKg', 'Goal weight (kg)', 0.5) + '</div>' +
+      '<p class="muted small" style="margin:12px 0 0">To move a gym day, a block or a lecture: tap it in Today or Week. To add one: the + button.</p></section>' +
+    '<section class="card"><h2>Your changes<span class="r">' + edits.length + '</span></h2>' + (edits.length ? edits.map(e => '<div class="li"><div class="tx small">' + esc(editText(e)) + '</div><button class="btn small" data-act="undoedit" data-id="' + esc(e.id) + '">Undo</button></div>').join('') : '<p class="empty">None yet. Changes you make in the app appear here, and each can be undone.</p>') + '</section>' +
+    '<section class="card prose"><h2>Install on your phone and laptop</h2>' + (installed ? '<p><b>Installed on this device.</b></p>' : '') +
+    '<p><b>Android:</b> open <b>' + APP_URL + '</b> in Chrome › menu ⋮ › <b>Install app</b>.</p><p><b>Laptop:</b> open it in Chrome or Edge › install icon in the address bar.</p>' +
     (deferredInstall ? '<p><button class="btn primary" data-act="install">Install on this device</button></p>' : '') +
-    '<p><b>It updates itself.</b> When Claude pushes a new version, you get it the next time you open the app. If a bar says "A new version is ready", tap Update.</p>' +
-    '<p class="muted">Works offline after the first open. Each device keeps its own ticks, so tick on your phone and use the laptop for the week view and alerts while you work.</p>' +
-    (isWeb ? '' : '<p class="muted">You are running a local copy. Install from the link above instead.</p>') + '</section>' +
-    '<section class="card"><h2>Alerts</h2>' +
-    tog('banner', 'Banner in the app', 'A bar across the top of the screen when a block starts.') +
-    tog('system', 'Phone or desktop notification', sysSub) +
-    tog('vibrate', 'Vibrate (phone)', 'Off keeps notifications silent.') +
-    tog('sound', 'Sound', 'A short chime.') +
-    tog('leave', 'Leave warning', '5 minutes before you need to cycle to campus.') +
-    '<div class="sw" style="display:block"><div>Bedtime, at 22:30 and 23:00</div><div class="seg" style="margin-top:8px">' + bed('lock', 'Full-screen stop') + bed('notify', 'Notification only') + bed('off', 'Off') + '</div></div>' +
-    '<div class="sw" style="display:block"><div>Alert me when these start</div><div class="chips">' +
-    CATS.map(([c, l]) => '<button class="chip c-' + c + '" data-act="cat" data-c="' + c + '" aria-pressed="' + !!A.cats[c] + '">' + l + '</button>').join('') + '</div></div>' +
-    '<div class="row-flex" style="margin-top:12px"><button class="btn" data-act="testalert">Test alert</button></div>' +
-    '<p class="muted" style="margin:12px 0 0;font-size:13px">Alerts fire only while the app is open or was used recently. Android does not let web apps wake themselves up, so keep the 07:00 alarm and Bedtime mode on your phone.</p></section>' +
-    '<section class="card prose"><h2>Your phone does the forcing</h2><ul>' +
-    '<li><b>Clock app:</b> alarm at 07:00 every day, labelled "Up. Planner." Phone across the room.</li>' +
-    '<li><b>Bedtime mode:</b> Settings › Digital Wellbeing & parental controls › Bedtime mode, 22:45 to 07:00. On a Samsung: Settings › Modes and Routines › Sleep.</li>' +
-    '<li><b>How notifications look:</b> Settings › Apps › Life Planner › Notifications.</li></ul></section>' +
-    '<section class="card prose"><h2>Backups</h2><p>Your ticks are stored on each device, not online. In every Sunday weekly review, export a backup and keep it in <b>OneDrive › Planner › Backups</b>. To move ticks to another device, export on one and import on the other.</p>' +
-    '<p class="muted">Last backup on this device: ' + (S.lastBackup ? niceDate(S.lastBackup) : 'never') + '.</p>' +
-    '<div class="row-flex"><button class="btn primary" data-act="export">Export backup</button><button class="btn" data-act="copy">Copy as text</button><label class="btn">Import backup<input type="file" accept=".json,application/json" id="imp" hidden></label></div>' +
-    '<textarea id="impText" placeholder="Or paste backup text here, then press Import text" style="margin-top:10px"></textarea><div class="row-flex" style="margin-top:8px"><button class="btn small" data-act="importText">Import text</button></div></section>' +
+    '<p class="muted">Updates itself. Each device keeps its own ticks: move them with a backup.</p></section></div><div>' +
+    '<section class="card"><h2>Alerts</h2>' + tog('banner', 'Banner in the app', 'A bar across the top when a block starts.') + tog('system', 'Phone or desktop notification', sysSub) +
+      tog('vibrate', 'Vibrate (phone)', 'Off keeps notifications silent.') + tog('sound', 'Sound', 'A short chime.') + tog('leave', 'Leave warning', '5 minutes before you need to cycle to campus.') +
+      '<div class="sw" style="display:block"><div>Bedtime, at 22:30 and 23:00</div><div class="seg" style="margin-top:8px">' + bed('lock', 'Full-screen stop') + bed('notify', 'Notification only') + bed('off', 'Off') + '</div></div>' +
+      '<div class="sw" style="display:block"><div>Alert me when these start</div><div class="row-flex" style="margin-top:8px">' + CATS.map(([c, l]) => '<button class="cat c-' + c + '" data-act="cat" data-c="' + c + '" aria-pressed="' + !!A.cats[c] + '">' + l + '</button>').join('') + '</div></div>' +
+      '<div class="row-flex" style="margin-top:12px"><button class="btn" data-act="testalert">Test alert</button></div>' +
+      '<p class="muted small" style="margin:12px 0 0">Alerts fire while the app is open or was used recently. Keep the 07:00 alarm and Bedtime mode on your phone.</p></section>' +
+    '<section class="card prose"><h2>Backups</h2><p>Ticks, logs and your changes live on each device. Every Sunday, export a backup to <b>OneDrive › Planner › Backups</b>. To move them to the other device, import it there.</p>' +
+      '<p class="muted">Last backup on this device: ' + (S.lastBackup ? niceDate(S.lastBackup) : 'never') + '.</p>' +
+      '<div class="row-flex"><button class="btn primary" data-act="export">Export backup</button><button class="btn" data-act="copy">Copy as text</button><label class="btn">Import backup<input type="file" accept=".json,application/json" id="imp" hidden></label></div>' +
+      '<textarea id="impText" placeholder="Or paste backup text here, then press Import text" style="margin-top:10px"></textarea><div class="row-flex" style="margin-top:8px"><button class="btn small" data-act="importText">Import text</button></div></section>' +
+    '<section class="card prose"><h2>Claude</h2><p>One tap copies a short summary of your week: ticks, gym log, weight trend, what is behind and what is due. Paste it into any chat.</p><button class="btn primary" data-act="copyweek">Copy week for Claude</button><p class="muted" style="margin-top:10px">Small changes you make here. Big ones (new term timetable, new templates): ask Claude.</p></section>' +
     '<section class="card prose"><h2>How your days are built</h2><ul>' +
-    '<li>Times come from your LSE Google Calendar. Campus only on days with a class or workshop. Lectures on those days are in person; other lectures are watched at home.</li>' +
-    '<li>Leave 45 minutes before your first in-person session (40 minutes by bike). EC2C1 help lectures are optional and appear only in Catch-up.</li>' +
-    '<li>Gym 4 times a week, plus an optional fifth on Sunday. Saturday is a day off.</li>' +
-    '<li>Shopping Wednesday and Saturday only. Batch cook Sunday and Wednesday, so campus lunches are packed.</li>' +
-    '<li>Business follows your operating manual: Tue and Thu 20:00–22:00 plus Sunday admin in autumn, about 8 hours in winter term and the breaks, Sunday admin only in exams.</li>' +
-    '<li>Academy about 6 hours a week in term. One academy at a time.</li>' +
-    '<li>Winter and summer timetables can change. Ask Claude to update it each January and April; the app updates itself.</li></ul>' +
-    '<div class="row-flex"><button class="btn small danger" data-act="reset">Clear all ticks</button></div></section></div>';
+      '<li>Times come from your LSE calendar. Campus only on days with a class or workshop; lectures those days are in person, others watched at home. Leave 45 minutes before the first in-person session.</li>' +
+      '<li>Every lecture and class: Attended, Watched back, Notes made. Either of the first two covers it. Uncovered lectures go to Behind with a suggested study block; missed classes become "go through the solutions".</li>' +
+      '<li>Career ' + P.careerMin + ' minutes each weekday (' + P.careerBreakMin + ' in the breaks), from free time.</li>' +
+      '<li>Gym ' + P.gymMin + '–' + P.gymMax + ' times a week; Days 1–6 rotate and wait for you; Day 7 is optional and floats. Saturday afternoon is a day off.</li>' +
+      '<li>Shopping Wednesday and Saturday; batch cook Sunday and Wednesday.</li></ul>' +
+      '<div class="row-flex"><button class="btn small danger" data-act="reset">Clear all ticks</button></div></section></div></div>';
   $('#imp').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => importText(String(r.result)); r.readAsText(f); });
 }
 function importText(txt){
   try {
     const obj = JSON.parse(txt);
     if (!obj || typeof obj !== 'object' || !obj.done) throw new Error('bad');
-    S = normalise(obj); save(); cache.clear(); toast('Backup imported.'); render();
+    S = normalise(obj); save(); rebuildSessions(); cache.clear(); toast('Backup imported.'); render();
   } catch(e) { toast('That is not a planner backup.'); }
 }
 function exportBackup(){
@@ -1039,43 +1652,208 @@ function exportBackup(){
   toast('Saved as ' + a.download + '. Move it to OneDrive › Planner › Backups.');
   if (TAB === 'setup') renderSetup();
 }
-
-/* ================= dialog ================= */
-function findBlock(d, id){ return dayBlocks(d).find(b => b.id === id); }
-function openBlock(d, id){
-  const b = findBlock(d, id); if (!b) return;
-  const dlg = $('#dlg'), done = !!S.done[b.id];
-  dlg.innerHTML = '<div class="dlg c-' + b.cat + '"><div class="muted">' + dayName(d) + ' ' + niceDate(d) + ' · ' + tm(b.s) + '–' + tm(b.e) + '</div><h3>' + esc(b.t) + '</h3>' +
-    (b.n ? '<p>' + esc(b.n) + '</p>' : '') + (b.moved ? '<p class="muted">Moved to fit around your timetable today.</p>' : '') +
-    '<div class="acts"><button class="btn" data-act="close">Close</button>' + (tickable(b) ? '<button class="btn primary" data-act="tick" data-id="' + esc(b.id) + '" data-close="1">' + (done ? 'Mark not done' : 'Mark done') + '</button>' : '') + '</div></div>';
-  dlg.showModal();
+function renderMore(){
+  const od = allDL().filter(x => !isDone(x) && dueDate(x) < now()).length;
+  const item = (k, l, s) => '<button class="li" style="width:100%;border-left:0;border-right:0;border-bottom:0;background:none;text-align:left" data-act="go" data-tab="' + k + '">' + ic(k) + '<div class="tx"><div class="t">' + l + '</div><div class="s">' + s + '</div></div>' + ic('right', 'width:18px;height:18px;color:var(--muted)') + '</button>';
+  view.innerHTML = '<div class="topbar"><div><h1>More</h1></div></div><section class="card" style="margin-top:12px;padding-top:6px;padding-bottom:6px">' +
+    item('deadlines', 'Deadlines', od ? od + ' overdue' : 'Add and tick off deadlines') + item('food', 'Food & body', 'Meal plan, shopping, bodyweight') + item('setup', 'Setup', 'Layout, colours, alerts, your changes, backups') + '</section>' +
+    '<button class="btn primary wide" style="margin-top:14px" data-act="copyweek">' + ic('copy', 'width:18px;height:18px') + 'Copy week for Claude</button>';
 }
 
+/* ================= your own changes ================= */
+const newId = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+function commit(){ save(); rebuildSessions(); cache.clear(); render(); }
+function addEdits(list, msg){
+  for (const e of list){ e.id = e.id || newId(); e.made = today(); S.edits.push(e); }
+  const ids = new Set(list.map(e => e.id));
+  commit(); closeDlg();
+  toast(msg || 'Changed.', () => { S.edits = S.edits.filter(e => !ids.has(e.id)); commit(); toast('Undone.'); });
+}
+function closeDlg(){ const d = $('#dlg'); if (d.open) d.close(); }
+function showDlg(html, cat){ const dlg = $('#dlg'); dlg.innerHTML = '<div class="dlg c-' + (cat || 'admin') + '">' + html + '</div>'; if (!dlg.open) dlg.showModal(); }
+const timeIn = (name, v, l) => '<label class="f">' + l + '<input type="time" name="' + name + '" value="' + tm(v) + '" required></label>';
+const origStart = x => x.src === 'cal' ? hm(x.id.split('|')[4]) : ((S.edits.find(e => e.id === x.src) || {}).s ?? x.s);
+const CATOPTS = [['study','Study'],['academy','Academy'],['gym','Gym'],['career','Career'],['business','Business'],['meal','Food'],['chores','Shopping or chores'],['admin','Admin'],['free','Free time']];
+let DLG = null; // {d, id}
+
+function openBlock(d, id, mode){
+  const b = dayBlocks(d).find(x => x.id === id); if (!b) return;
+  DLG = {d, id};
+  const st = stOf(b, d), wd = DAYS[dow(d)], per = periodOf(d);
+  let h = '<div class="muted">' + dayName(d) + ' ' + niceDate(d) + ' · ' + tm(b.s) + '–' + tm(b.e) + '</div><h3>' + esc(bTitle(b, d)) + '</h3>';
+  if (b.cat === 'lse'){
+    const x = b.sess, sl = CP.byLec[x.id];
+    if (!mode){
+      h += '<p>' + esc(b.n || '') + '</p><p class="muted small">Planned: ' + (x.kind === 'qa' ? 'optional, on Zoom' : b.plan === 'attend' ? 'attend in person' : 'watch at home') + '. Either Attended or Watched back covers it.</p>' + lseTicks(x.id) +
+        (sl ? '<p class="small" style="color:var(--soft-ink)">Suggested catch-up: ' + slotText(sl) + '.</p>' : '') +
+        '<hr><div class="row-flex"><button class="btn small" data-act="smode" data-m="move">Move this one</button><button class="btn small" data-act="scancel">Cancelled this week</button><button class="btn small" data-act="smode" data-m="week">Change every week</button></div>';
+    } else if (mode === 'move'){
+      h += '<form data-form="smove" class="fgrid" style="margin-top:12px"><label class="f full">New date<input type="date" name="date" value="' + x.date + '" required></label>' + timeIn('s', x.s, 'Start') + timeIn('e', x.e, 'End') +
+        '<div class="full acts"><button type="button" class="btn" data-act="smode" data-m="">Back</button><button class="btn primary" type="submit">Move it</button></div></form>';
+    } else if (mode === 'week'){
+      h += '<form data-form="sweek" class="fgrid" style="margin-top:12px"><label class="f full">Day<select name="wd">' + [1,2,3,4,5,6,0].map(i => '<option value="' + i + '"' + (i === x.wd ? ' selected' : '') + '>' + DAYS[i] + '</option>').join('') + '</select></label>' +
+        timeIn('s', x.s, 'Start') + timeIn('e', x.e, 'End') + '<label class="f full">From<input type="date" name="from" value="' + (x.date >= today() ? x.date : today()) + '" required></label>' +
+        '<label class="f full" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" name="stop" style="width:22px;height:22px;min-height:0"> It has stopped: no more of these</label>' +
+        '<div class="full acts"><button type="button" class="btn" data-act="smode" data-m="">Back</button><button class="btn primary" type="submit">Save</button></div></form>';
+    }
+    h += '<div class="acts"><button class="btn" data-act="close">Close</button></div>';
+    return showDlg(h, 'lse');
+  }
+  const fixed = b.cat === 'routine' || b.cat === 'travel' && false;
+  if (!mode){
+    h += (b.n ? '<p>' + esc(b.n) + '</p>' : '') + (b.moved ? '<p class="muted small">Moved automatically to fit around your timetable.</p>' : '') +
+      ((b.cat === 'study' || b.cat === 'academy') && CP.byBlock[d + '|' + b.id] ? '<p class="small" style="color:var(--soft-ink)">Suggested: watch ' + CP.byBlock[d + '|' + b.id].map(x => x.code + ' lecture (' + sessWhen(x) + ')').join(', ') + '.</p>' : '') +
+      (b.cat === 'gym' ? '<p class="muted small">Days 1–6 rotate; this one is the next you have not done. Day 7 is optional, any day.</p>' : '');
+    if (b.cat === 'routine') h += '<p class="muted small">Wake-up and bedtime are fixed: they drive the bedtime stop.</p>';
+    h += '<div class="acts" style="justify-content:flex-start">' + (tickable(b) ? '<button class="btn primary" data-act="tick" data-d="' + d + '" data-id="' + esc(b.id) + '" data-close="1">' + (st.done ? 'Mark not done' : 'Mark done') + '</button>' : '') +
+      (b.cat === 'gym' ? '<button class="btn" data-act="go" data-tab="gym">Open gym log</button>' : '') + '</div>';
+    if (b.cat !== 'routine'){
+      h += '<hr><div class="row-flex"><button class="btn small" data-act="bmode2" data-m="edit">Move or rename</button><button class="btn small danger" data-act="bmode2" data-m="del">Remove</button>' +
+        (b.cat === 'gym' ? '<button class="btn small" data-act="bmode2" data-m="gymday">Gym on another day</button>' : '') + '</div>';
+    }
+  } else if (mode === 'edit'){
+    h += '<form data-form="blk" class="fgrid" style="margin-top:12px"><label class="f full">Name<input type="text" name="t" value="' + esc(b.cat === 'gym' ? b.t : b.t) + '" required></label>' + timeIn('s', b.s, 'Start') + timeIn('e', b.e, 'End') +
+      '<fieldset class="full" style="border:0;padding:0;margin:4px 0 0"><label class="f" style="flex-direction:row;gap:8px;align-items:center;color:var(--ink)"><input type="radio" name="scope" value="day" checked style="width:20px;height:20px;min-height:0"> Just ' + dayName(d) + ' ' + niceDate(d) + '</label>' +
+      '<label class="f" style="flex-direction:row;gap:8px;align-items:center;color:var(--ink);margin-top:6px"><input type="radio" name="scope" value="week" style="width:20px;height:20px;min-height:0"> Every ' + wd + ' from now on (' + esc(per.name) + ')</label></fieldset>' +
+      '<div class="full acts"><button type="button" class="btn" data-act="bmode2" data-m="">Back</button><button class="btn primary" type="submit">Save</button></div></form>';
+  } else if (mode === 'del'){
+    h += '<p>Remove this block?</p><div class="acts" style="justify-content:flex-start"><button class="btn" data-act="bdel" data-scope="day">Just this ' + wd + '</button><button class="btn" data-act="bdel" data-scope="week">Every ' + wd + ' (' + esc(per.name) + ')</button></div>' +
+      '<div class="acts"><button class="btn" data-act="bmode2" data-m="">Back</button></div>';
+  } else if (mode === 'gymday'){
+    h += '<form data-form="gymday" class="fgrid" style="margin-top:12px"><label class="f full">Move this ' + wd + ' gym session to<select name="wd">' + [1,2,3,4,5,6,0].filter(i => i !== dow(d)).map(i => '<option value="' + i + '">' + DAYS[i] + '</option>').join('') + '</select></label>' +
+      timeIn('s', b.s, 'Start') + timeIn('e', b.e, 'End') +
+      '<fieldset class="full" style="border:0;padding:0;margin:4px 0 0"><label class="f" style="flex-direction:row;gap:8px;align-items:center;color:var(--ink)"><input type="radio" name="scope" value="day" checked style="width:20px;height:20px;min-height:0"> Just this week</label>' +
+      '<label class="f" style="flex-direction:row;gap:8px;align-items:center;color:var(--ink);margin-top:6px"><input type="radio" name="scope" value="week" style="width:20px;height:20px;min-height:0"> Every week (' + esc(per.name) + ')</label></fieldset>' +
+      '<p class="muted small full" style="margin:0">Other blocks that day stay where they are; anything that clashes shows on the day so you can move it.</p>' +
+      '<div class="full acts"><button type="button" class="btn" data-act="bmode2" data-m="">Back</button><button class="btn primary" type="submit">Move gym</button></div></form>';
+  }
+  if (!mode) h += '<div class="acts"><button class="btn" data-act="close">Close</button></div>';
+  showDlg(h, b.cat);
+}
+function blockEdit(scope, d, b, extra){
+  const base = {kind:'blk', label:b.t, scope};
+  if (scope === 'day') return o(base, {d, bid:b.id}, extra);
+  return o(base, {wd:dow(d), from:d, pid:periodOf(d).id, key:b.key}, extra);
+}
+function openAdd(kind, d){
+  d = d || viewDay || today();
+  kind = kind || 'blk';
+  const seg = (k, l) => '<button data-act="add" data-k="' + k + '" aria-pressed="' + (kind === k) + '">' + l + '</button>';
+  let h = '<h3>Add</h3><div class="seg" style="margin:8px 0 14px">' + seg('blk', 'Block') + seg('sess', 'Lecture or class') + seg('dl', 'Deadline') + '</div>';
+  if (kind === 'blk') h += '<form data-form="addblk" class="fgrid"><label class="f full">Name<input type="text" name="t" placeholder="e.g. Group project meeting" required></label>' +
+    '<label class="f full">Type<select name="cat">' + CATOPTS.map(([c, l]) => '<option value="' + c + '">' + l + '</option>').join('') + '</select></label>' +
+    '<label class="f full">Date<input type="date" name="d" value="' + d + '" required></label>' + timeIn('s', 18 * 60, 'Start') + timeIn('e', 19 * 60, 'End') +
+    '<label class="f full" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" name="rep" style="width:22px;height:22px;min-height:0"> Every week on that day (this term or break)</label>' +
+    '<div class="full acts"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn primary" type="submit">Add</button></div></form>';
+  if (kind === 'sess') h += '<form data-form="addsess" class="fgrid"><label class="f">Course<select name="code">' + COURSES.map(c => '<option>' + c + '</option>').join('') + '</select></label>' +
+    '<label class="f">Type<select name="sk">' + Object.keys(KINDNAME).map(k => '<option value="' + k + '">' + KINDNAME[k] + '</option>').join('') + '</select></label>' +
+    '<label class="f full">Date (first one)<input type="date" name="d" value="' + d + '" required></label>' + timeIn('s', 10 * 60, 'Start') + timeIn('e', 11 * 60, 'End') +
+    '<label class="f full">Repeats weekly until (leave empty for one-off)<input type="date" name="to"></label>' +
+    '<p class="muted small full" style="margin:0">Classes and workshops make it a campus day automatically.</p>' +
+    '<div class="full acts"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn primary" type="submit">Add</button></div></form>';
+  if (kind === 'dl') h += '<form data-form="adddl" class="fgrid"><label class="f">Course<select name="code">' + ['EC2A1','EC2B1','EC2C1','FM214','FM215','EC260P','BUS','OTHER'].map(c => '<option value="' + c + '">' + (c === 'BUS' ? 'Business' : c === 'OTHER' ? 'Other' : c) + '</option>').join('') + '</select></label>' +
+    '<label class="f">Due date<input type="date" name="d" value="' + d + '" required></label><label class="f full">What is due<input type="text" name="t" placeholder="e.g. Problem set 3" required></label>' +
+    '<label class="f">Time<input type="time" name="tm" value="23:59" required></label>' +
+    '<div class="full acts"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn primary" type="submit">Add</button></div></form>';
+  showDlg(h, 'admin');
+}
+function copyWeek(){
+  const txt = weekText();
+  const done = () => toast('Copied. Paste it into any Claude chat.');
+  const fallback = () => showDlg('<h3>Copy week for Claude</h3><p class="muted small">Select all and copy.</p><textarea id="wkTxt" style="min-height:260px">' + esc(txt) + '</textarea><div class="acts"><button class="btn" data-act="close">Close</button></div>', 'admin');
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(done, fallback); else fallback();
+}
+let restEnd = 0, restT = null;
+function startRest(sec){ restEnd = Date.now() + sec * 1000; $('#restBar').hidden = false; tickRest(); clearInterval(restT); restT = setInterval(tickRest, 500); }
+function stopRest(){ clearInterval(restT); $('#restBar').hidden = true; }
+function tickRest(){
+  const left = Math.ceil((restEnd - Date.now()) / 1000);
+  if (left <= 0){ stopRest(); alertUser('Rest over', 'Next set.', true); try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch(e) {} return; }
+  $('#restTxt').textContent = 'Rest ' + Math.floor(left / 60) + ':' + pad(left % 60);
+}
+$('#restStop').addEventListener('click', stopRest);
+$('#restAdd').addEventListener('click', () => { restEnd += 30000; tickRest(); });
+
 /* ================= events ================= */
+const findB = (d, id) => dayBlocks(d).find(b => b.id === id);
 document.addEventListener('click', e => {
   unlockAudio();
   const el = e.target.closest('[data-act]'); if (!el) return;
   const a = el.dataset.act;
-  if (a === 'tick'){ e.stopPropagation(); const id = el.dataset.id; if (S.done[id]) delete S.done[id]; else S.done[id] = true; save(); if (el.dataset.close) $('#dlg').close(); render(); return; }
-  if (a === 'open'){ openBlock(el.dataset.d, el.dataset.id); return; }
-  if (a === 'close'){ $('#dlg').close(); return; }
-  if (a === 'note'){ const id = el.dataset.id; if (S.notes[id]) delete S.notes[id]; else S.notes[id] = true; save(); render(); return; }
-  if (a === 'go'){ setTab(el.dataset.tab); return; }
-  if (a === 'welcomed'){ S.welcomed = true; save(); render(); return; }
+  if (el.tagName === 'SUMMARY') return;
+  if (a === 'tick'){
+    e.stopPropagation();
+    const d = el.dataset.d || today(), b = findB(d, el.dataset.id);
+    if (b && b.cat === 'gym') tickGym(d, b);
+    else { const id = el.dataset.id; if (S.done[id]) delete S.done[id]; else S.done[id] = true; }
+    save(); if (el.dataset.close) closeDlg(); render(); return;
+  }
+  if (a === 'lt'){
+    e.stopPropagation();
+    const f = el.dataset.f, id = el.dataset.id; if (S[f][id]) delete S[f][id]; else S[f][id] = true;
+    save(); render(); if ($('#dlg').open && DLG) openBlock(DLG.d, DLG.id); return;
+  }
+  if (a === 'lt1' || a === 'sol'){
+    const f = a === 'sol' ? null : el.dataset.f, id = el.dataset.id, key = a === 'sol' ? 'sol|' + id : id, tgt = a === 'sol' ? S.done : S[f];
+    tgt[key] = true; save(); render();
+    toast(a === 'sol' ? 'Cleared.' : f === 'notes' ? 'Notes ticked.' : 'Marked watched.', () => { delete tgt[key]; save(); render(); });
+    return;
+  }
+  if (a === 'open'){ if (e.target.closest('.tk,.chk,a')) return; openBlock(el.dataset.d, el.dataset.id); return; }
+  if (a === 'close'){ closeDlg(); return; }
+  if (a === 'go'){ closeDlg(); if (el.dataset.tab === 'today') viewDay = null; setTab(el.dataset.tab); return; }
+  if (a === 'day'){ const d = el.dataset.d; viewDay = d === today() ? null : d; if (TAB !== 'today') setTab('today'); else render(); return; }
   if (a === 'dprev' || a === 'dnext'){ viewDay = addD(viewDay || today(), a === 'dprev' ? -1 : 1); if (viewDay === today()) viewDay = null; render(); return; }
-  if (a === 'dtoday'){ viewDay = null; render(); return; }
   if (a === 'wprev' || a === 'wnext'){ viewWeek = addD(viewWeek || weekStart(today()), a === 'wprev' ? -7 : 7); render(); return; }
   if (a === 'wtoday'){ viewWeek = null; render(); return; }
-  if (a === 'cfilter'){ catchFilter = el.dataset.f; render(); return; }
+  if (a === 'afull'){ aFull = !aFull; render(); return; }
+  if (a === 'bmode'){ behindMode = el.dataset.f; render(); return; }
+  if (a === 'trackall'){ trackAll = !trackAll; render(); return; }
+  if (a === 'welcomed'){ S.welcomed = true; save(); render(); return; }
+  if (a === 'copyweek'){ copyWeek(); return; }
+  if (a === 'add'){ openAdd(el.dataset.k); return; }
+  if (a === 'resetday'){
+    const d = el.dataset.d, gone = S.edits.filter(x => x.d === d || x.date === d);
+    S.edits = S.edits.filter(x => !gone.includes(x)); commit();
+    toast('This day is back to the plan.', () => { S.edits.push(...gone); commit(); }); return;
+  }
+  if (a === 'undoedit'){ const ed = S.edits.find(x => x.id === el.dataset.id); S.edits = S.edits.filter(x => x !== ed); commit(); toast('Undone.', () => { S.edits.push(ed); commit(); }); return; }
+  /* block dialog */
+  if (a === 'bmode2' && DLG){ openBlock(DLG.d, DLG.id, el.dataset.m || null); return; }
+  if (a === 'bdel' && DLG){ const b = findB(DLG.d, DLG.id); if (b) addEdits([blockEdit(el.dataset.scope, DLG.d, b, {op:'del'})], 'Removed.'); return; }
+  if (a === 'smode' && DLG){ openBlock(DLG.d, DLG.id, el.dataset.m || null); return; }
+  if (a === 'scancel' && DLG){ const x = findSess(DLG.id); if (x) addEdits([{kind:'sessCancel', sid:x.id, d:x.date, label:x.label}], 'Cancelled for this week.'); return; }
+  /* deadlines */
   if (a === 'dlfilter'){ dlFilter = el.dataset.f; render(); return; }
   if (a === 'dltick'){ const k = 'd|' + el.dataset.id; if (S.done[k]) delete S.done[k]; else S.done[k] = true; save(); render(); return; }
   if (a === 'dldel'){ if (confirm('Delete this deadline?')){ S.custom = S.custom.filter(x => x.id !== el.dataset.id); save(); render(); } return; }
+  /* food */
   if (a === 'shop'){ const k = el.dataset.k; if (el.checked) S.shop[k] = true; else delete S.shop[k]; save(); el.closest('li').classList.toggle('got', el.checked); return; }
-  if (a === 'shopdel'){ S.shopExtra[el.dataset.l].splice(+el.dataset.i, 1); Object.keys(S.shop).filter(k => k.startsWith(el.dataset.l + 'x')).forEach(k => delete S.shop[k]); save(); renderFood(); return; }
-  if (a === 'shopclear'){ Object.keys(S.shop).filter(k => k.startsWith(el.dataset.l)).forEach(k => delete S.shop[k]); save(); renderFood(); return; }
+  if (a === 'shopdel'){ const l = el.dataset.l, i = +el.dataset.i, item = S.shopList[l][i]; S.shopList[l].splice(i, 1); S.shop = {}; save(); render(); toast('Removed.', () => { S.shopList[l].splice(i, 0, item); save(); render(); }); return; }
+  if (a === 'shopclear'){ Object.keys(S.shop).filter(k => k.startsWith(el.dataset.l)).forEach(k => delete S.shop[k]); save(); render(); return; }
+  if (a === 'editmeals'){ editMeals = !editMeals; render(); return; }
+  if (a === 'wdel'){ const d = el.dataset.d, v = S.weights[d]; delete S.weights[d]; save(); render(); toast('Deleted.', () => { S.weights[d] = v; save(); render(); }); return; }
+  /* gym */
+  if (a === 'gday'){ const n = +el.dataset.n, dr = draft();
+    if (Object.keys(dr.sets).length && dr.day !== n && !confirm('Switch session? What you logged for Day ' + dr.day + ' is cleared.')) return;
+    if (dr.day !== n) dr.sets = {}; dr.day = n; dr.chosen = n !== S.gym.next; aEx = 0; save(); render(); return; }
+  if (a === 'gdone'){ const dr = draft(), k = el.dataset.x; if (dr.sets[k]) delete dr.sets[k]; else dr.sets[k] = [[0, 1]]; save(); render(); return; }
+  if (a === 'exprev'){ aEx = Math.max(0, aEx - 1); render(); return; }
+  if (a === 'exnext'){ aEx++; render(); window.scrollTo(0, 0); return; }
+  if (a === 'exgo'){ aEx = +el.dataset.i; render(); return; }
+  if (a === 'gfinish'){ const dr = draft(); if (!Object.keys(dr.sets).length && !confirm('Nothing logged yet. Save Day ' + dr.day + ' as done anyway?')) return; finishDraft(); aEx = 0; render(); return; }
+  if (a === 'gdiscard'){ if (!confirm('Clear this log?')) return; S.gym.draft = null; aEx = 0; save(); render(); return; }
+  if (a === 'gsdel'){ const s = S.gym.sessions.find(x => x.id === el.dataset.id); if (!s || !confirm('Delete this session?')) return;
+    S.gym.sessions = S.gym.sessions.filter(x => x !== s); if (s.bid) delete S.done[s.bid]; save(); render(); return; }
+  if (a === 'home'){ const t = today(), h = S.gym.home || (S.gym.home = []); const i = h.indexOf(t); if (i >= 0) h.splice(i, 1); else h.push(t); save(); render(); return; }
+  if (a === 'rest'){ startRest(+el.dataset.sec); return; }
+  /* setup */
+  if (a === 'layout'){ DEV.layout = el.dataset.v; saveDev(); applyDev(); aFull = false; render(); return; }
+  if (a === 'theme'){ DEV.theme = el.dataset.v; saveDev(); applyDev(); render(); return; }
+  if (a === 'accent'){ DEV.accent = +el.dataset.v; saveDev(); applyDev(); render(); return; }
   if (a === 'export'){ exportBackup(); return; }
   if (a === 'copy'){ const txt = JSON.stringify(S); const ta = $('#impText'); ta.value = txt; ta.select();
-    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Copied. Paste it into a note in OneDrive › Planner › Backups.'), () => toast('Selected in the box below. Press Ctrl+C.')); return; }
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Copied. Paste it into a note in OneDrive › Planner › Backups.'), () => toast('Selected in the box below. Copy it.')); return; }
   if (a === 'importText'){ importText($('#impText').value); return; }
   if (a === 'tog'){
     const k = el.dataset.k;
@@ -1085,14 +1863,77 @@ document.addEventListener('click', e => {
       if (Notification.permission === 'default'){ Notification.requestPermission().then(pm => { S.alerts.system = pm === 'granted'; save(); render(); }); return; }
     }
     S.alerts[k] = !S.alerts[k]; save(); render(); return; }
-  if (a === 'bed'){ S.alerts.bedtime = el.dataset.v; save(); nightMode = null; renderSetup(); checkNight(); return; }
-  if (a === 'cat'){ const c = el.dataset.c; S.alerts.cats[c] = !S.alerts.cats[c]; save(); renderSetup(); return; }
+  if (a === 'bed'){ S.alerts.bedtime = el.dataset.v; save(); nightMode = null; render(); checkNight(); return; }
+  if (a === 'cat'){ const c = el.dataset.c; S.alerts.cats[c] = !S.alerts.cats[c]; save(); render(); return; }
   if (a === 'install'){ doInstall(); return; }
   if (a === 'testalert'){ alertUser('Test alert', 'This is what a block starting looks like.', true); return; }
-  if (a === 'reset'){ if (confirm('Clear every tick, note and shopping tick? Deadlines you added stay.')){ S.done = {}; S.notes = {}; S.shop = {}; S.nights = {}; save(); render(); } return; }
+  if (a === 'reset'){ if (confirm('Clear every tick, lecture mark, note and shopping tick? Your changes, deadlines, gym log and weights stay.')){ S.done = {}; S.att = {}; S.wat = {}; S.notes = {}; S.shop = {}; S.nights = {}; save(); render(); } return; }
 });
-document.querySelectorAll('#tabs button').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
-$('#dlg').addEventListener('click', e => { if (e.target === $('#dlg')) $('#dlg').close(); });
+$('#fab').addEventListener('click', () => openAdd('blk'));
+$('#dlg').addEventListener('click', e => { if (e.target === $('#dlg')) closeDlg(); });
+
+document.addEventListener('submit', e => {
+  const f = e.target, k = f.dataset.form; if (!k) return;
+  e.preventDefault();
+  const v = Object.fromEntries(new FormData(f).entries());
+  const b = DLG ? findB(DLG.d, DLG.id) : null;
+  if (k === 'weight'){ const kg = parseFloat(String(v.kg).replace(',', '.')); if (!(kg > 25 && kg < 200)){ toast('Type your weight in kg, e.g. 58.4'); return; } S.weights[today()] = Math.round(kg * 10) / 10; save(); render(); toast('Saved ' + S.weights[today()] + ' kg.'); return; }
+  if (k === 'shop'){ const t = String(v.item || '').trim(); if (!t) return; S.shopList[f.dataset.l].push(t); save(); render(); return; }
+  const s = hm(v.s || '00:00'), en = hm(v.e || '00:00');
+  if ((k === 'blk' || k === 'gymday' || k === 'addblk' || k === 'addsess' || k === 'smove' || k === 'sweek') && v.s && en <= s){ toast('End time must be after the start.'); return; }
+  if (k === 'blk' && b){
+    addEdits([blockEdit(v.scope, DLG.d, b, {op:'set', s, e:en, t:String(v.t).trim() || b.t})], v.scope === 'week' ? 'Changed every ' + DAYS[dow(DLG.d)] + '.' : 'Changed for this day.'); return;
+  }
+  if (k === 'gymday' && b){
+    const wd = +v.wd, d0 = DLG.d;
+    if (v.scope === 'day'){
+      let d1 = weekStart(d0); while (dow(d1) !== wd) d1 = addD(d1, 1);
+      addEdits([blockEdit('day', d0, b, {op:'del'}), {kind:'blkAdd', scope:'day', d:d1, s, e:en, cat:'gym', t:'Gym', n:N.gym}], 'Gym moved to ' + DAYS[wd] + ' this week.');
+    } else addEdits([blockEdit('week', d0, b, {op:'del'}), {kind:'blkAdd', scope:'week', wd, from:d0, pid:periodOf(d0).id, s, e:en, cat:'gym', t:'Gym', n:N.gym}], 'Gym moved to ' + DAYS[wd] + 's.');
+    return;
+  }
+  if (k === 'smove' && DLG){
+    const x = findSess(DLG.id); if (!x) return;
+    S.edits = S.edits.filter(e2 => !(e2.kind === 'sessMove' && e2.sid === x.id));
+    addEdits([{kind:'sessMove', sid:x.id, d:x.orig || x.date, date:v.date, s, e:en, label:x.label}], 'Moved.'); return;
+  }
+  if (k === 'sweek' && DLG){
+    const x = findSess(DLG.id); if (!x) return;
+    const stop = {kind:'sessStop', code:x.code, sk:x.kind, wd:x.wd, s:origStart(x), from:v.from, src:x.src};
+    if (v.stop) addEdits([stop], 'Stopped from ' + niceDate(v.from, true) + '.');
+    else addEdits([stop, {kind:'sessAdd', code:x.code, sk:x.kind, wd:+v.wd, s, e:en, from:v.from, to:x.ruleTo > v.from ? x.ruleTo : addD(v.from, 70), label:x.label}], 'Changed every week from ' + niceDate(v.from, true) + '.');
+    return;
+  }
+  if (k === 'addblk'){
+    const t = String(v.t || '').trim(); if (!t) return;
+    addEdits([v.rep ? {kind:'blkAdd', scope:'week', wd:dow(v.d), from:v.d, pid:periodOf(v.d).id, s, e:en, cat:v.cat, t} : {kind:'blkAdd', scope:'day', d:v.d, s, e:en, cat:v.cat, t}], 'Added.'); return;
+  }
+  if (k === 'addsess'){
+    addEdits([v.to ? {kind:'sessAdd', code:v.code, sk:v.sk, wd:dow(v.d), from:v.d, to:v.to, s, e:en} : {kind:'sessAdd', code:v.code, sk:v.sk, date:v.d, s, e:en}], 'Added to your timetable.'); return;
+  }
+  if (k === 'adddl'){
+    const t = String(v.t || '').trim(); if (!t) return;
+    const item = {id:'c' + Date.now(), code:v.code, title:t, due:v.d + 'T' + v.tm, note:'', custom:true};
+    S.custom.push(item); save(); closeDlg(); render(); toast('Deadline added.', () => { S.custom = S.custom.filter(x => x !== item); save(); render(); }); return;
+  }
+});
+document.addEventListener('change', e => {
+  const el = e.target;
+  if (el.dataset.gx != null){
+    const dr = draft(), k = el.dataset.gx, i = +el.dataset.gs, f = +el.dataset.gf;
+    const arr = dr.sets[k] || (dr.sets[k] = []); while (arr.length <= i) arr.push([null, null]);
+    const val = el.value === '' ? null : +el.value; arr[i][f] = val;
+    if (arr.every(r => r[0] == null && r[1] == null)) delete dr.sets[k];
+    if (dr.date !== today() && !Object.keys(dr.sets).length) dr.date = today();
+    save(); return;
+  }
+  if (el.dataset.pref){
+    if (el.dataset.pref === 'gymnext'){ S.gym.next = +el.value; save(); render(); toast('Next session: Day ' + S.gym.next + '.'); return; }
+    const n = parseFloat(el.value); if (!(n >= 0)) return;
+    S.prefs[el.dataset.pref] = n; save(); cache.clear(); toast('Saved.'); return;
+  }
+  if (el.dataset.meal){ const [i, j] = el.dataset.meal.split(',').map(Number); S.meals[i][j] = el.value; save(); return; }
+});
 
 /* ================= alerts ================= */
 let AC = null, SWREG = null, deferredInstall = null;
@@ -1188,22 +2029,25 @@ $('#nightSnooze').addEventListener('click', () => {
 
 /* ================= loop ================= */
 let lastMin = -1;
+function busyTyping(){ const a = document.activeElement; return a && a.matches && a.matches('input,textarea,select'); }
 function loop(){
   const m = nowM();
   checkAlerts(); checkNight();
-  if (m !== lastMin){ lastMin = m; updateChrome(); if (TAB === 'today' && !$('#dlg').open) renderToday(); }
+  if (m !== lastMin){ lastMin = m; if (!$('#dlg').open && !busyTyping() && (TAB === 'today' || DEV.layout === 'C')) render(); else navHtml(); }
 }
 
 /* ================= boot ================= */
 load();
-const startTab = (location.hash || '').slice(1);
-setTab(['today','week','catch','deadlines','food','setup'].includes(startTab) ? startTab : 'today');
+rebuildSessions();
+loadDev(); applyDev();
+setTab((location.hash || '').slice(1) || 'today');
 primeAlerts();
 lastMin = nowM();
 checkNight();
 setInterval(loop, 15000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) loop(); });
-if (S.lastVersion !== APP_VERSION){ if (S.lastVersion) toast('Updated to version ' + APP_VERSION + '.'); S.lastVersion = APP_VERSION; save(); }
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (DEV.theme === 'auto'){ applyDev(); render(); } }); } catch(e) {}
+if (S.lastVersion !== APP_VERSION){ if (S.lastVersion) toast('Updated to version ' + APP_VERSION + '. Your ticks are all here.'); S.lastVersion = APP_VERSION; save(); }
 try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch(e) {}
 
 /* ================= installable app ================= */
@@ -1236,16 +2080,17 @@ window.__planner = {
     CONFLICTS.length = 0; cache.clear();
     for (let d = '2026-09-28'; d <= '2027-09-26'; d = addD(d, 1)) dayBlocks(d);
     const dowBad = ALLSESS.filter(x => dow(x.date) !== x.wd).map(x => x.id);
-    const overlaps = [];
+    const overlaps = [], noCareer = [];
     for (let d = '2026-10-11'; d <= '2027-09-26'; d = addD(d, 1)){
       const bl = dayBlocks(d);
       for (let i = 0; i < bl.length; i++) for (let j = i + 1; j < bl.length; j++)
         if (overlap(bl[i], bl[j]) && !(bl[i].opt || bl[j].opt)) overlaps.push(d + ' ' + tm(bl[i].s) + ' ' + bl[i].t + ' × ' + tm(bl[j].s) + ' ' + bl[j].t);
+      if (d >= V3_START && dow(d) >= 1 && dow(d) <= 5 && !HOLIDAYS[d] && !bl.some(b => b.cat === 'career')) noCareer.push(d);
     }
-    return {conflicts: CONFLICTS.slice(), dowBad, overlaps, sessions: ALLSESS.length, deadlines: DL.length};
+    return {conflicts: CONFLICTS.slice(), dowBad, overlaps, noCareer, sessions: ALLSESS.length, deadlines: DL.length};
   },
-  weekHours(ws){ const sums = {}; for (let i = 0; i < 7; i++) for (const b of dayBlocks(addD(ws, i))) if (!b.opt) sums[b.cat] = (sums[b.cat] || 0) + (b.e - b.s) / 60; return sums; },
-  day: d => dayBlocks(d).map(b => tm(b.s) + '-' + tm(b.e) + ' [' + b.cat + '] ' + b.t)
+  day: d => dayBlocks(d).map(b => tm(b.s) + '-' + tm(b.e) + ' [' + b.cat + '] ' + b.t + ' {' + b.id + '}'),
+  state: () => S, weekText, behind: () => behindLectures().map(x => x.id), plan: () => CP, gp: () => GP
 };
 })();
 </script>
