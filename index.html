@@ -65,11 +65,11 @@ main.wrap{padding:14px 16px calc(130px + env(safe-area-inset-bottom))}
 .topbar .sub{color:var(--muted);font-size:15px;margin-top:2px}
 .pillbtn{border:0;border-radius:999px;background:var(--soft);color:var(--soft-ink);font-weight:700;font-size:14px;padding:8px 13px;white-space:nowrap}
 .bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;background:var(--panel);border-top:1px solid var(--line);padding:6px 4px calc(8px + env(safe-area-inset-bottom))}
-.bottomnav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px;min-height:54px;padding:4px;color:var(--muted);font-size:12.5px;font-weight:600;position:relative}
-.bottomnav .ic{display:flex;padding:4px 18px;border-radius:999px}
+.bottomnav button{border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:50px;flex:1;max-width:96px;min-height:54px;padding:4px 0;color:var(--muted);font-size:12px;font-weight:600;position:relative}
+.bottomnav .ic{display:flex;padding:4px 14px;border-radius:999px}
 .bottomnav button[aria-current="page"]{color:var(--ink);font-weight:750}
 .bottomnav button[aria-current="page"] .ic{background:var(--soft);color:var(--soft-ink)}
-.badge{position:absolute;top:2px;right:10px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center}
+.badge{position:absolute;top:2px;right:calc(50% - 26px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--bad);color:#fff;font-size:11px;font-weight:800;line-height:18px;text-align:center}
 .badge:empty{display:none}
 svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
 
@@ -283,6 +283,43 @@ td input{min-height:38px;padding:6px 8px;font-size:14px}
 .swatches button{width:40px;height:40px;border-radius:50%;border:3px solid transparent}
 .swatches button[aria-pressed="true"]{border-color:var(--ink)}
 
+/* gym picker */
+.pick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.pick button{border:1.5px solid var(--line);background:var(--panel2);border-radius:16px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:1px;min-height:64px}
+.pick button b{font-size:15.5px}
+.pick button span{font-size:13px;color:var(--muted)}
+.pick button em{font-style:normal;font-size:12px;font-weight:750;color:var(--gym)}
+.pick button.sugg{border-color:var(--gym);background:color-mix(in srgb,var(--gym) 10%,var(--panel))}
+.pick button:last-child{grid-column:1/-1}
+
+/* progress */
+.mhead{display:flex;align-items:center;gap:8px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:14px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px 14px;box-shadow:var(--shadow)}
+.kpi span{display:block;font-size:13px;font-weight:650;color:var(--muted)}
+.kpi b{display:block;font-size:24px;line-height:1.2;letter-spacing:-.02em;margin-top:2px}
+.kpi small{display:block;font-size:12.5px;color:var(--muted)}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}
+.cal .wd{font-size:12px;font-weight:750;color:var(--muted);text-align:center;padding-bottom:2px}
+.cell{position:relative;min-height:66px;border-radius:12px;background:var(--panel2);padding:5px 5px 9px;display:flex;flex-direction:column;gap:3px;overflow:hidden;border:1.5px solid transparent;text-align:left}
+.cell.blank{background:transparent}
+.cell.today{border-color:var(--accent)}
+.cell.future{opacity:.55}
+.cell .n{font-size:12.5px;font-weight:700;color:var(--muted)}
+.gchip{display:inline-block;align-self:flex-start;font-size:11.5px;font-weight:800;padding:1px 6px;border-radius:7px;background:var(--gym);color:#fff;line-height:1.35}
+.gchip.d7{background:transparent;color:var(--gym);box-shadow:inset 0 0 0 1.5px var(--gym)}
+.gchip.home{background:transparent;color:var(--academy);box-shadow:inset 0 0 0 1.5px var(--academy)}
+.cell .sc{position:absolute;left:5px;right:5px;bottom:4px;height:4px;border-radius:2px;background:var(--line);overflow:hidden}
+.cell .sc i{display:block;height:100%;background:var(--good)}
+.legend{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:12px;font-size:13px;color:var(--muted);align-items:center}
+.legend .lg{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
+.split div{border-radius:14px;background:var(--panel2);padding:9px 12px}
+.split b{font-size:20px;color:var(--gym)}
+.split span{display:block;font-size:13px;color:var(--muted)}
+@media (max-width:520px){.kpi:last-child:nth-child(odd){grid-column:1/-1}}
+@media (max-width:420px){.cell{min-height:56px;padding:4px 3px 8px}.gchip{font-size:10.5px;padding:0 4px}.kpi b{font-size:21px}}
+
 /* overlays */
 .banner{position:fixed;left:50%;transform:translateX(-50%);top:calc(12px + env(safe-area-inset-top));z-index:50;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:min(560px,calc(100% - 32px));cursor:pointer}
 .banner b{display:block;font-size:16px}
@@ -296,6 +333,7 @@ td input{min-height:38px;padding:6px 8px;font-size:14px}
 dialog{border:1px solid var(--line);border-radius:24px;background:var(--panel);color:var(--ink);padding:0;max-width:min(520px,calc(100% - 24px));width:100%;max-height:calc(100vh - 40px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
 dialog::backdrop{background:rgba(0,0,0,.4)}
 .dlg{padding:20px;border-top:6px solid var(--c,var(--accent))}
+.dlg:focus{outline:none}
 .dlg h3{font-size:22px;margin:2px 0 4px;line-height:1.2}
 .dlg p{margin:10px 0}
 .dlg .acts{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:16px}
@@ -365,7 +403,7 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '3.0.3';
+const APP_VERSION = '3.1';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
@@ -389,7 +427,7 @@ const PLAN_DEF = [
 ];
 const blank = () => ({v:3, done:{}, att:{}, wat:{}, notes:{}, custom:[], edits:[], shop:{},
   shopList:{sat:SHOP_DEF.sat.slice(), wed:SHOP_DEF.wed.slice()}, meals:PLAN_DEF.map(r => r.slice()),
-  nights:{}, snoozeUntil:0, alerts:defAlerts(), prefs:defPrefs(), gym:{sessions:[], next:1, home:[], draft:null},
+  nights:{}, snoozeUntil:0, alerts:defAlerts(), prefs:defPrefs(), gym:{sessions:[], next:1, home:[], draft:null, manual:{day:1, ids:[]}},
   weights:{}, welcomed:false, lastBackup:null, lastVersion:null});
 
 function normalise(obj){
@@ -418,6 +456,7 @@ function normalise(obj){
     delete st.shopExtra;
     st.v = 3;
   }
+  if (!st.gym.manual) st.gym.manual = {day:st.gym.next || 1, ids:st.gym.sessions.map(x => x.id)};
   delete st.sound;
   return st;
 }
@@ -980,14 +1019,27 @@ const exObj = a => o({name:a[0], sets:a[1], lo:a[2], hi:a[3], rest:a[4], unit:'r
 const restSec = r => { const m = /(\d+):(\d\d)/.exec(r || ''); return m ? +m[1] * 60 + +m[2] : 90; };
 const nextDay = n => n % 6 + 1;
 const sessionsOf = d => S.gym.sessions.filter(x => x.date === d);
+// Days 1–6 rotate as a cycle. Doing any day ticks it off; the next suggestion is the first day not done
+// yet this cycle, so doing Day 5 early never skips Days 1–4. A full cycle of 6 starts a new one.
+function gymCycle(){
+  const g = S.gym, man = g.manual || {day:1, ids:[]};
+  const cyc = new Set(); for (let n = 1; n < man.day; n++) cyc.add(n);
+  for (const x of g.sessions){
+    if (x.day > 6 || man.ids.includes(x.id)) continue;
+    cyc.add(x.day); if (cyc.size >= 6) cyc.clear();
+  }
+  return cyc;
+}
+const nextIn = cyc => { for (let n = 1; n <= 6; n++) if (!cyc.has(n)) return n; return 1; };
+const gymNext = () => nextIn(gymCycle());
 function gymPlanMap(){
-  const map = {}; let n = S.gym.next; const t = today(), m = nowM();
+  const map = {}, cyc = gymCycle(); const t = today(), m = nowM();
   for (let i = 0; i < 21; i++){
     const d = addD(t, i);
     for (const b of dayBlocks(d)) if (b.cat === 'gym'){
       if (S.done[b.id]) continue;
       if (i === 0 && b.e <= m) continue;
-      map[d + '|' + b.id] = n; n = nextDay(n);
+      const n = nextIn(cyc); map[d + '|' + b.id] = n; cyc.add(n); if (cyc.size >= 6) cyc.clear();
     }
   }
   return map;
@@ -1018,38 +1070,31 @@ const fmtSets = (ex, v) => v.filter(r => r && (r[0] || r[1])).map(r => (r[0] ? r
 function weekGym(ws){
   const we = addD(ws, 6), r = {main:0, d7:0, home:0, days:[]};
   const seen = new Set();
-  for (const s of S.gym.sessions) if (s.date >= ws && s.date <= we){ if (s.day <= 6){ r.main++; seen.add(s.date); r.days.push(s); } else r.d7++; }
+  for (const s of S.gym.sessions) if (s.date >= ws && s.date <= we){ seen.add(s.date); if (s.day <= 6){ r.main++; r.days.push(s); } else r.d7++; }
   for (let i = 0; i < 7; i++){ const d = addD(ws, i); if (seen.has(d)) continue;
     if (dayBlocks(d).some(b => b.cat === 'gym' && S.done[b.id])) r.main++; }
   r.home = (S.gym.home || []).filter(d => d >= ws && d <= we).length;
   return r;
 }
-function tickGym(d, b){
+function tickGym(d, b, pick){
   if (S.done[b.id]){
     const s = S.gym.sessions.find(x => x.bid === b.id);
     if (s && s.sets && Object.keys(s.sets).length && !confirm('This session has logged sets. Remove the session and its log?')) return;
-    if (s){
-      S.gym.sessions = S.gym.sessions.filter(x => x !== s);
-      const lastMain = S.gym.sessions.filter(x => x.day <= 6).pop();
-      if (s.day <= 6 && (!lastMain || lastMain.date <= s.date)) S.gym.next = s.day;
-    }
+    if (s) S.gym.sessions = S.gym.sessions.filter(x => x !== s);
     delete S.done[b.id];
   } else {
     const dr = S.gym.draft;
     if (dr && dr.date === d && Object.keys(dr.sets || {}).length){ finishDraft(b); return; }
     S.done[b.id] = true;
-    if (!sessionsOf(d).some(x => x.day <= 6)){
-      const day = GP[d + '|' + b.id] || S.gym.next;
-      S.gym.sessions.push({id:'g' + Date.now(), date:d, day, sets:{}, bid:b.id});
-      S.gym.sessions.sort((a, z) => a.date < z.date ? -1 : a.date > z.date ? 1 : 0);
-      if (day <= 6) S.gym.next = nextDay(day);
-    }
+    const day = pick || GP[d + '|' + b.id] || gymNext();
+    S.gym.sessions.push({id:'g' + Date.now(), date:d, day, sets:{}, bid:b.id});
+    S.gym.sessions.sort((a, z) => a.date < z.date ? -1 : a.date > z.date ? 1 : 0);
   }
 }
 function draft(){
   const dr = S.gym.draft, empty = !dr || !Object.keys(dr.sets || {}).length;
-  if (!dr || (empty && dr.date !== today())) S.gym.draft = {date:today(), day:S.gym.next, sets:{}};
-  else if (empty && !dr.chosen) dr.day = S.gym.next;
+  if (!dr || (empty && dr.date !== today())) S.gym.draft = {date:today(), day:gymNext(), sets:{}};
+  else if (empty && !dr.chosen) dr.day = gymNext();
   return S.gym.draft;
 }
 function finishDraft(blockHint){
@@ -1058,7 +1103,6 @@ function finishDraft(blockHint){
   if (dr.day <= 6){
     const b = blockHint || dayBlocks(dr.date).find(x => x.cat === 'gym' && !S.done[x.id]);
     if (b){ S.done[b.id] = true; s.bid = b.id; }
-    S.gym.next = nextDay(dr.day);
   }
   // replace a quick tick from the same day with the logged session
   const quick = dr.day <= 6 ? S.gym.sessions.find(x => x.date === dr.date && x.day <= 6 && !Object.keys(x.sets || {}).length) : null;
@@ -1151,7 +1195,7 @@ function weekText(){
   L.push('Notes to write: ' + nw.length + '.');
   L.push('Hours ticked / planned: study ' + hrs(r.study.d) + '/' + hrs(r.study.p) + ', academy ' + hrs(r.academy.d) + '/' + hrs(r.academy.p) +
     ', business ' + hrs(r.business.d) + '/' + hrs(r.business.p) + ', career ' + hrs(r.career.d) + '/' + hrs(r.career.p) + '.');
-  L.push('Gym: ' + g.main + ' sessions (target ' + S.prefs.gymMin + '–' + S.prefs.gymMax + '), Day 7: ' + g.d7 + ', home sessions: ' + g.home + ' (target ' + S.prefs.homeMin + '–' + S.prefs.homeMax + '). Next in rotation: Day ' + S.gym.next + '.');
+  L.push('Gym: ' + g.main + ' sessions (target ' + S.prefs.gymMin + '–' + S.prefs.gymMax + '), Day 7: ' + g.d7 + ', home sessions: ' + g.home + ' (target ' + S.prefs.homeMin + '–' + S.prefs.homeMax + '). Next in rotation: Day ' + gymNext() + '.');
   for (const s of g.days){
     const best = Object.entries(s.sets || {}).slice(0, 3).map(([k, v]) => k + ' ' + fmtSets({unit:'reps'}, v)).join('; ');
     L.push('  ' + niceDate(s.date, true) + ' Day ' + s.day + ' ' + PROG[s.day].name + (best ? ': ' + best : ''));
@@ -1174,6 +1218,7 @@ const IC = {
   week:'<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
   gym:'<path d="M6.5 7.5v9M17.5 7.5v9M3.5 10v4M20.5 10v4M6.5 12h11"/>',
   behind:'<circle cx="12" cy="12" r="9"/><path d="M12 7.5v5.5M12 16.5v.01"/>',
+  progress:'<path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/>',
   more:'<path d="M5 12h.01M12 12h.01M19 12h.01" style="stroke-width:2.8"/>',
   deadlines:'<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>',
   food:'<path d="M4 11h16a8 8 0 0 1-16 0zM8 7c0-2 2-2 2-4M13 7c0-2 2-2 2-4"/>',
@@ -1185,8 +1230,8 @@ const IC = {
   plus:'<path d="M12 5v14M5 12h14"/>'
 };
 const ic = (k, st) => '<svg class="i" viewBox="0 0 24 24" aria-hidden="true"' + (st ? ' style="' + st + '"' : '') + '>' + IC[k] + '</svg>';
-const VIEWS = ['today','week','behind','deadlines','gym','food','setup','more'];
-const NAMES = {today:'Today', week:'Week', behind:'Behind', deadlines:'Deadlines', gym:'Gym', food:'Food & body', setup:'Setup', more:'More'};
+const VIEWS = ['today','week','behind','deadlines','gym','progress','food','setup','more'];
+const NAMES = {today:'Today', week:'Week', behind:'Behind', deadlines:'Deadlines', gym:'Gym', progress:'Progress', food:'Food & body', setup:'Setup', more:'More'};
 let TAB = 'today', viewDay = null, viewWeek = null, aFull = false, aEx = 0, behindMode = 'todo', trackAll = false, dlFilter = 'ALL', editMeals = false;
 
 function setTab(t){
@@ -1201,18 +1246,18 @@ function navHtml(){
     $('#side').hidden = false; $('#bottom').hidden = true;
     const n = now();
     $('#side').innerHTML = '<div class="brand"><div class="logo">✓</div><div><div style="font-weight:800">Life Planner</div><div class="clock">' + dayName(iso(n), true) + ' ' + niceDate(iso(n)) + ' · ' + tm(nowM()) + '</div></div></div>' +
-      ['today','week','behind','deadlines','gym','food','setup'].map(k => '<button class="nav" data-act="go" data-tab="' + k + '"' + (TAB === k ? ' aria-current="page"' : '') + '>' + ic(k) + '<span>' + NAMES[k] + '</span><span class="badge">' + (badge(k) || '') + '</span></button>').join('') +
+      ['today','week','behind','deadlines','gym','progress','food','setup'].map(k => '<button class="nav" data-act="go" data-tab="' + k + '"' + (TAB === k ? ' aria-current="page"' : '') + '>' + ic(k) + '<span>' + NAMES[k] + '</span><span class="badge">' + (badge(k) || '') + '</span></button>').join('') +
       '<div class="spacer"></div><button class="nav" data-act="checkupd">' + ic('down') + '<span>Check for updates</span></button><button class="nav" data-act="copyweek">' + ic('copy') + '<span>Copy week for Claude</span></button>';
   } else {
     $('#side').hidden = true; $('#bottom').hidden = false;
-    const cur = ['today','week','gym','behind'].includes(TAB) ? TAB : 'more';
-    $('#bottom').innerHTML = ['today','week','gym','behind','more'].map(k => '<button data-act="go" data-tab="' + k + '"' + (cur === k ? ' aria-current="page"' : '') + '><span class="ic">' + ic(k) + '</span><span>' + (k === 'today' && DEV.layout === 'A' ? 'Now' : NAMES[k]) + '</span><span class="badge">' + (badge(k) || '') + '</span></button>').join('');
+    const cur = ['today','week','gym','progress','behind'].includes(TAB) ? TAB : 'more';
+    $('#bottom').innerHTML = ['today','week','gym','progress','behind','more'].map(k => '<button data-act="go" data-tab="' + k + '"' + (cur === k ? ' aria-current="page"' : '') + '><span class="ic">' + ic(k) + '</span><span>' + (k === 'today' && DEV.layout === 'A' ? 'Now' : NAMES[k]) + '</span><span class="badge">' + (badge(k) || '') + '</span></button>').join('');
   }
   $('#fab').hidden = !(TAB === 'week' || (TAB === 'today' && DEV.layout !== 'A'));
 }
 function render(){
   GP = gymPlanMap(); CP = catchPlan();
-  ({today:renderToday, week:renderWeek, behind:renderBehind, deadlines:renderDeadlines, gym:renderGym, food:renderFood, setup:renderSetup, more:renderMore}[TAB] || renderToday)();
+  ({today:renderToday, week:renderWeek, behind:renderBehind, deadlines:renderDeadlines, gym:renderGym, progress:renderProgress, food:renderFood, setup:renderSetup, more:renderMore}[TAB] || renderToday)();
   navHtml();
 }
 function toast(msg, undo){
@@ -1410,7 +1455,7 @@ function weekCard(ws, title){
     '</div><p class="muted small" style="margin:10px 0 0">Counts only what you tick. Day 7 this week: ' + (g.d7 ? 'done' : 'not done (optional)') + '.</p></section>';
 }
 function gymCard(){
-  const n = S.gym.next, dr = S.gym.draft;
+  const n = gymNext(), dr = S.gym.draft;
   const day = dr ? dr.day : n;
   return '<section class="card c-gym"><h2>Gym<span class="r">next: Day ' + n + '</span></h2><div class="t" style="font-weight:700;font-size:17px">Day ' + day + ' · ' + PROG[day].name + '</div>' +
     '<div class="muted small">' + PROG[day].mins + ' · ' + PROG[day].ex.filter(a => !(a[5] && a[5].opt)).map(a => a[0]).join(', ') + '</div>' +
@@ -1517,6 +1562,106 @@ function renderDeadlines(){
     (done.length ? '<section class="card"><details><summary><h2 style="margin:0">Done<span class="r">' + done.length + '</span></h2></summary>' + done.map(row).join('') + '</details></section>' : '');
 }
 
+/* ================= PROGRESS ================= */
+let progMonth = null;
+function dayScore(d){
+  let tot = 0, done = 0;
+  for (const b of dayBlocks(d)){ if (!tickable(b) || b.opt || b.cat === 'free') continue; tot++; if (doneB(b)) done++; }
+  return tot ? done / tot : null;
+}
+function topSet(v){
+  let best = null;
+  for (const r of v || []) if (r && (+r[0] || +r[1])){ const k = +r[0] || 0, n = +r[1] || 0; if (!best || k > best[0] || (k === best[0] && n > best[1])) best = [k, n]; }
+  return best;
+}
+function renderProgress(){
+  const t = today(), ms = progMonth || t.slice(0, 8) + '01';
+  const y = +ms.slice(0, 4), mo = +ms.slice(5, 7) - 1, nd = new Date(y, mo + 1, 0).getDate(), me = iso(new Date(y, mo, nd));
+  const upTo = me < t ? me : t, started = ms <= t;
+  const prevM = iso(new Date(y, mo - 1, 1)), nextM = iso(new Date(y, mo + 1, 1));
+  const inM = d => d >= ms && d <= me;
+  const sess = S.gym.sessions.filter(x => inM(x.date)), main = sess.filter(x => x.day <= 6), d7 = sess.filter(x => x.day === 7);
+  let legacy = 0; for (let d = ms; d <= upTo && started; d = addD(d, 1)) if (!S.gym.sessions.some(x => x.date === d) && dayBlocks(d).some(b => b.cat === 'gym' && S.done[b.id])) legacy++;
+  const home = (S.gym.home || []).filter(inM);
+  // calendar
+  let cal = ['M','T','W','T','F','S','S'].map(x => '<div class="wd">' + x + '</div>').join('');
+  for (let i = 0, lead = (dow(ms) + 6) % 7; i < lead; i++) cal += '<div class="cell blank"></div>';
+  let scoreSum = 0, scoreN = 0, full = 0;
+  for (let i = 0; i < nd; i++){
+    const d = addD(ms, i), fut = d > t;
+    const ss = S.gym.sessions.filter(x => x.date === d);
+    let chips = ss.map(x => '<span class="gchip' + (x.day === 7 ? ' d7' : '') + '" title="' + esc(PROG[x.day].name) + '">D' + x.day + '</span>').join('');
+    if (!ss.length && dayBlocks(d).some(b => b.cat === 'gym' && S.done[b.id])) chips = '<span class="gchip">Gym</span>';
+    if ((S.gym.home || []).includes(d)) chips += '<span class="gchip home">Home</span>';
+    const sc = fut ? null : dayScore(d);
+    if (sc != null && d < t){ scoreSum += sc; scoreN++; if (sc >= .999) full++; }
+    cal += '<button class="cell' + (d === t ? ' today' : '') + (fut ? ' future' : '') + '" data-act="day" data-d="' + d + '" aria-label="' + esc(dayName(d) + ' ' + niceDate(d)) + '"><span class="n">' + (i + 1) + '</span>' + chips +
+      (sc != null ? '<span class="sc"><i style="width:' + Math.round(sc * 100) + '%"></i></span>' : '') + '</button>';
+  }
+  // weeks
+  const P = S.prefs;
+  let weeks = '';
+  for (let w = weekStart(ms); w <= me; w = addD(w, 7)){
+    if (w > t) break;
+    const g = weekGym(w), pct = Math.min(100, Math.round(g.main / P.gymMin * 100));
+    weeks += '<span class="lb">' + niceDate(w, true).slice(4) + '</span><span class="track c-gym"><i style="width:' + pct + '%"></i></span><span class="v">' + g.main + ' / ' + P.gymMin + '–' + P.gymMax + (g.main >= P.gymMin ? ' ✓' : '') + (g.home ? ' · home ' + g.home : '') + '</span>';
+  }
+  // split
+  const split = [1,2,3,4,5,6,7].map(n => { const c = sess.filter(x => x.day === n).length, last = S.gym.sessions.filter(x => x.day === n && x.date <= upTo).pop();
+    return '<div><b>' + c + '×</b> Day ' + n + '<span>' + esc(PROG[n].name) + (last ? ' · last ' + niceDate(last.date, true) : ' · not yet') + '</span></div>'; }).join('');
+  // hours, lectures, habits
+  const H = {study:[0,0], career:[0,0], academy:[0,0], business:[0,0]}; let wake = [0,0], bed = [0,0], lec = [0,0], notes = 0;
+  if (started) for (let d = ms; d <= upTo; d = addD(d, 1)){
+    for (const b of dayBlocks(d)){
+      const past = d < t || b.e <= nowM();
+      if (H[b.cat] && !b.opt && past){ H[b.cat][1] += (b.e - b.s) / 60; if (S.done[b.id]) H[b.cat][0] += (b.e - b.s) / 60; }
+      if (b.tk && b.s === 7 * 60){ wake[1]++; if (S.done[b.id]) wake[0]++; }
+      if (b.tk && b.s === 22 * 60 + 30 && (d < t || nowM() >= 23 * 60)){ bed[1]++; if (S.done[b.id]) bed[0]++; }
+    }
+    for (const x of sessionsOn(d)) if (x.kind === 'lecture' && isPastS(x)){ lec[1]++; if (covered(x.id)) lec[0]++; if (S.notes[x.id]) notes++; }
+  }
+  const hb = (l, c, v) => '<span class="lb">' + l + '</span><span class="track c-' + c + '"><i style="width:' + (v[1] ? Math.min(100, Math.round(v[0] / v[1] * 100)) : 0) + '%"></i></span><span class="v">' + hrs(v[0]) + ' / ' + hrs(v[1]) + '</span>';
+  const cb = (l, c, v) => '<span class="lb">' + l + '</span><span class="track c-' + c + '"><i style="width:' + (v[1] ? Math.round(v[0] / v[1] * 100) : 0) + '%"></i></span><span class="v">' + v[0] + ' / ' + v[1] + '</span>';
+  // lifts
+  const lifts = {};
+  for (const x of S.gym.sessions) if (x.date <= me) for (const [name, v] of Object.entries(x.sets || {})){
+    const ts = topSet(v); if (!ts || !ts[0]) continue;
+    (lifts[name] = lifts[name] || []).push({d:x.date, k:ts[0], n:ts[1]});
+  }
+  const liftRows = Object.entries(lifts).filter(([, a]) => a.some(e => inM(e.d))).map(([name, a]) => {
+    const inMonth = a.filter(e => inM(e.d)), last = inMonth[inMonth.length - 1], before = a.filter(e => e.d < ms).pop() || inMonth[0];
+    const ch = last.k - before.k;
+    return '<div class="li"><div class="tx"><div class="t">' + esc(name) + '</div><div class="s">' + (before !== last ? before.k + ' kg × ' + before.n + ' → ' : '') + last.k + ' kg × ' + last.n + ' · ' + niceDate(last.d, true) + '</div></div>' +
+      (before !== last ? '<span class="tag ' + (ch > 0 ? 'good' : ch < 0 ? 'bad' : '') + '">' + (ch > 0 ? '+' : '') + ch + ' kg</span>' : '<span class="tag">first log</span>') + '</div>';
+  }).join('');
+  // weight
+  const wa = avg7(upTo), wb = avg7(addD(ms, 6)) || (wEntries().filter(e => e.d < ms).pop() || {}).kg || null;
+  const wTxt = wa ? wa.toFixed(1) + ' kg' : '–', wCh = wa && wb ? wa - wb : null;
+  const avgPct = scoreN ? Math.round(scoreSum / scoreN * 100) : null;
+  view.innerHTML = '<div class="topbar" style="align-items:center"><div><h1>Progress</h1><div class="sub">' + MONTHS[mo] + ' ' + y + (ms === t.slice(0, 8) + '01' ? ' · so far' : '') + '</div></div>' +
+    '<div class="mhead"><button class="btn small" data-act="pmonth" data-m="' + prevM + '" aria-label="Previous month">' + ic('left', 'width:18px;height:18px') + '</button>' +
+    (progMonth ? '<button class="btn small" data-act="pmonth" data-m="">This month</button>' : '') +
+    '<button class="btn small" data-act="pmonth" data-m="' + nextM + '" aria-label="Next month">' + ic('right', 'width:18px;height:18px') + '</button></div></div>' +
+    '<div class="kpis">' +
+      '<div class="kpi"><span>Gym sessions</span><b style="color:var(--gym)">' + (main.length + legacy) + '</b><small>' + (d7.length ? '+ ' + d7.length + ' Day 7 · ' : '') + 'target ' + P.gymMin + '–' + P.gymMax + ' a week</small></div>' +
+      '<div class="kpi"><span>Home sessions</span><b>' + home.length + '</b><small>target ' + P.homeMin + '–' + P.homeMax + ' a week</small></div>' +
+      '<div class="kpi"><span>Lectures covered</span><b>' + (lec[1] ? Math.round(lec[0] / lec[1] * 100) + '%' : '–') + '</b><small>' + lec[0] + ' of ' + lec[1] + ' · notes on ' + notes + '</small></div>' +
+      '<div class="kpi"><span>Plan ticked</span><b>' + (avgPct != null ? avgPct + '%' : '–') + '</b><small>average day · ' + full + ' full day' + (full === 1 ? '' : 's') + '</small></div>' +
+      '<div class="kpi"><span>Bodyweight</span><b>' + wTxt + '</b><small>' + (wCh != null ? (wCh >= 0 ? '+' : '') + wCh.toFixed(1) + ' kg this month' : '7-day average') + '</small></div>' +
+    '</div>' +
+    '<div class="cols" style="margin-top:16px"><div>' +
+      '<section class="card"><h2>Calendar<span class="r">tap a day to open it</span></h2><div class="cal">' + cal + '</div>' +
+        '<div class="legend"><span class="lg"><span class="gchip">D1</span>gym workout</span><span class="lg"><span class="gchip d7">D7</span>conditioning</span><span class="lg"><span class="gchip home">Home</span>home session</span><span class="lg"><span style="display:inline-block;width:28px;height:4px;border-radius:2px;background:var(--good)"></span>share of the day ticked</span></div></section>' +
+      '<section class="card"><h2>Gym each week</h2>' + (weeks ? '<div class="bars">' + weeks + '</div>' : '<p class="empty">This month has not started yet.</p>') + '</section>' +
+    '</div><div>' +
+      '<section class="card"><h2>Workouts this month</h2><div class="split">' + split + '</div><p class="muted small" style="margin:10px 0 0">Next in rotation: Day ' + gymNext() + ' · ' + esc(PROG[gymNext()].name) + '.</p></section>' +
+      '<section class="card"><h2>Lifts<span class="r">heaviest set</span></h2>' + (liftRows || '<p class="empty">Log sets in the Gym tab and your progress shows here.</p>') + '</section>' +
+      '<section class="card"><h2>Hours ticked<span class="r">of what was planned so far</span></h2><div class="bars">' + hb('Study', 'study', H.study) + hb('Career', 'career', H.career) + hb('Academy', 'academy', H.academy) + hb('Business', 'business', H.business) + '</div></section>' +
+      '<section class="card"><h2>Habits</h2><div class="bars">' + cb('Lectures', 'lse', lec) + cb('Up at 7', 'routine', wake) + cb('Bed by 23', 'admin', bed) + '</div></section>' +
+    '</div></div>';
+}
+
+
 /* ================= GYM ================= */
 const HOME = ['Mobility: hips, ankles, thoracic spine (5 min)','Core: dead bugs, plank, side plank (5 min)','Push-ups: 3 sets, 1–2 short of failure','Posture: wall slides, band pull-aparts or doorway stretch'];
 function exHtml(ex, i, dr, total){
@@ -1550,16 +1695,16 @@ function renderGym(){
       (aEx < exs.length - 1 ? '<button class="btn primary" data-act="exnext">Next exercise' + ic('right', 'width:18px;height:18px') + '</button>' : '<button class="btn primary" data-act="gfinish">Finish session</button>') + '</div>' +
       '<details style="margin-top:14px"><summary class="muted small">All exercises</summary>' + exs.map((e, i) => '<div class="li"><div class="tx"><div class="t">' + esc(e.name) + '</div></div><button class="btn small" data-act="exgo" data-i="' + i + '">Go</button></div>').join('') + '</details>';
   } else exBlock = exs.map((e, i) => exHtml(e, i, dr)).join('');
-  view.innerHTML = '<div class="topbar"><div><div class="sec" style="margin:0;color:var(--gym)">Gym · ' + (day === S.gym.next ? 'next in rotation' : day === 7 ? 'optional conditioning' : 'chosen by you') + '</div><h1>Day ' + day + ' · ' + esc(P.name) + '</h1><div class="sub">' + P.mins + (P.note ? ' · ' + esc(P.note) : '') + (day <= 6 ? ' · picks up where you left off' : '') + '</div></div></div>' +
+  view.innerHTML = '<div class="topbar"><div><div class="sec" style="margin:0;color:var(--gym)">Gym · ' + (day === gymNext() ? 'next in rotation' : day === 7 ? 'optional conditioning' : 'chosen by you') + '</div><h1>Day ' + day + ' · ' + esc(P.name) + '</h1><div class="sub">' + P.mins + (P.note ? ' · ' + esc(P.note) : '') + (day <= 6 ? ' · picks up where you left off' : '') + '</div></div></div>' +
     '<div class="gymhead"><span class="chip">Gym ' + g.main + ' of ' + S.prefs.gymMin + '–' + S.prefs.gymMax + ' this week</span><span class="chip">Home ' + g.home + ' of ' + S.prefs.homeMin + '–' + S.prefs.homeMax + '</span><span class="chip">Day 7: ' + (g.d7 ? 'done' : 'optional') + '</span></div>' +
     (stale ? '<section class="card" style="margin-top:14px;background:var(--warn-soft);border-color:transparent"><b>Unfinished log from ' + niceDate(dr.date, true) + '.</b><div class="row-flex" style="margin-top:8px"><button class="btn small primary" data-act="gfinish">Save it</button><button class="btn small" data-act="gdiscard">Discard</button></div></section>' : '') +
-    '<div class="sec">Which session</div><div class="seg">' + daySeg + '</div><p class="muted small" style="margin:6px 0 0">Days 1–6 rotate whatever the weekday. A missed session waits for you. Day 7 never moves the rotation.</p>' +
+    '<div class="sec">Which session</div><div class="seg">' + daySeg + '</div><p class="muted small" style="margin:6px 0 0">Pick any day you like. The rotation fills in whatever you have not done yet this cycle, so doing Day 5 early never skips Days 1–4. Day 7 is optional and never counts against the rotation.</p>' +
     '<div style="margin-top:14px">' + exBlock + '</div>' +
     (DEV.layout === 'A' ? '' : '<div class="row-flex" style="margin-top:14px"><button class="btn primary" data-act="gfinish">Finish session</button><button class="btn" data-act="gdiscard">Clear this log</button></div>') +
     '<section class="card" style="margin-top:18px"><h2>Home session<span class="r">' + g.home + ' of ' + S.prefs.homeMin + '–' + S.prefs.homeMax + ' this week</span></h2><div class="prose"><ul>' + HOME.map(x => '<li>' + esc(x) + '</li>').join('') + '</ul></div>' +
     '<button class="btn ' + (home ? 'soft' : 'primary') + '" data-act="home">' + (home ? 'Done today ✓ (tap to undo)' : 'I did a home session today') + '</button></section>' +
-    '<section class="card"><h2>Recent sessions</h2>' + (S.gym.sessions.length ? S.gym.sessions.slice(-8).reverse().map(s => '<div class="li"><div class="tx"><div class="t">Day ' + s.day + ' · ' + esc(PROG[s.day].name) + '</div><div class="s">' + niceDate(s.date, true) + ' · ' + (Object.keys(s.sets || {}).length ? Object.keys(s.sets).length + ' exercises logged' : 'ticked, no log') + '</div></div><button class="btn small" data-act="gsdel" data-id="' + esc(s.id) + '">Delete</button></div>').join('') : '<p class="empty">No sessions yet. Tick a gym block or finish a log.</p>') +
-    '<div class="row-flex" style="margin-top:10px"><label class="f" style="flex-direction:row;align-items:center;gap:8px">Next in rotation <select data-pref="gymnext" style="width:auto">' + [1,2,3,4,5,6].map(n => '<option value="' + n + '"' + (n === S.gym.next ? ' selected' : '') + '>Day ' + n + ' · ' + PROG[n].name + '</option>').join('') + '</select></label></div></section>';
+    '<section class="card"><h2>Recent sessions</h2>' + (S.gym.sessions.length ? S.gym.sessions.slice(-8).reverse().map(s => '<div class="li"><div class="tx"><div class="t">Day ' + s.day + ' · ' + esc(PROG[s.day].name) + '</div><div class="s">' + niceDate(s.date, true) + ' · ' + (Object.keys(s.sets || {}).length ? Object.keys(s.sets).length + ' exercises logged' : 'ticked, no log') + '</div></div><select data-gsday="' + esc(s.id) + '" aria-label="Which workout" style="width:auto;min-height:36px;padding:4px 8px">' + [1,2,3,4,5,6,7].map(n => '<option value="' + n + '"' + (n === s.day ? ' selected' : '') + '>Day ' + n + '</option>').join('') + '</select><button class="btn small" data-act="gsdel" data-id="' + esc(s.id) + '">Delete</button></div>').join('') : '<p class="empty">No sessions yet. Tick a gym block or finish a log.</p>') +
+    '<div class="row-flex" style="margin-top:10px"><label class="f" style="flex-direction:row;align-items:center;gap:8px">Next in rotation <select data-pref="gymnext" style="width:auto">' + [1,2,3,4,5,6].map(n => '<option value="' + n + '"' + (n === gymNext() ? ' selected' : '') + '>Day ' + n + ' · ' + PROG[n].name + '</option>').join('') + '</select></label></div></section>';
 }
 
 /* ================= FOOD & BODY ================= */
@@ -1669,7 +1814,7 @@ function renderMore(){
   const od = allDL().filter(x => !isDone(x) && dueDate(x) < now()).length;
   const item = (k, l, s) => '<button class="li" style="width:100%;border-left:0;border-right:0;border-bottom:0;background:none;text-align:left" data-act="go" data-tab="' + k + '">' + ic(k) + '<div class="tx"><div class="t">' + l + '</div><div class="s">' + s + '</div></div>' + ic('right', 'width:18px;height:18px;color:var(--muted)') + '</button>';
   view.innerHTML = '<div class="topbar"><div><h1>More</h1></div></div><section class="card" style="margin-top:12px;padding-top:6px;padding-bottom:6px">' +
-    item('deadlines', 'Deadlines', od ? od + ' overdue' : 'Add and tick off deadlines') + item('food', 'Food & body', 'Meal plan, shopping, bodyweight') + item('setup', 'Setup', 'Layout, colours, alerts, your changes, backups') + '</section>' +
+    item('deadlines', 'Deadlines', od ? od + ' overdue' : 'Add and tick off deadlines') + item('progress', 'Progress', 'Month calendar, gym, lectures, hours, lifts') + item('food', 'Food & body', 'Meal plan, shopping, bodyweight') + item('setup', 'Setup', 'Layout, colours, alerts, your changes, backups') + '</section>' +
     '<button class="btn wide" style="margin-top:14px" data-act="checkupd">Check for updates · v' + APP_VERSION + '</button><button class="btn primary wide" style="margin-top:10px" data-act="copyweek">' + ic('copy', 'width:18px;height:18px') + 'Copy week for Claude</button>';
 }
 
@@ -1683,7 +1828,7 @@ function addEdits(list, msg){
   toast(msg || 'Changed.', () => { S.edits = S.edits.filter(e => !ids.has(e.id)); commit(); toast('Undone.'); });
 }
 function closeDlg(){ const d = $('#dlg'); if (d.open) d.close(); }
-function showDlg(html, cat){ const dlg = $('#dlg'); dlg.innerHTML = '<div class="dlg c-' + (cat || 'admin') + '">' + html + '</div>'; if (!dlg.open) dlg.showModal(); }
+function showDlg(html, cat){ const dlg = $('#dlg'); dlg.innerHTML = '<div class="dlg c-' + (cat || 'admin') + '" tabindex="-1" autofocus>' + html + '</div>'; if (!dlg.open) dlg.showModal(); }
 const timeIn = (name, v, l) => '<label class="f">' + l + '<input type="time" name="' + name + '" value="' + tm(v) + '" required></label>';
 const origStart = x => x.src === 'cal' ? hm(x.id.split('|')[4]) : ((S.edits.find(e => e.id === x.src) || {}).s ?? x.s);
 const CATOPTS = [['study','Study'],['academy','Academy'],['gym','Gym'],['career','Career'],['business','Business'],['meal','Food'],['chores','Shopping or chores'],['admin','Admin'],['free','Free time']];
@@ -1716,7 +1861,7 @@ function openBlock(d, id, mode){
   if (!mode){
     h += (b.n ? '<p>' + esc(b.n) + '</p>' : '') + (b.moved ? '<p class="muted small">Moved automatically to fit around your timetable.</p>' : '') +
       ((b.cat === 'study' || b.cat === 'academy') && CP.byBlock[d + '|' + b.id] ? '<p class="small" style="color:var(--soft-ink)">Suggested: watch ' + CP.byBlock[d + '|' + b.id].map(x => x.code + ' lecture (' + sessWhen(x) + ')').join(', ') + '.</p>' : '') +
-      (b.cat === 'gym' ? '<p class="muted small">Days 1–6 rotate; this one is the next you have not done. Day 7 is optional, any day.</p>' : '');
+      (b.cat === 'gym' && !st.done ? '<p class="muted small">Suggested: Day ' + (gymDayOf(d, b) || gymNext()) + '. Mark done lets you pick any workout.</p>' : '');
     if (b.cat === 'routine') h += '<p class="muted small">Wake-up and bedtime are fixed: they drive the bedtime stop.</p>';
     h += '<div class="acts" style="justify-content:flex-start">' + (tickable(b) ? '<button class="btn primary" data-act="tick" data-d="' + d + '" data-id="' + esc(b.id) + '" data-close="1">' + (st.done ? 'Mark not done' : 'Mark done') + '</button>' : '') +
       (b.cat === 'gym' ? '<button class="btn" data-act="go" data-tab="gym">Open gym log</button>' : '') + '</div>';
@@ -1747,6 +1892,14 @@ function blockEdit(scope, d, b, extra){
   const base = {kind:'blk', label:b.t, scope};
   if (scope === 'day') return o(base, {d, bid:b.id}, extra);
   return o(base, {wd:dow(d), from:d, pid:periodOf(d).id, key:b.key}, extra);
+}
+function openGymPick(d, id){
+  DLG = {d, id};
+  const sugg = GP[d + '|' + id] || gymNext(), cyc = gymCycle();
+  showDlg('<div class="muted">' + dayName(d) + ' ' + niceDate(d) + '</div><h3>Which workout did you do?</h3><div class="pick">' +
+    [1,2,3,4,5,6,7].map(n => '<button class="' + (n === sugg ? 'sugg' : '') + '" data-act="gympick" data-n="' + n + '" data-d="' + d + '" data-id="' + esc(id) + '"><b>Day ' + n + (n <= 6 && cyc.has(n) ? ' <span class="tag good">done this cycle</span>' : '') + '</b><span>' + esc(PROG[n].name) + '</span>' +
+      (n === sugg ? '<em>next in rotation</em>' : n === 7 ? '<em>optional</em>' : '') + '</button>').join('') + '</div>' +
+    '<p class="muted small">Want to log weights and reps? Open the gym log instead.</p><div class="acts"><button class="btn" data-act="go" data-tab="gym">Open gym log</button><button class="btn" data-act="close">Cancel</button></div>', 'gym');
 }
 function openAdd(kind, d){
   d = d || viewDay || today();
@@ -1797,6 +1950,7 @@ document.addEventListener('click', e => {
   if (a === 'tick'){
     e.stopPropagation();
     const d = el.dataset.d || today(), b = findB(d, el.dataset.id);
+    if (b && b.cat === 'gym' && !S.done[b.id] && !(S.gym.draft && S.gym.draft.date === d && Object.keys(S.gym.draft.sets || {}).length)){ openGymPick(d, b.id); return; }
     if (b && b.cat === 'gym') tickGym(d, b);
     else { const id = el.dataset.id; if (S.done[id]) delete S.done[id]; else S.done[id] = true; }
     save(); if (el.dataset.close) closeDlg(); render(); return;
@@ -1825,6 +1979,10 @@ document.addEventListener('click', e => {
   if (a === 'trackall'){ trackAll = !trackAll; render(); return; }
   if (a === 'welcomed'){ S.welcomed = true; save(); render(); return; }
   if (a === 'copyweek'){ copyWeek(); return; }
+  if (a === 'gympick'){ const d = el.dataset.d, b = findB(d, el.dataset.id), n = +el.dataset.n; if (!b) return;
+    tickGym(d, b, n); save(); closeDlg(); render();
+    toast('Day ' + n + ' · ' + PROG[n].name + ' done.', () => { const x = S.gym.sessions.find(z => z.bid === b.id); S.gym.sessions = S.gym.sessions.filter(z => z !== x); delete S.done[b.id]; save(); render(); }); return; }
+  if (a === 'pmonth'){ progMonth = el.dataset.m || null; render(); return; }
   if (a === 'add'){ openAdd(el.dataset.k); return; }
   if (a === 'resetday'){
     const d = el.dataset.d, gone = S.edits.filter(x => x.d === d || x.date === d);
@@ -1850,7 +2008,7 @@ document.addEventListener('click', e => {
   /* gym */
   if (a === 'gday'){ const n = +el.dataset.n, dr = draft();
     if (Object.keys(dr.sets).length && dr.day !== n && !confirm('Switch session? What you logged for Day ' + dr.day + ' is cleared.')) return;
-    if (dr.day !== n) dr.sets = {}; dr.day = n; dr.chosen = n !== S.gym.next; aEx = 0; save(); render(); return; }
+    if (dr.day !== n) dr.sets = {}; dr.day = n; dr.chosen = n !== gymNext(); aEx = 0; save(); render(); return; }
   if (a === 'gdone'){ const dr = draft(), k = el.dataset.x; if (dr.sets[k]) delete dr.sets[k]; else dr.sets[k] = [[0, 1]]; save(); render(); return; }
   if (a === 'exprev'){ aEx = Math.max(0, aEx - 1); render(); return; }
   if (a === 'exnext'){ aEx++; render(); window.scrollTo(0, 0); return; }
@@ -1942,8 +2100,9 @@ document.addEventListener('change', e => {
     if (dr.date !== today() && !Object.keys(dr.sets).length) dr.date = today();
     save(); return;
   }
+  if (el.dataset.gsday){ const x = S.gym.sessions.find(z => z.id === el.dataset.gsday); if (x){ x.day = +el.value; save(); cache.clear(); render(); toast('Changed to Day ' + x.day + '.'); } return; }
   if (el.dataset.pref){
-    if (el.dataset.pref === 'gymnext'){ S.gym.next = +el.value; save(); render(); toast('Next session: Day ' + S.gym.next + '.'); return; }
+    if (el.dataset.pref === 'gymnext'){ S.gym.manual = {day:+el.value, ids:S.gym.sessions.map(x => x.id)}; save(); cache.clear(); render(); toast('Next session: Day ' + gymNext() + '.'); return; }
     const n = parseFloat(el.value); if (!(n >= 0)) return;
     S.prefs[el.dataset.pref] = n; save(); cache.clear(); toast('Saved.'); return;
   }
