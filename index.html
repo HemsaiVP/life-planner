@@ -59,7 +59,7 @@ a{color:var(--accent)}
 #app{min-height:100vh;min-height:100dvh}
 html,body{overflow-x:hidden}
 .wrap{max-width:720px;margin:0 auto;padding:0 16px}
-main{padding:14px 0 calc(150px + env(safe-area-inset-bottom))}
+main.wrap{padding:14px 16px calc(130px + env(safe-area-inset-bottom))}
 .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:18px 0 4px}
 .topbar h1{font-size:30px;line-height:1.15}
 .topbar .sub{color:var(--muted);font-size:15px;margin-top:2px}
@@ -85,7 +85,7 @@ body.L-C #app{display:grid;grid-template-columns:232px minmax(0,1fr)}
 .sidenav button.nav[aria-current="page"]{background:var(--soft);color:var(--soft-ink)}
 .sidenav button.nav .badge{position:static;margin-left:auto}
 .sidenav .spacer{flex:1}
-body.L-C main{padding:22px 8px 60px}
+body.L-C main.wrap{padding:22px 24px 90px}
 @media (max-width:860px){
   body.L-C #app{display:block}
   body.L-C .sidenav{position:sticky;top:0;z-index:30;height:auto;flex-direction:row;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid var(--line)}
@@ -362,7 +362,7 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '3.0.1';
+const APP_VERSION = '3.0.2';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
@@ -1199,7 +1199,7 @@ function navHtml(){
     const n = now();
     $('#side').innerHTML = '<div class="brand"><div class="logo">✓</div><div><div style="font-weight:800">Life Planner</div><div class="clock">' + dayName(iso(n), true) + ' ' + niceDate(iso(n)) + ' · ' + tm(nowM()) + '</div></div></div>' +
       ['today','week','behind','deadlines','gym','food','setup'].map(k => '<button class="nav" data-act="go" data-tab="' + k + '"' + (TAB === k ? ' aria-current="page"' : '') + '>' + ic(k) + '<span>' + NAMES[k] + '</span><span class="badge">' + (badge(k) || '') + '</span></button>').join('') +
-      '<div class="spacer"></div><button class="nav" data-act="copyweek">' + ic('copy') + '<span>Copy week for Claude</span></button>';
+      '<div class="spacer"></div><button class="nav" data-act="checkupd">' + ic('down') + '<span>Check for updates</span></button><button class="nav" data-act="copyweek">' + ic('copy') + '<span>Copy week for Claude</span></button>';
   } else {
     $('#side').hidden = true; $('#bottom').hidden = false;
     const cur = ['today','week','gym','behind'].includes(TAB) ? TAB : 'more';
@@ -1617,7 +1617,7 @@ function renderSetup(){
     '<section class="card prose"><h2>Install on your phone and laptop</h2>' + (installed ? '<p><b>Installed on this device.</b></p>' : '') +
     '<p><b>Android:</b> open <b>' + APP_URL + '</b> in Chrome › menu ⋮ › <b>Install app</b>.</p><p><b>Laptop:</b> open it in Chrome or Edge › install icon in the address bar.</p>' +
     (deferredInstall ? '<p><button class="btn primary" data-act="install">Install on this device</button></p>' : '') +
-    '<p class="muted">Updates itself. Each device keeps its own ticks: move them with a backup.</p></section></div><div>' +
+    '<p class="muted">Updates itself. Each device keeps its own ticks: move them with a backup.</p><button class="btn" data-act="checkupd">Check for updates</button></section></div><div>' +
     '<section class="card"><h2>Alerts</h2>' + tog('banner', 'Banner in the app', 'A bar across the top when a block starts.') + tog('system', 'Phone or desktop notification', sysSub) +
       tog('vibrate', 'Vibrate (phone)', 'Off keeps notifications silent.') + tog('sound', 'Sound', 'A short chime.') + tog('leave', 'Leave warning', '5 minutes before you need to cycle to campus.') +
       '<div class="sw" style="display:block"><div>Bedtime, at 22:30 and 23:00</div><div class="seg" style="margin-top:8px">' + bed('lock', 'Full-screen stop') + bed('notify', 'Notification only') + bed('off', 'Off') + '</div></div>' +
@@ -1658,7 +1658,7 @@ function renderMore(){
   const item = (k, l, s) => '<button class="li" style="width:100%;border-left:0;border-right:0;border-bottom:0;background:none;text-align:left" data-act="go" data-tab="' + k + '">' + ic(k) + '<div class="tx"><div class="t">' + l + '</div><div class="s">' + s + '</div></div>' + ic('right', 'width:18px;height:18px;color:var(--muted)') + '</button>';
   view.innerHTML = '<div class="topbar"><div><h1>More</h1></div></div><section class="card" style="margin-top:12px;padding-top:6px;padding-bottom:6px">' +
     item('deadlines', 'Deadlines', od ? od + ' overdue' : 'Add and tick off deadlines') + item('food', 'Food & body', 'Meal plan, shopping, bodyweight') + item('setup', 'Setup', 'Layout, colours, alerts, your changes, backups') + '</section>' +
-    '<button class="btn primary wide" style="margin-top:14px" data-act="copyweek">' + ic('copy', 'width:18px;height:18px') + 'Copy week for Claude</button>';
+    '<button class="btn wide" style="margin-top:14px" data-act="checkupd">Check for updates · v' + APP_VERSION + '</button><button class="btn primary wide" style="margin-top:10px" data-act="copyweek">' + ic('copy', 'width:18px;height:18px') + 'Copy week for Claude</button>';
 }
 
 /* ================= your own changes ================= */
@@ -1852,6 +1852,7 @@ document.addEventListener('click', e => {
   if (a === 'layout'){ DEV.layout = el.dataset.v; saveDev(); applyDev(); aFull = false; render(); return; }
   if (a === 'theme'){ DEV.theme = el.dataset.v; saveDev(); applyDev(); render(); return; }
   if (a === 'accent'){ DEV.accent = +el.dataset.v; saveDev(); applyDev(); render(); return; }
+  if (a === 'checkupd'){ checkUpdate(); return; }
   if (a === 'export'){ exportBackup(); return; }
   if (a === 'copy'){ const txt = JSON.stringify(S); const ta = $('#impText'); ta.value = txt; ta.select();
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Copied. Paste it into a note in OneDrive › Planner › Backups.'), () => toast('Selected in the box below. Copy it.')); return; }
@@ -2066,6 +2067,17 @@ if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
   }).catch(() => {});
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (wantReload){ wantReload = false; location.reload(); } });
 }
+function checkUpdate(){
+  if (!SWREG){ toast('Updates work in the installed app. Reload this page instead.'); return; }
+  if (SWREG.waiting){ showUpdate(SWREG); toast('A new version is ready. Tap Update at the top.'); return; }
+  toast('Checking for updates…');
+  SWREG.update().then(() => setTimeout(() => {
+    if (SWREG.waiting){ showUpdate(SWREG); toast('A new version is ready. Tap Update at the top.'); }
+    else if (SWREG.installing) toast('Downloading the new version. The Update bar appears in a moment.');
+    else toast('You have the latest version (' + APP_VERSION + ').');
+  }, 2000)).catch(() => toast('Could not check. Are you online?'));
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && SWREG) SWREG.update().catch(() => {}); });
 function doInstall(){
   if (!deferredInstall){ toast('Use your browser menu: Install app.'); return; }
   deferredInstall.prompt();
