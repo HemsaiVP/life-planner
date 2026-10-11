@@ -130,6 +130,9 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:65
 body:not(.L-C) .cols{grid-template-columns:1fr}
 
 /* week strip & tiles */
+.striprow{display:flex;gap:6px;align-items:stretch;margin-top:12px}
+.striprow .strip{flex:1;margin-top:0}
+.navarrow{width:34px;flex:none;border:0;border-radius:14px;background:var(--panel);box-shadow:var(--shadow);display:grid;place-items:center;color:var(--muted)}
 .strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-top:12px}
 .strip button{min-height:56px;border:0;border-radius:16px;background:var(--panel);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;box-shadow:var(--shadow)}
 .strip button span{font-size:12px;font-weight:600;color:var(--muted)}
@@ -362,7 +365,7 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '3.0.2';
+const APP_VERSION = '3.0.3';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
@@ -1278,8 +1281,8 @@ function agendaHtml(d, fold){
 }
 function stripHtml(d){
   const ws = weekStart(d), t = today();
-  return '<div class="strip">' + [0,1,2,3,4,5,6].map(i => { const x = addD(ws, i);
-    return '<button data-act="day" data-d="' + x + '"' + (x === d ? ' aria-current="date"' : '') + (x === t ? ' class="today"' : '') + '><span>' + dayName(x, true) + '</span><b>' + dOf(x).getDate() + '</b></button>'; }).join('') + '</div>';
+  return '<div class="striprow"><button class="navarrow" data-act="dshift" data-n="-7" aria-label="Previous week">' + ic('left', 'width:18px;height:18px') + '</button><div class="strip">' + [0,1,2,3,4,5,6].map(i => { const x = addD(ws, i);
+    return '<button data-act="day" data-d="' + x + '"' + (x === d ? ' aria-current="date"' : '') + (x === t ? ' class="today"' : '') + '><span>' + dayName(x, true) + '</span><b>' + dOf(x).getDate() + '</b></button>'; }).join('') + '</div><button class="navarrow" data-act="dshift" data-n="7" aria-label="Next week">' + ic('right', 'width:18px;height:18px') + '</button></div>';
 }
 const nextDue = () => { const n = now(); return allDL().filter(x => !isDone(x)).sort((a, b) => dueDate(a) - dueDate(b))[0]; };
 function tilesHtml(){
@@ -1314,8 +1317,9 @@ function renderToday(){
 function todayB(){
   const t = today(), d = viewDay || t, isT = d === t, bl = dayBlocks(d), m = nowM();
   const leave = isT && bl.campus && bl.leave != null && m < bl.leave ? '<button class="pillbtn" data-act="open" data-d="' + d + '" data-id="' + esc((bl.find(b => b.t === 'Cycle to campus') || {}).id || '') + '">Leave ' + tm(bl.leave) + '</button>' : '';
-  view.innerHTML = '<div class="topbar"><div><h1>' + (isT ? 'Today' : dayName(d)) + '</h1><div class="sub">' + esc(dayHeadSub(d)) + '</div></div>' + leave +
-    (isT ? '' : '<button class="pillbtn" data-act="day" data-d="' + t + '">Today</button>') + '</div>' +
+  const dayLbl = isT ? 'Today' : d === addD(t, 1) ? 'Tomorrow' : d === addD(t, -1) ? 'Yesterday' : dayName(d);
+  view.innerHTML = '<div class="topbar"><div><h1>' + dayLbl + '</h1><div class="sub">' + esc(dayHeadSub(d)) + '</div></div>' + leave +
+    (isT ? '<button class="pillbtn" data-act="day" data-d="' + addD(t, 1) + '">Tomorrow ›</button>' : '<button class="pillbtn" data-act="day" data-d="' + t + '">Back to today</button>') + '</div>' +
     stripHtml(d) + (isT ? tilesHtml() : '') + welcome() + agendaHtml(d, isT) + resetDayBtn(d);
 }
 function focusHtml(d){
@@ -1338,11 +1342,19 @@ function focusHtml(d){
     (cur ? '<div class="prog"><i style="width:' + pct + '%"></i></div>' : '') + acts + '</div>';
 }
 function todayA(){
-  const t = today(), d = t, bl = dayBlocks(d), m = nowM();
+  const t = today();
+  if (viewDay && viewDay !== t){
+    const d = viewDay, lbl = d === addD(t, 1) ? 'Tomorrow' : d === addD(t, -1) ? 'Yesterday' : dayName(d);
+    view.innerHTML = '<div class="topbar" style="align-items:center"><div><h1 style="font-size:24px">' + lbl + '</h1><div class="sub">' + esc(dayHeadSub(d)) + '</div></div>' +
+      '<div class="row-flex"><button class="btn small" data-act="dprev" aria-label="Previous day">' + ic('left', 'width:18px;height:18px') + '</button><button class="btn small" data-act="day" data-d="' + t + '">Today</button><button class="btn small" data-act="dnext" aria-label="Next day">' + ic('right', 'width:18px;height:18px') + '</button></div></div>' +
+      agendaHtml(d, false) + resetDayBtn(d);
+    return;
+  }
+  const d = t, bl = dayBlocks(d), m = nowM();
   const beh = behindLectures(), nd = nextDue(), g = weekGym(weekStart(t)), nw = notesToWrite().length;
   const upcoming = bl.filter(b => b.cat !== 'free' && b.s > m).filter(b => !(b.s <= m)).slice(0, 5);
   const curId = (bl.find(b => b.cat !== 'free' && b.s <= m && m < b.e) || {}).id;
-  view.innerHTML = '<div class="topbar" style="align-items:center"><div><h1 style="font-size:20px">' + dayName(d) + ' ' + niceDate(d) + '</h1><div class="sub">' + (bl.campus ? 'Campus day · leave ' + tm(bl.leave) : 'Home day') + ' · ' + esc(periodLabel(d)) + '</div></div><div style="font-weight:750;font-size:18px">' + tm(m) + '</div></div>' +
+  view.innerHTML = '<div class="topbar" style="align-items:center"><div><h1 style="font-size:20px">' + dayName(d) + ' ' + niceDate(d) + '</h1><div class="sub">' + (bl.campus ? 'Campus day · leave ' + tm(bl.leave) : 'Home day') + ' · ' + esc(periodLabel(d)) + '</div></div><div class="row-flex" style="flex-wrap:nowrap"><span style="font-weight:750;font-size:18px">' + tm(m) + '</span><button class="pillbtn" data-act="day" data-d="' + addD(t, 1) + '">Tomorrow ›</button></div></div>' +
     welcome() + focusHtml(d) +
     (aFull ? '<div class="sec">Whole day</div>' + agendaHtml(d, true)
       : '<div class="nextlist"><div class="sec" style="margin-top:0">Next</div><ol style="list-style:none;padding:0;margin:0">' +
@@ -1804,6 +1816,7 @@ document.addEventListener('click', e => {
   if (a === 'close'){ closeDlg(); return; }
   if (a === 'go'){ closeDlg(); if (el.dataset.tab === 'today') viewDay = null; setTab(el.dataset.tab); return; }
   if (a === 'day'){ const d = el.dataset.d; viewDay = d === today() ? null : d; if (TAB !== 'today') setTab('today'); else render(); return; }
+  if (a === 'dshift'){ viewDay = addD(viewDay || today(), +el.dataset.n); if (viewDay === today()) viewDay = null; render(); return; }
   if (a === 'dprev' || a === 'dnext'){ viewDay = addD(viewDay || today(), a === 'dprev' ? -1 : 1); if (viewDay === today()) viewDay = null; render(); return; }
   if (a === 'wprev' || a === 'wnext'){ viewWeek = addD(viewWeek || weekStart(today()), a === 'wprev' ? -7 : 7); render(); return; }
   if (a === 'wtoday'){ viewWeek = null; render(); return; }
