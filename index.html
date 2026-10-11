@@ -1,0 +1,1253 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Life Planner</title>
+<meta name="theme-color" content="#2b5c8a">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<style>
+:root{
+  --bg:#f4f3ef; --panel:#ffffff; --panel2:#f9f8f5; --ink:#1c1c1e; --muted:#66666c; --line:#e1dfd8;
+  --accent:#2b5c8a; --accent-ink:#ffffff; --bad:#b23d1c; --good:#2a7a4a; --warn:#a86a00;
+  --routine:#6f7887; --meal:#c48a10; --lse:#7445b0; --study:#2d6cb0; --academy:#11877a; --gym:#c4443a;
+  --business:#2b8a4c; --travel:#8b9099; --chores:#9b6530; --free:#a8a397; --admin:#4c5c8e;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 4px 14px rgba(0,0,0,.04);
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#121316; --panel:#1b1d21; --panel2:#202227; --ink:#ebebee; --muted:#9b9da4; --line:#2d3036;
+    --accent:#80b2e3; --accent-ink:#0d1b29; --bad:#f07c5c; --good:#6cc28f; --warn:#e3b04f;
+    --routine:#9aa3b2; --meal:#e0a93a; --lse:#a77ee0; --study:#6aa2e0; --academy:#3fb9aa; --gym:#e8746a;
+    --business:#5cbf7d; --travel:#9aa0aa; --chores:#c99055; --free:#8d887d; --admin:#8596cc;
+    --shadow:none; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#121316; --panel:#1b1d21; --panel2:#202227; --ink:#ebebee; --muted:#9b9da4; --line:#2d3036;
+  --accent:#80b2e3; --accent-ink:#0d1b29; --bad:#f07c5c; --good:#6cc28f; --warn:#e3b04f;
+  --routine:#9aa3b2; --meal:#e0a93a; --lse:#a77ee0; --study:#6aa2e0; --academy:#3fb9aa; --gym:#e8746a;
+  --business:#5cbf7d; --travel:#9aa0aa; --chores:#c99055; --free:#8d887d; --admin:#8596cc;
+  --shadow:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit}
+h1,h2,h3{margin:0;font-weight:650;letter-spacing:-.01em}
+.muted{color:var(--muted)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+
+/* header */
+.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;min-height:58px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.logo{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:800}
+.brand .name{font-weight:700}
+.brand .sub{font-size:12.5px;color:var(--muted)}
+.clock{font-weight:600;font-size:14px}
+.tabs{display:flex;gap:2px;overflow-x:auto;padding:6px 0;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{border:0;background:none;padding:7px 12px;border-radius:8px;cursor:pointer;color:var(--muted);font-weight:550;white-space:nowrap}
+.tabs button:hover{background:var(--panel2);color:var(--ink)}
+.tabs button[aria-current="page"]{background:var(--panel);color:var(--ink);box-shadow:var(--shadow);outline:1px solid var(--line)}
+.pill{display:inline-block;min-width:18px;padding:0 6px;margin-left:4px;border-radius:9px;background:var(--bad);color:#fff;font-size:11.5px;line-height:18px;text-align:center}
+.pill:empty{display:none}
+
+main{padding:18px 0 60px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow)}
+.card+.card{margin-top:14px}
+.card h2{font-size:15px;margin-bottom:10px}
+.btn{border:1px solid var(--line);background:var(--panel);padding:7px 12px;border-radius:9px;cursor:pointer;font-weight:550}
+.btn:hover{border-color:color-mix(in srgb,var(--ink) 30%,var(--line))}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.small{padding:4px 9px;font-size:13px}
+.btn.danger{color:var(--bad)}
+.row-flex{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* day bar */
+.daybar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.daybar h1{font-size:22px}
+.daybar h1 span{color:var(--muted);font-weight:500}
+.navbtn{width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-size:18px;line-height:1}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:18px;align-items:start}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+
+/* category colour hook */
+.c-routine{--c:var(--routine)} .c-meal{--c:var(--meal)} .c-lse{--c:var(--lse)} .c-study{--c:var(--study)}
+.c-academy{--c:var(--academy)} .c-gym{--c:var(--gym)} .c-business{--c:var(--business)} .c-travel{--c:var(--travel)}
+.c-chores{--c:var(--chores)} .c-free{--c:var(--free)} .c-admin{--c:var(--admin)}
+
+/* now card */
+.now{border-radius:16px;padding:18px 18px 16px;margin-bottom:16px;background:color-mix(in srgb,var(--c,var(--accent)) 12%,var(--panel));border:1px solid color-mix(in srgb,var(--c,var(--accent)) 35%,var(--line))}
+.now .lbl{font-size:12.5px;font-weight:650;text-transform:uppercase;letter-spacing:.06em;color:color-mix(in srgb,var(--c,var(--accent)) 75%,var(--ink))}
+.now .big{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:4px 0 6px;line-height:1.2}
+.now p{margin:0 0 10px;color:var(--muted)}
+.prog{height:6px;border-radius:3px;background:color-mix(in srgb,var(--c,var(--accent)) 18%,transparent);overflow:hidden;margin:6px 0 12px}
+.prog i{display:block;height:100%;background:var(--c,var(--accent))}
+.nowfoot{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+
+/* timeline */
+.timeline{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.row{display:grid;grid-template-columns:96px minmax(0,1fr) 34px;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;padding:8px 10px 8px 12px;cursor:pointer}
+.row:hover{border-color:color-mix(in srgb,var(--c) 50%,var(--line));border-left-color:var(--c)}
+.row .time{font-size:13px;color:var(--muted);font-weight:550}
+.row .ttl{font-weight:600}
+.row .note{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row.c-free{background:transparent;border-style:dashed;border-left-style:solid}
+.row.c-free .ttl{font-weight:500;color:var(--muted)}
+.row.c-travel{background:transparent}
+.row.cur{background:color-mix(in srgb,var(--c) 10%,var(--panel));outline:2px solid color-mix(in srgb,var(--c) 60%,transparent)}
+.row.past:not(.cur){opacity:.72}
+.row.done .ttl{text-decoration:line-through;text-decoration-color:color-mix(in srgb,var(--ink) 35%,transparent)}
+.tag{display:inline-block;font-size:11px;font-weight:650;padding:1px 6px;border-radius:5px;background:var(--panel2);color:var(--muted);vertical-align:1px;margin-left:4px;border:1px solid var(--line)}
+.tag.bad{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}
+.chk{width:32px;height:32px;border-radius:50%;border:2px solid color-mix(in srgb,var(--c) 55%,var(--line));background:transparent;cursor:pointer;color:transparent;font-weight:800;font-size:15px;display:grid;place-items:center}
+.chk:hover{color:color-mix(in srgb,var(--c) 60%,transparent)}
+.chk.on{background:var(--c);border-color:var(--c);color:#fff}
+.chk.none{border:0;cursor:default}
+
+/* side stats */
+.stat{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--line)}
+.stat:first-of-type{border-top:0}
+.stat b{font-size:20px;min-width:28px}
+.stat.bad b{color:var(--bad)} .stat.good b{color:var(--good)} .stat.warn b{color:var(--warn)}
+.stat .grow{flex:1}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:grid;grid-template-columns:112px 1fr 96px;gap:8px;align-items:center;font-size:13.5px}
+.bar .track{height:8px;border-radius:4px;background:var(--panel2);border:1px solid var(--line);overflow:hidden}
+.bar .track i{display:block;height:100%;background:var(--c,var(--accent))}
+.bar .v{text-align:right;color:var(--muted)}
+.due{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;padding:7px 0;border-top:1px solid var(--line);font-size:13.5px}
+.due:first-of-type{border-top:0}
+.due .when{grid-column:2;color:var(--muted);font-size:12.5px}
+.due.over .when{color:var(--bad);font-weight:600}
+.code{font-size:11px;font-weight:700;padding:2px 6px;border-radius:5px;background:var(--panel2);border:1px solid var(--line);height:fit-content;letter-spacing:.02em}
+
+/* week grid */
+.wkhead{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.wkhead h1{font-size:22px}
+.wk{display:grid;grid-template-columns:48px repeat(7,minmax(0,1fr));background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.wk .dh{padding:8px 6px;border-bottom:1px solid var(--line);border-left:1px solid var(--line);font-size:13px;font-weight:650;text-align:center}
+.wk .dh small{display:block;color:var(--muted);font-weight:500}
+.wk .dh.today{color:var(--accent)}
+.wk .gut{position:relative;border-right:1px solid var(--line)}
+.wk .gut span{position:absolute;right:6px;font-size:11px;color:var(--muted);transform:translateY(-6px)}
+.wk .col{position:relative;border-left:1px solid var(--line);background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 46px}
+.wk .col.today{background-color:color-mix(in srgb,var(--accent) 4%,transparent)}
+.blk{position:absolute;left:3px;right:3px;border-radius:6px;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 16%,var(--panel));font-size:11.5px;line-height:1.25;padding:2px 5px;overflow:hidden;cursor:pointer}
+.blk.c-free{background:transparent;border-left-style:dotted;color:var(--muted)}
+.blk.c-travel{background:repeating-linear-gradient(135deg,transparent 0 5px,color-mix(in srgb,var(--c) 14%,transparent) 5px 10px)}
+.blk b{font-weight:650;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.blk.tiny{padding:0 5px;font-size:9.5px;line-height:1.1}
+.blk.tiny b{font-weight:600}
+.blk .t{color:var(--muted);font-size:10.5px}
+.blk.done::after{content:"✓";position:absolute;right:4px;top:2px;font-weight:800;color:var(--c)}
+.blk.missed{outline:1px dashed color-mix(in srgb,var(--bad) 60%,transparent)}
+.nowline{position:absolute;left:0;right:0;height:2px;background:var(--bad);z-index:3}
+.nowline::before{content:"";position:absolute;left:-4px;top:-3px;width:8px;height:8px;border-radius:50%;background:var(--bad)}
+.wklist{display:none}
+@media (max-width:820px){.wk{display:none}.wklist{display:block}.wklist h3{margin:16px 0 8px;font-size:15px}}
+.legend{display:flex;flex-wrap:wrap;gap:10px 14px;margin-top:12px;font-size:12.5px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--c);margin-right:5px;vertical-align:-1px}
+
+/* catch-up / deadlines lists */
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:none;padding:6px 12px;cursor:pointer;color:var(--muted);font-weight:550}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.wkgroup{margin-top:18px}
+.wkgroup h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:8px}
+.lrow{display:grid;grid-template-columns:150px 70px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:6px}
+.lrow .d{font-size:13px;color:var(--muted)}
+.lrow.behind{border-left:4px solid var(--bad)}
+.lrow.future{opacity:.55}
+.tg{border:1px solid var(--line);background:var(--panel2);border-radius:8px;padding:4px 9px;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--muted)}
+.tg.on{background:var(--good);border-color:var(--good);color:#fff}
+@media (max-width:640px){.lrow{grid-template-columns:1fr auto}.lrow .d,.lrow .code{grid-column:1}}
+.drow{display:grid;grid-template-columns:34px 64px minmax(0,1fr) auto;gap:10px;align-items:center;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;margin-bottom:6px}
+.drow .t{font-weight:600}
+.drow .n{font-size:12.5px;color:var(--muted)}
+.drow .w{font-size:13px;color:var(--muted);text-align:right;white-space:nowrap}
+.drow.over{border-left:4px solid var(--bad)} .drow.over .w{color:var(--bad);font-weight:650}
+.drow.soon .w{color:var(--warn);font-weight:650}
+.drow.isdone{opacity:.55}.drow.isdone .t{text-decoration:line-through}
+.drow .chk{--c:var(--good)}
+@media (max-width:640px){.drow{grid-template-columns:34px minmax(0,1fr)}.drow .code{display:none}.drow .w{grid-column:2;text-align:left}}
+.form{display:grid;grid-template-columns:130px minmax(0,1fr) 150px 110px auto;gap:8px}
+.form input,.form select,textarea{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 9px;min-width:0}
+@media (max-width:760px){.form{grid-template-columns:1fr 1fr}.form .wide{grid-column:1/-1}}
+h2.sec{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:22px 0 8px}
+
+/* food */
+.cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+.cols>.card+.card{margin-top:0}
+@media (max-width:820px){.cols{grid-template-columns:1fr}}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:7px 8px;border-top:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-top:0}
+.tablewrap{overflow-x:auto}
+.shop{list-style:none;margin:0;padding:0}
+.shop li{display:flex;align-items:center;gap:9px;padding:6px 0;border-top:1px solid var(--line)}
+.shop li:first-child{border-top:0}
+.shop input{width:18px;height:18px;accent-color:var(--good)}
+.shop li.got span{text-decoration:line-through;color:var(--muted)}
+.shop .x{margin-left:auto;border:0;background:none;color:var(--muted);cursor:pointer}
+.prose p{margin:0 0 10px}.prose ul{margin:0 0 10px;padding-left:20px}.prose li{margin:3px 0}
+
+/* overlays */
+.banner{position:fixed;left:50%;transform:translateX(-50%);top:70px;z-index:50;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:min(560px,calc(100% - 32px));cursor:pointer}
+.banner b{display:block;font-size:16px}
+.night{position:fixed;inset:0;z-index:100;background:rgba(8,9,12,.94);color:#f1f1f3;display:grid;place-items:center;padding:24px}
+.night .box{max-width:460px;text-align:center}
+.night .clockbig{font-size:64px;font-weight:300;letter-spacing:-.03em}
+.night h2{font-size:26px;margin:6px 0 10px}
+.night p{color:#b9bac2;margin:0 0 22px}
+.night .btn{background:transparent;color:#f1f1f3;border-color:#4a4c55}
+.night .btn.primary{background:#f1f1f3;color:#111;border-color:#f1f1f3}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);padding:0;max-width:min(480px,calc(100% - 32px));width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+.dlg{padding:18px;border-top:5px solid var(--c,var(--accent))}
+.dlg h3{font-size:19px;margin:2px 0 4px}
+.dlg p{margin:10px 0}
+.dlg .acts{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:10px;z-index:60;font-size:14px}
+.welcome{background:color-mix(in srgb,var(--accent) 9%,var(--panel));border-color:color-mix(in srgb,var(--accent) 30%,var(--line));margin-bottom:16px}
+.welcome ul{margin:6px 0 12px;padding-left:20px}
+textarea{width:100%;min-height:90px;font-family:ui-monospace,Consolas,monospace;font-size:12px}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0;border-top:1px solid var(--line)}
+.card h2+.sw{border-top:0}
+.sw small{display:block;color:var(--muted);font-size:12.5px}
+.tog{position:relative;width:46px;height:28px;border-radius:14px;border:0;background:var(--line);cursor:pointer;flex:none}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s;box-shadow:0 1px 2px rgba(0,0,0,.25)}
+.tog[aria-checked="true"]{background:var(--good)}
+.tog[aria-checked="true"]::after{left:21px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{border:1px solid var(--line);background:var(--panel2);border-radius:16px;padding:5px 11px;cursor:pointer;font-size:13px;font-weight:550;color:var(--muted)}
+.chip[aria-pressed="true"]{background:color-mix(in srgb,var(--c) 18%,var(--panel));border-color:var(--c);color:var(--ink)}
+.update{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:70;background:var(--panel);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.2);border-radius:12px;padding:10px 12px 10px 16px;display:flex;gap:12px;align-items:center;white-space:nowrap}
+main{padding-bottom:calc(60px + env(safe-area-inset-bottom))}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><div class="logo">✓</div><div><div class="name">Life Planner</div><div class="sub" id="periodLbl"></div></div></div>
+    <button class="btn small primary" id="installBtn" hidden>Install app</button>
+    <div class="clock" id="clock"></div>
+  </div>
+  <div class="wrap">
+    <nav class="tabs" id="tabs" aria-label="Sections">
+      <button data-tab="today">Today</button>
+      <button data-tab="week">Week</button>
+      <button data-tab="catch">Catch-up<span class="pill" id="pillCatch"></span></button>
+      <button data-tab="deadlines">Deadlines<span class="pill" id="pillDl"></span></button>
+      <button data-tab="food">Food</button>
+      <button data-tab="setup">Setup</button>
+    </nav>
+  </div>
+</header>
+<main class="wrap" id="view"></main>
+<div class="banner" id="banner" hidden></div>
+<div class="night" id="night" hidden>
+  <div class="box">
+    <div class="clockbig" id="nightClock"></div>
+    <h2 id="nightHead"></h2>
+    <p id="nightText"></p>
+    <div class="row-flex" style="justify-content:center">
+      <button class="btn primary" id="nightGo"></button>
+      <button class="btn" id="nightSnooze"></button>
+    </div>
+  </div>
+</div>
+<dialog id="dlg"></dialog>
+<div class="toast" id="toast" hidden></div>
+<div class="update" id="updateBar" hidden><span>A new version is ready.</span><button class="btn small primary" id="updateGo">Update</button></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ================= time helpers ================= */
+const params = new URLSearchParams(location.search);
+let OFFSET = 0;
+if (params.get('now')) { const t = new Date(params.get('now')); if (!isNaN(t)) OFFSET = t.getTime() - Date.now(); }
+const now = () => new Date(Date.now() + OFFSET);
+const pad = n => String(n).padStart(2, '0');
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const dOf = s => { const a = s.split('-').map(Number); return new Date(a[0], a[1] - 1, a[2]); };
+const addD = (s, n) => { const d = dOf(s); d.setDate(d.getDate() + n); return iso(d); };
+const dow = s => dOf(s).getDay();
+const hm = s => { const a = s.split(':').map(Number); return a[0] * 60 + a[1]; };
+const tm = m => pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+const at = (s, m) => { const a = s.split('-').map(Number); return new Date(a[0], a[1] - 1, a[2], Math.floor(m / 60), m % 60); };
+const today = () => iso(now());
+const nowM = () => { const n = now(); return n.getHours() * 60 + n.getMinutes(); };
+const daysBetween = (a, b) => Math.round((dOf(b) - dOf(a)) / 864e5);
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const dayName = (s, short) => { const n = DAYS[dow(s)]; return short ? n.slice(0, 3) : n; };
+const niceDate = (s, short) => { const d = dOf(s); return (short ? DAYS[d.getDay()].slice(0, 3) + ' ' : '') + d.getDate() + ' ' + (short ? MONTHS[d.getMonth()].slice(0, 3) : MONTHS[d.getMonth()]); };
+const weekStart = s => { const w = dow(s); return addD(s, w === 0 ? -6 : 1 - w); };
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hrs = x => (Math.round(x * 4) / 4) + 'h';
+const o = (...a) => Object.assign({}, ...a);
+
+/* ================= storage ================= */
+const KEY = 'hlp1_state';
+const APP_VERSION = '2.0';
+const APP_URL = 'hemsaivp.github.io/life-planner';
+const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
+  cats:{lse:true, study:true, academy:true, gym:true, business:true, meal:true, chores:true, admin:true}});
+const blank = () => ({v:2, done:{}, notes:{}, custom:[], shop:{}, shopExtra:{sat:[], wed:[]}, nights:{}, snoozeUntil:0, alerts:defAlerts(), welcomed:false, lastBackup:null, lastVersion:null});
+function normalise(obj){
+  const st = Object.assign(blank(), obj);
+  const a = obj.alerts || {};
+  st.alerts = Object.assign(defAlerts(), a);
+  st.alerts.cats = Object.assign(defAlerts().cats, a.cats || {});
+  st.shopExtra = Object.assign({sat:[], wed:[]}, obj.shopExtra || {});
+  delete st.sound;
+  return st;
+}
+let S;
+const sid = (d, c, k, s) => 's|' + d + '|' + c + '|' + k + '|' + s;
+function seed(){
+  // Copied from Timetable_Tracker.xlsx (weeks 1–2): watched/attended + notes made.
+  const W = [['2026-09-28','EC2C1','lecture','11:00'],['2026-09-29','EC2B1','lecture','09:00'],['2026-09-29','EC2C1','lecture','15:00'],
+             ['2026-10-01','EC2A1','lecture','12:00'],['2026-10-02','FM214','lecture','11:00'],['2026-10-05','EC2B1','class','14:00'],
+             ['2026-10-08','EC2A1','lecture','12:00']];
+  for (const [d,c,k,s] of W){ const id = sid(d,c,k,s); S.done[id] = true; S.notes[id] = true; }
+}
+function load(){
+  let obj = null;
+  try { const r = localStorage.getItem(KEY); if (r) obj = JSON.parse(r); } catch(e) {}
+  if (obj && typeof obj === 'object' && obj.done) { S = normalise(obj); }
+  else { S = blank(); seed(); save(); }
+}
+function save(){
+  try { localStorage.setItem(KEY, JSON.stringify(S)); return true; }
+  catch(e) { toast('This browser blocked saving. Export a backup from Setup.'); return false; }
+}
+
+/* ================= LSE timetable (from your Google Calendar) ================= */
+const COURSE = {EC2A1:'Microeconomics II', EC2B1:'Macroeconomics II', EC2C1:'Econometrics II', FM214:'Principles of Finance I',
+  FM215:'Principles of Finance II', EC260P:'EC260P', BUS:'Business', OTHER:'Other'};
+// [code, kind, weekday, start, end, from, to, except, only, label]
+const RULES = [
+  // Autumn Term 2026
+  ['EC2C1','lecture',1,'11:00','12:00','2026-09-28','2026-12-07'],
+  ['EC2B1','class',  1,'14:00','15:00','2026-10-05','2026-12-07'],
+  ['EC2A1','qa',     1,'17:00','18:00',null,null,null,['2026-10-12','2026-10-26','2026-11-09','2026-11-23','2026-12-07']],
+  ['EC2B1','lecture',2,'09:00','11:00','2026-09-29','2026-12-08'],
+  ['EC2C1','lecture',2,'15:00','17:00','2026-09-29','2026-12-08'],
+  ['FM214','class',  4,'09:00','10:30','2026-10-08','2026-12-10'],
+  ['EC2A1','lecture',4,'12:00','14:00','2026-10-01','2026-12-03'],
+  ['EC2C1','class',  4,'17:00','18:00','2026-10-08','2026-12-10'],
+  ['EC2C1','help',   5,'09:00','10:00','2026-10-02','2026-12-11'],
+  ['FM214','lecture',5,'11:00','13:00','2026-10-02','2026-12-11'],
+  ['EC2A1','class',  5,'16:00','17:00','2026-10-09','2026-12-11'],
+  // Winter Term 2027
+  ['EC2B1','lecture',1,'14:00','16:00','2027-01-11','2027-03-22',['2027-02-15']],
+  ['FM215','class',  2,'09:00','10:30','2027-01-19','2027-03-23'],
+  ['EC2A1','qa',     2,'11:00','12:00',null,null,null,['2027-01-26','2027-02-09','2027-02-23','2027-03-09','2027-03-23']],
+  ['EC260P','workshop',2,'11:00','12:00',null,null,null,['2027-02-02','2027-03-02']],
+  ['EC2C1','lecture',2,'15:00','17:00','2027-01-12','2027-03-23',['2027-02-16']],
+  ['EC2A1','lecture',4,'12:00','14:00','2027-01-14','2027-03-25',['2027-02-18']],
+  ['EC2C1','class',  4,'17:00','18:00','2027-01-21','2027-03-25',['2027-02-18']],
+  ['EC2C1','lecture',5,'09:00','10:00',null,null,null,['2027-01-15','2027-01-22','2027-01-29','2027-02-05','2027-02-12'],'EC2C1 Stata session'],
+  ['FM215','lecture',5,'11:00','13:00','2027-01-15','2027-03-26'],
+  ['EC2B1','class',  5,'15:00','16:00','2027-01-22','2027-03-26',['2027-02-19']],
+  ['EC2A1','class',  5,'16:00','17:00','2027-01-22','2027-03-26',['2027-02-19']],
+  // Spring Term 2027 (revision week)
+  ['EC2A1','lecture',1,'11:00','13:00',null,null,null,['2027-04-26']],
+  ['EC2B1','lecture',1,'14:00','16:00',null,null,null,['2027-04-26']],
+  ['EC2A1','lecture',4,'12:00','14:00',null,null,null,['2027-04-29']],
+  ['EC2B1','class',  5,'15:00','16:00',null,null,null,['2027-04-30']],
+  ['EC2A1','class',  5,'16:00','17:00',null,null,null,['2027-04-30']]
+];
+const KINDNAME = {lecture:'lecture', class:'class', help:'help lecture', qa:'Q&A (Zoom)', workshop:'workshop'};
+const SESS = {}; const ALLSESS = [];
+for (const r of RULES){
+  const [code, kind, wd, s, e, from, to, except, only, label] = r;
+  const dates = [];
+  if (only) dates.push(...only); else for (let d = from; d <= to; d = addD(d, 7)) dates.push(d);
+  for (const d of dates){
+    if (except && except.includes(d)) continue;
+    const x = {id:sid(d, code, kind, s), date:d, code, kind, wd, s:hm(s), e:hm(e), label: label || (code + ' ' + KINDNAME[kind])};
+    (SESS[d] = SESS[d] || []).push(x); ALLSESS.push(x);
+  }
+}
+ALLSESS.sort((a,b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.s - b.s);
+const sessionsOn = d => (SESS[d] || []).slice().sort((a,b) => a.s - b.s);
+
+/* ================= periods ================= */
+const PERIODS = [
+  {id:'AT',     name:'Autumn Term',                  from:'2026-09-28', to:'2026-12-11', tpl:'TERM_AT', wk:'2026-09-28'},
+  {id:'XMAS',   name:'Christmas break',              from:'2026-12-12', to:'2027-01-03', tpl:'BREAK', v:'xmas'},
+  {id:'JAN',    name:'January exams',                from:'2027-01-04', to:'2027-01-10', tpl:'EXAM', v:'jan'},
+  {id:'WT',     name:'Winter Term',                  from:'2027-01-11', to:'2027-03-26', tpl:'TERM_WT', wk:'2027-01-11', reading:6},
+  {id:'SPRING', name:'Spring break',                 from:'2027-03-27', to:'2027-04-25', tpl:'BREAK', v:'spring'},
+  {id:'ST',     name:'Spring Term and summer exams', from:'2027-04-26', to:'2027-06-11', tpl:'EXAM', v:'summer', wk:'2027-04-26'},
+  {id:'SUMMER', name:'Summer',                       from:'2027-06-12', to:'2027-09-26', tpl:'SUMMER'}
+];
+const OUTSIDE = {id:'OUT', name:'Outside the plan', tpl:'SUMMER'};
+const HOLIDAYS = {'2026-12-24':'Christmas Eve','2026-12-25':'Christmas Day','2026-12-26':'Boxing Day','2026-12-31':"New Year's Eve",'2027-01-01':"New Year's Day"};
+const periodOf = d => PERIODS.find(p => d >= p.from && d <= p.to) || OUTSIDE;
+function periodLabel(d){
+  const p = periodOf(d); let s = p.name;
+  if (p.wk){ const w = Math.floor(daysBetween(p.wk, d) / 7) + 1; s += ' · week ' + w; if (p.reading === w) s += ' (reading week)'; }
+  if (HOLIDAYS[d]) s += ' · ' + HOLIDAYS[d];
+  return s;
+}
+
+/* ================= notes ================= */
+const N = {
+  wake:'Out of bed straight away. Water, curtains open, daylight. Phone stays off the bed.',
+  wind:'Laptop shut. Lay out tomorrow: bag, lunch, clothes. Read or stretch. Lights out at 23:00.',
+  gym:'20-minute walk each way, about 80 minutes of training. Log your lifts. Take water.',
+  gymShort:'Exam season: 20-minute walk each way, about 50 minutes of training. It helps you revise.',
+  gymOpt:'Optional fifth session. Skip it if the week has been heavy.',
+  snack:'Banana and a glass of water before training.',
+  breakfast:'Portions are in the Food tab.',
+  packed:'From the batch cook. Each packed lunch saves you about £4–5 on a meal deal.',
+  dinner:'Tonight\'s dinner is in the Food tab.',
+  batchSun:'Cook the curry (Food tab): 4 portions for tonight and Mon, Tue and Wed lunches. Box them up.',
+  batchWed:'Cook the pasta bake (Food tab): 3 portions for tonight and Thu and Fri lunches.',
+  shopWed:'Midweek top-up list is in the Food tab. 45 minutes max.',
+  shopSat:'Main shop list is in the Food tab. Budget: £50 a week in total.',
+  business:'Open a new chat in the Business project. Hard stop at the end of this block. Coursework deadlines come first.',
+  sunadmin:'Business Sunday check: open a new chat and type "Sunday check. Done this week: … Hours: … Learned: …"',
+  decision:'Decision Day. Sort every reply into real pain / covered / no reply, then follow the table in playbook.md.',
+  review:'Tick what you did. Add next week\'s deadlines from Moodle (Deadlines tab). Look at Catch-up. Export a backup (Setup).',
+  academy:'One academy at a time. Which one depends on your IB vs quant decision.',
+  catchup:'Open the Catch-up tab and watch the oldest lecture you are behind on.',
+  dayoff:'Day off. No study and no business. See people, rest, get outside.',
+  library:'In the library between sessions.',
+  watch:'If there is no live stream, watch the recording in your next study block. Tick it here or in Catch-up.',
+  inperson:'In person, because you have a class on campus today.',
+  travel:'40 minutes by bike.',
+  qa:'Optional Zoom Q&A. Post questions on the Moodle doc beforehand.',
+  getready:'Pack the lunch box from the batch cook, laptop, charger, water.',
+  rev:'Past papers first, then the topics you got wrong. Close notes when you test yourself.'
+};
+
+/* ================= business titles ================= */
+function bizTitle(d){
+  if (d < '2026-10-18') return 'Business: Week 1, build the 13-week forecast';
+  if (d < '2026-10-25') return 'Business: Week 2, list 30 agencies';
+  if (d < '2026-11-01') return 'Business: Week 3, send 20 research emails';
+  if (d < '2026-11-08') return 'Business: Week 4, last 10 emails and sort replies';
+  if (d >= '2026-12-12' && d <= '2026-12-19') return 'Business: Christmas mode, lead lists and templates';
+  if (d >= '2026-12-20' && d <= '2027-01-03') return 'Business: lead lists and templates (no emails until 4 Jan)';
+  if (d >= '2027-03-27' && d <= '2027-04-25') return 'Business: write the SOP and set up exam cover';
+  if (d >= '2027-06-12') return 'Business: summer outreach';
+  return 'Business: next unticked box in roadmap.md';
+}
+const sunAdmin = d => d === '2026-11-08' ? 'DECISION DAY: business' : 'Sunday admin: business (45 min)';
+
+/* ================= day templates ================= */
+const F = {flex:true}, MV = {move:true};
+function B(s, e, cat, t, x){ return o({s:hm(s), e:hm(e), cat, t}, x || {}); }
+const brk = (d, c) => c.campus ? 'Breakfast + pack lunch' : 'Breakfast';
+const lunchT = (d, c) => c.campus ? 'Lunch (packed)' : 'Lunch';
+const BIZ = (s, e) => B(s, e, 'business', bizTitle, {n:N.business});
+const ACAD = (s, e) => B(s, e, 'academy', 'Academy', o(F, {n:N.academy}));
+const GYM = (s, e) => B(s, e, 'gym', 'Gym', {n:N.gym});
+const FREE = (s, e, t) => B(s, e, 'free', t || 'Free time', F);
+const STUDY = (s, e, t, x) => B(s, e, 'study', t || 'Study', o(F, x || {}));
+const T = {};
+
+T.TERM_AT = (d, c, p, w) => {
+  switch (w){
+    case 1: return [
+      B('07:15','07:30','meal','Pre-gym snack',{n:N.snack}), GYM('07:30','09:30'),
+      B('09:30','10:10','meal',brk,o(MV,{n:N.breakfast})), STUDY('10:10','11:00'),
+      B('12:00','12:45','meal',lunchT,o(MV,{n:N.packed})),
+      STUDY('12:45','14:00','Study: submit EC2B1 assignment (due 14:00), review the EC2C1 lecture',{n:N.library}),
+      FREE('15:45','16:00','Snack and a break'),
+      STUDY('16:00','18:00','Study: EC2C1 problem set (due Wed 18:00)'),
+      B('18:00','19:00','meal','Cook + dinner',o(MV,{n:N.dinner})),
+      ACAD('19:00','20:30'), FREE('20:30','22:30')];
+    case 2: return [
+      B('07:15','07:45','meal','Breakfast',o(MV,{n:N.breakfast})),
+      STUDY('07:45','09:00','Study: FM214 problem set (due Thu 09:00)'), STUDY('09:00','11:00'),
+      FREE('11:00','11:15','Break'), STUDY('11:15','12:30','Study: notes on the EC2B1 lecture'),
+      B('12:30','13:15','meal','Lunch',MV), ACAD('13:15','14:45'), FREE('14:45','15:00','Break'),
+      STUDY('15:00','17:00'), FREE('17:00','18:00','Walk outside, then free'),
+      B('18:00','19:00','meal','Cook + dinner',o(MV,{n:N.dinner})),
+      STUDY('19:00','19:45','Study: notes on the EC2C1 lecture'), BIZ('20:00','22:00'), FREE('22:00','22:30')];
+    case 3: return [
+      B('07:15','07:45','meal','Breakfast',o(MV,{n:N.breakfast})),
+      STUDY('07:45','10:00','Study: finish and submit EC2C1 problem set (due 18:00)'), GYM('10:00','12:00'),
+      B('12:00','12:45','meal','Lunch',MV), STUDY('12:45','14:15','Study: FM214 problem set (due Thu 09:00)'),
+      FREE('14:15','14:30','Break'), ACAD('14:30','16:00'),
+      B('16:00','17:00','chores','Shop: midweek top-up',{n:N.shopWed}),
+      B('17:00','18:30','meal','Batch cook (Thu–Fri lunches) + dinner',{n:N.batchWed}),
+      STUDY('18:30','20:00','Study: EC2A1 class exercise (due Sun 23:59)'), FREE('20:00','22:30')];
+    case 4: return [
+      B('07:15','07:45','meal',brk,o(MV,{n:N.breakfast})),
+      B('07:45','08:10','routine','Get ready',{campusOnly:true,n:N.getready}),
+      STUDY('07:45','09:00','Study',{homeOnly:true}), STUDY('09:00','10:30'),
+      STUDY('10:30','14:00','Study: review EC2A1, prep for the EC2C1 class',{n:N.library}),
+      B('14:00','14:45','meal',lunchT,o(MV,{n:N.packed})),
+      STUDY('14:45','17:00','Study: EC2B1 assignment (due Mon 14:00)'), STUDY('17:00','18:00'),
+      B('18:45','19:45','meal','Cook + dinner',o(MV,{n:N.dinner})), BIZ('20:00','22:00'), FREE('22:00','22:30')];
+    case 5: return [
+      B('07:15','07:30','meal','Pre-gym snack',{n:N.snack}), GYM('07:30','09:30'),
+      B('09:30','10:10','meal',brk,o(MV,{n:N.breakfast})), STUDY('10:10','11:00'), STUDY('11:00','13:00'),
+      B('13:00','13:45','meal',lunchT,o(MV,{n:N.packed})),
+      STUDY('13:45','14:45','Study: EC2C1 help-lecture recording (optional) or FM214 notes',{n:N.library}),
+      STUDY('14:45','16:00','Study: EC2A1 class prep'), STUDY('16:00','17:00'),
+      FREE('17:45','18:00','Break'), B('18:00','19:00','meal','Cook + dinner',o(MV,{n:N.dinner})),
+      FREE('19:00','22:30','Friday evening: free')];
+  }
+  return [];
+};
+
+T.TERM_WT = (d, c, p, w) => {
+  switch (w){
+    case 1: return [
+      B('07:15','07:45','meal','Breakfast',o(MV,{n:N.breakfast})),
+      STUDY('07:45','10:00','Study: problem sets and notes'), GYM('10:00','12:00'),
+      B('12:00','12:45','meal','Lunch',MV), ACAD('12:45','14:00'), STUDY('14:00','16:00'),
+      FREE('16:00','16:15','Break'), STUDY('16:15','18:00','Study: notes on the EC2B1 lecture, EC2C1 problem set'),
+      B('18:00','19:00','meal','Cook + dinner',o(MV,{n:N.dinner})), FREE('19:00','19:30','Free'),
+      BIZ('19:30','21:30'), FREE('21:30','22:30')];
+    case 2: return [
+      B('07:15','07:45','meal',brk,o(MV,{n:N.breakfast})),
+      B('07:45','08:10','routine','Get ready',{campusOnly:true,n:N.getready}),
+      STUDY('07:45','09:00','Study',{homeOnly:true}), STUDY('09:00','12:30','Study: notes and problem sets'),
+      B('12:30','13:15','meal',lunchT,o(MV,{n:N.packed})),
+      STUDY('13:15','15:00','Study: EC2C1 problem set (due Wed 18:00)'), STUDY('15:00','17:00'),
+      FREE('17:45','18:15','Break'), B('18:15','19:15','meal','Cook + dinner',o(MV,{n:N.dinner})),
+      FREE('19:15','20:00','Free'), BIZ('20:00','22:00'), FREE('22:00','22:30')];
+    case 3: return [
+      B('07:15','07:45','meal','Breakfast',o(MV,{n:N.breakfast})),
+      STUDY('07:45','10:00','Study: finish and submit any EC2C1 problem set (due 18:00)'), GYM('10:00','12:00'),
+      B('12:00','12:45','meal','Lunch',MV),
+      STUDY('12:45','14:15', d < '2027-02-18' ? 'Study: EC2B1 group project (due 18 Feb)' : 'Study: coursework'),
+      FREE('14:15','14:30','Break'), ACAD('14:30','16:00'),
+      B('16:00','17:00','chores','Shop: midweek top-up',{n:N.shopWed}),
+      B('17:00','18:30','meal','Batch cook (Thu–Fri lunches) + dinner',{n:N.batchWed}),
+      STUDY('18:30','19:30'), BIZ('19:30','20:30'), FREE('20:30','22:30')];
+    case 4: return [
+      B('07:15','07:30','meal','Pre-gym snack',{n:N.snack}), GYM('07:30','09:30'),
+      B('09:30','10:10','meal',brk,o(MV,{n:N.breakfast})), STUDY('10:10','12:00'), STUDY('12:00','14:00'),
+      B('14:00','14:45','meal',lunchT,o(MV,{n:N.packed})), STUDY('14:45','17:00','Study: problem sets'), STUDY('17:00','18:00'),
+      B('18:45','19:45','meal','Cook + dinner',o(MV,{n:N.dinner})), BIZ('20:00','22:00'), FREE('22:00','22:30')];
+    case 5: return [
+      B('07:15','07:50','meal',brk,o(MV,{n:N.breakfast})), STUDY('07:50','11:00'), STUDY('11:00','13:00'),
+      B('13:00','13:45','meal',lunchT,o(MV,{n:N.packed})), STUDY('13:45','15:00','Study: problem sets'), STUDY('15:00','17:00'),
+      B('18:00','19:00','meal','Cook + dinner',o(MV,{n:N.dinner})), FREE('19:00','22:30','Friday evening: free')];
+  }
+  return [];
+};
+
+T.EXAM = (d, c, p, w) => {
+  const rev = p.v === 'jan' ? 'Revision: EC2C1 and FM214' : 'Revision: EC2A1, EC2B1, FM215';
+  const R = (s, e, t) => STUDY(s, e, t || rev, {n:N.rev});
+  const gymDay = w === 1 || w === 3 || w === 5;
+  const a = gymDay
+    ? [B('07:15','07:30','meal','Pre-gym snack',{n:N.snack}), B('07:30','09:00','gym','Gym (shorter in exam season)',{n:N.gymShort}),
+       B('09:00','09:30','meal','Breakfast',o(MV,{n:N.breakfast})), R('09:30','12:00')]
+    : [B('07:15','07:45','meal','Breakfast',o(MV,{n:N.breakfast})), R('07:45','10:00'), FREE('10:00','10:15','Break'), R('10:15','12:00')];
+  const b = [B('12:00','12:45','meal','Lunch',MV), R('12:45','15:00'), FREE('15:00','15:30','Walk outside')];
+  const c2 = w === 3
+    ? [R('15:30','16:45'), B('16:45','17:30','chores','Shop: midweek top-up',{n:N.shopWed}), B('17:30','19:00','meal','Batch cook + dinner',{n:N.batchWed})]
+    : [R('15:30','17:30'), FREE('17:30','18:00','Free'), B('18:00','19:00','meal','Cook + dinner',o(MV,{n:N.dinner}))];
+  return [...a, ...b, ...c2, R('19:00','20:00','Flashcards (light)'), FREE('20:00','22:30')];
+};
+
+T.BREAK = (d, c, p, w) => {
+  const rev = p.v === 'xmas' ? 'Revision: EC2C1 and FM214 (January exams)' : 'Revision: EC2A1, EC2B1, FM215 (summer exams)';
+  const R = (s, e, t) => STUDY(s, e, t || rev, {n:N.rev});
+  const gymDay = w === 1 || w === 3 || w === 5;
+  const bl = [B('07:15','07:45','meal','Breakfast',o(MV,{n:N.breakfast})), R('07:45','10:00')];
+  if (gymDay) bl.push(GYM('10:00','12:00')); else bl.push(FREE('10:00','10:15','Break'), R('10:15','12:00'));
+  bl.push(B('12:00','12:45','meal','Lunch',MV), R('12:45','14:45'), FREE('14:45','15:00','Break'));
+  if (w >= 1 && w <= 4) bl.push(BIZ('15:00','17:00')); else bl.push(ACAD('15:00','17:00'));
+  if (w === 3) bl.push(B('17:00','17:45','chores','Shop: midweek top-up',{n:N.shopWed}), B('17:45','19:00','meal','Batch cook + dinner',{n:N.batchWed}));
+  else bl.push(FREE('17:00','18:00','Free'), B('18:00','19:00','meal','Cook + dinner',o(MV,{n:N.dinner})));
+  if (w === 2 || w === 4) bl.push(R('19:00','20:00','Revision (light): flashcards'), FREE('20:00','22:30'));
+  else if (w === 5) bl.push(FREE('19:00','22:30','Friday evening: free'));
+  else bl.push(ACAD('19:00','20:00'), FREE('20:00','22:30'));
+  return bl;
+};
+
+T.SUMMER = (d, c, p, w) => {
+  const gymDay = w === 1 || w === 3 || w === 5;
+  const bl = [B('07:15','07:45','meal','Breakfast',o(MV,{n:N.breakfast})), ACAD('07:45','10:00')];
+  if (gymDay) bl.push(GYM('10:00','12:00')); else bl.push(FREE('10:00','10:15','Break'), ACAD('10:15','12:00'));
+  bl.push(B('12:00','12:45','meal','Lunch',MV));
+  if (w <= 4) bl.push(BIZ('13:00','15:30')); else bl.push(FREE('13:00','15:30','Free'));
+  if (w === 3) bl.push(FREE('15:30','16:00','Break'), B('16:00','17:00','chores','Shop: midweek top-up',{n:N.shopWed}),
+                      B('17:00','18:30','meal','Batch cook + dinner',{n:N.batchWed}), FREE('18:30','22:30'));
+  else bl.push(FREE('15:30','18:00','Free'), B('18:00','19:00','meal','Cook + dinner',o(MV,{n:N.dinner})), FREE('19:00','22:30'));
+  return bl;
+};
+
+T.SAT = () => [
+  B('07:15','08:00','meal','Breakfast',o(MV,{n:N.breakfast})), FREE('08:00','10:00','Free'), GYM('10:00','12:00'),
+  B('12:00','13:00','chores','Main shop',{n:N.shopSat}), B('13:00','13:45','meal','Lunch',MV),
+  B('13:45','18:00','free','Day off',o(F,{n:N.dayoff})), B('18:00','19:00','meal','Cook + dinner',o(MV,{n:N.dinner})), FREE('19:00','22:30')];
+
+T.SUN = (d, c, p) => {
+  let s1, s2, s3, cat = 'study';
+  if (p.tpl === 'TERM_AT'){ s1 = 'Study: EC2A1 class exercise (due 23:59)'; s2 = 'Study: EC2B1 assignment (due Mon 14:00)'; s3 = 'Catch-up: watch a lecture you are behind on'; }
+  else if (p.tpl === 'TERM_WT'){ s1 = 'Study: this week\'s coursework'; s2 = 'Study: problem sets and notes'; s3 = 'Catch-up: watch a lecture you are behind on'; }
+  else if (p.tpl === 'SUMMER'){ s1 = s2 = 'Academy'; s3 = null; cat = 'academy'; }
+  else { s1 = s2 = p.v === 'xmas' || p.v === 'jan' ? 'Revision: EC2C1 and FM214' : 'Revision'; s3 = 'Revision (light): flashcards'; }
+  const bl = [
+    B('07:15','07:45','meal','Breakfast',o(MV,{n:N.breakfast})),
+    B('07:45','09:45',cat,s1,F), FREE('09:45','10:00','Break'),
+    B('10:00','10:45','business',sunAdmin(d),{n: d === '2026-11-08' ? N.decision : N.sunadmin}),
+    B('10:45','12:15',cat,s2,F), B('12:15','13:00','meal','Lunch',MV), ACAD('13:00','14:30'),
+    B('14:30','16:30','gym','Gym (optional 5th session)',{opt:true,n:N.gymOpt}),
+    B('16:30','18:30','meal','Batch cook (Mon–Wed lunches) + dinner',{n:N.batchSun})];
+  if (s3) bl.push(STUDY('18:30','19:30',s3,{n:N.catchup})); else bl.push(FREE('18:30','19:30','Free'));
+  bl.push(B('19:30','20:00','admin','Weekly review',{n:N.review}), FREE('20:00','22:30'));
+  return bl;
+};
+
+T.HOLIDAY = d => [B('07:15','08:00','meal','Breakfast',MV),
+  B('08:00','22:30','free',HOLIDAYS[d] + ': day off',o(F,{n:'No schedule today. Bed by 23:00 still applies.'}))];
+
+const WAKE = () => B('07:00','07:15','routine','Wake up',{tk:true,n:N.wake});
+const WIND = () => B('22:30','23:00','routine','Wind down',{tk:true,n:N.wind});
+
+/* ================= build a day ================= */
+const overlap = (a, b) => a.s < b.e && b.s < a.e;
+const cache = new Map();
+const CONFLICTS = [];
+function dayBlocks(d){
+  if (cache.has(d)) return cache.get(d);
+  const p = periodOf(d), w = dow(d), ss = sessionsOn(d);
+  const campus = ss.some(x => x.kind === 'class' || x.kind === 'workshop');
+  const ctx = {campus, p, d};
+  const out = [], busy = [];
+  for (const x of ss){
+    if (x.kind === 'help') continue;
+    const inPerson = campus && x.kind !== 'qa';
+    let t = x.label, n = 'In person.';
+    if (x.kind === 'lecture'){ t += inPerson ? ' · in person' : ' · watch at home'; n = inPerson ? N.inperson : N.watch; }
+    if (x.kind === 'qa') n = N.qa;
+    const b = {s:x.s, e:x.e, cat:'lse', t, n, id:x.id, sess:x, opt:x.kind === 'qa'};
+    out.push(b); busy.push(b);
+  }
+  let leave = null;
+  if (campus){
+    const ip = ss.filter(x => x.kind === 'lecture' || x.kind === 'class' || x.kind === 'workshop');
+    const first = Math.min(...ip.map(x => x.s)), last = Math.max(...ip.map(x => x.e));
+    const t1 = {s:first - 45, e:first - 5, cat:'travel', t:'Cycle to campus', n:N.travel};
+    const t2 = {s:last, e:last + 40, cat:'travel', t:'Cycle home', n:N.travel};
+    leave = t1.s; out.push(t1, t2); busy.push(t1, t2);
+  }
+  let tpl;
+  if (HOLIDAYS[d]) tpl = T.HOLIDAY(d);
+  else if (w === 6) tpl = T.SAT(d, ctx, p);
+  else if (w === 0) tpl = T.SUN(d, ctx, p);
+  else tpl = T[p.tpl](d, ctx, p, w);
+  tpl = [WAKE(), ...tpl, WIND()].filter(b => !(b.campusOnly && !campus) && !(b.homeOnly && campus))
+    .map(b => (typeof b.t === 'function' ? o(b, {t:b.t(d, ctx)}) : b));
+  for (const b of tpl.filter(b => !b.flex && !b.move)){
+    if (busy.some(x => overlap(b, x))) CONFLICTS.push(d + ' fixed ' + tm(b.s) + ' ' + b.t);
+    out.push(b); busy.push(b);
+  }
+  for (const b0 of tpl.filter(b => b.move)){
+    const b = o(b0), len = b.e - b.s; let g = 0, hit;
+    while ((hit = busy.find(x => overlap(b, x))) && g++ < 8){ b.s = hit.e; b.e = hit.e + len; b.moved = true; }
+    if (busy.some(x => overlap(b, x)) || b.e > 22 * 60 + 30) CONFLICTS.push(d + ' move ' + tm(b0.s) + ' ' + b.t);
+    out.push(b); busy.push(b);
+  }
+  for (const b of tpl.filter(b => b.flex)){
+    let pieces = [[b.s, b.e]];
+    for (const x of busy){
+      pieces = pieces.flatMap(([a, z]) => (x.e <= a || x.s >= z) ? [[a, z]] : [[a, Math.max(a, x.s)], [Math.min(z, x.e), z]].filter(([p1, q]) => q > p1));
+    }
+    const untouched = pieces.length === 1 && pieces[0][0] === b.s && pieces[0][1] === b.e;
+    for (const [a, z] of pieces) if (untouched || z - a >= 25) out.push(o(b, {s:a, e:z}));
+  }
+  out.sort((a, b) => a.s - b.s || a.e - b.e);
+  for (const b of out) if (!b.id) b.id = 'b|' + d + '|' + tm(b.s) + '|' + b.cat;
+  const res = out; res.campus = campus; res.leave = leave;
+  cache.set(d, res);
+  return res;
+}
+const tickable = b => b.tk || !['travel','free','routine'].includes(b.cat);
+
+/* ================= deadlines ================= */
+const DL = [];
+const dl = (id, code, title, date, time, note) => DL.push({id, code, title, due:date + 'T' + time, note:note || ''});
+(function(){
+  let n = 2;
+  for (let d = '2026-10-11'; d <= '2026-12-06'; d = addD(d, 7)) dl('ec2a1-ex' + n, 'EC2A1', 'Class exercise ' + (n++), d, '23:59', 'Upload on Moodle by Sunday midnight. A serious attempt is worth 0.5% of the course mark; your best 8 per term count.');
+  for (let d = '2026-10-12'; d <= '2026-12-07'; d = addD(d, 7)) dl('ec2b1-as-' + d, 'EC2B1', 'Weekly assignment', d, '14:00', 'Due before your 14:00 class. Weeks 7 and 8 share one assignment, so one week may have none. Check Moodle.');
+  n = 2;
+  for (let d = '2026-10-14'; d <= '2026-12-09'; d = addD(d, 7)) dl('ec2c1-ps' + n, 'EC2C1', 'Problem set ' + (n++), d, '18:00', 'Counts towards the 5% continuous assessment. The syllabus warns that not submitting can make the course INCOMPLETE. Submit every one.');
+  n = 2;
+  for (let d = '2026-10-15'; d <= '2026-12-10'; d = addD(d, 7)) dl('fm214-ps' + n, 'FM214', 'Problem set ' + (n++), d, '09:00', 'Bring written answers to your 09:00 class.');
+  [['2026-10-16','2026-10-20'],['2026-10-30','2026-11-03'],['2026-11-13','2026-11-17'],['2026-11-27','2026-12-01'],['2026-12-11','2026-12-15']]
+    .forEach(([a, b], i) => dl('fm214-q' + (i + 1), 'FM214', 'Online quiz ' + (i + 1), b, '17:00', 'Opens ' + niceDate(a, true) + ' at 19:00 on Moodle. Two-hour timer once you start, no extensions. Two of the five quizzes count, 5% each.'));
+  dl('ec2a1-memo', 'EC2A1', 'Policy memo (10%)', '2026-11-25', '12:00', 'Instructions will be on Moodle.');
+  dl('bus-decision', 'BUS', 'Decision Day', '2026-11-08', '10:45', N.decision);
+  dl('jan-exams', 'OTHER', 'January exams begin: EC2C1 (2h) and FM214 (1h30)', '2027-01-04', '09:00', 'Add each exam\'s exact time here when LSE publishes the timetable.');
+  ['2027-01-27','2027-02-03','2027-02-10','2027-02-17','2027-03-03','2027-03-24'].forEach((d, i) => dl('ec2c1-wt-ps' + (i + 1), 'EC2C1', 'Winter problem set ' + (i + 1), d, '18:00', 'Submission portal on Moodle.'));
+  dl('ec2b1-project', 'EC2B1', 'Group project (30%)', '2027-02-18', '12:00', 'Python project. Topic and groups are on Moodle.');
+  dl('summer-exams', 'OTHER', 'Check the summer exam timetable', '2027-03-01', '09:00', 'Add each summer exam here: EC2A1, EC2B1 and FM215 at least.');
+  dl('progress-report', 'OTHER', 'Project progress report', '2027-03-10', '12:00', 'From your LSE calendar. Check on Moodle which course it is for.');
+  dl('final-project', 'OTHER', 'Final project', '2027-05-12', '12:00', 'From your LSE calendar. Check on Moodle which course it is for.');
+})();
+const allDL = () => [...DL, ...S.custom].sort((a, b) => a.due < b.due ? -1 : a.due > b.due ? 1 : 0);
+const dueDate = x => { const [d, t] = x.due.split('T'); return at(d, hm(t)); };
+const isDone = x => !!S.done['d|' + x.id];
+function untilText(x){
+  const ms = dueDate(x) - now(), abs = Math.abs(ms), h = abs / 36e5;
+  let s;
+  if (h < 1) s = Math.max(1, Math.round(abs / 6e4)) + ' min';
+  else if (h < 48) s = Math.round(h) + ' hours';
+  else s = Math.round(h / 24) + ' days';
+  return ms < 0 ? s + ' overdue' : 'in ' + s;
+}
+const dueWhen = x => { const [d, t] = x.due.split('T'); return niceDate(d, true) + ', ' + t; };
+
+/* ================= derived stats ================= */
+function behindLectures(){
+  const n = now();
+  return ALLSESS.filter(x => x.kind === 'lecture' && at(x.date, x.e) <= n && !S.done[x.id]);
+}
+function weekStats(ws){
+  const r = {gym:{d:0,p:0}, study:{d:0,p:0}, academy:{d:0,p:0}, business:{d:0,p:0}, bed:{d:0,p:0}, wake:{d:0,p:0}};
+  const t = today(), m = nowM();
+  for (let i = 0; i < 7; i++){
+    const d = addD(ws, i);
+    for (const b of dayBlocks(d)){
+      const dur = (b.e - b.s) / 60, done = !!S.done[b.id];
+      if (b.cat === 'gym'){ if (!b.opt) r.gym.p++; if (done) r.gym.d++; }
+      if (b.cat === 'study' || b.cat === 'academy' || b.cat === 'business'){ if (!b.opt) r[b.cat].p += dur; if (done) r[b.cat].d += dur; }
+      if (b.tk && b.s === 22 * 60 + 30){ if (d < t || (d === t && m >= 23 * 60)) r.bed.p++; if (done) r.bed.d++; }
+      if (b.tk && b.s === 7 * 60){ if (d <= t) r.wake.p++; if (done) r.wake.d++; }
+    }
+  }
+  return r;
+}
+
+/* ================= UI shell ================= */
+const $ = s => document.querySelector(s);
+const view = $('#view');
+let TAB = 'today', viewDay = null, viewWeek = null, catchFilter = 'behind', dlFilter = 'ALL';
+function setTab(t){
+  TAB = t;
+  try { history.replaceState(null, '', '#' + t + (location.search ? '' : '')); } catch(e) {}
+  document.querySelectorAll('#tabs button').forEach(b => b.setAttribute('aria-current', b.dataset.tab === t ? 'page' : 'false'));
+  render();
+  window.scrollTo(0, 0);
+}
+function render(){
+  ({today:renderToday, week:renderWeek, catch:renderCatch, deadlines:renderDeadlines, food:renderFood, setup:renderSetup}[TAB] || renderToday)();
+  updateChrome();
+}
+function updateChrome(){
+  const n = now(), t = iso(n);
+  $('#clock').textContent = dayName(t, true) + ' ' + niceDate(t).replace(/ (\w{3})\w*$/, ' $1') + ' · ' + tm(n.getHours() * 60 + n.getMinutes());
+  $('#periodLbl').textContent = periodLabel(t);
+  const b = behindLectures().length; $('#pillCatch').textContent = b ? b : '';
+  const od = allDL().filter(x => !isDone(x) && dueDate(x) < n).length; $('#pillDl').textContent = od ? od : '';
+}
+function toast(msg){ const el = $('#toast'); el.textContent = msg; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => el.hidden = true, 3200); }
+
+/* ================= TODAY ================= */
+function rowHtml(b, d, isToday, m){
+  const tk = tickable(b), done = !!S.done[b.id];
+  const past = d < today() || (isToday && b.e <= m);
+  const cur = isToday && b.s <= m && m < b.e;
+  const missed = tk && past && !done && !b.opt;
+  return '<li class="row c-' + b.cat + (cur ? ' cur' : '') + (past ? ' past' : '') + (done ? ' done' : '') + (missed ? ' missed' : '') + '" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '">' +
+    '<span class="time">' + tm(b.s) + '–' + tm(b.e) + '</span>' +
+    '<div class="main"><div class="ttl">' + esc(b.t) + (b.opt ? ' <span class="tag">optional</span>' : '') + (b.moved ? ' <span class="tag">moved</span>' : '') + (missed ? ' <span class="tag bad">missed</span>' : '') + '</div>' +
+    (b.n ? '<div class="note">' + esc(b.n) + '</div>' : '') + '</div>' +
+    (tk ? '<button class="chk' + (done ? ' on' : '') + '" data-act="tick" data-id="' + esc(b.id) + '" aria-pressed="' + done + '" aria-label="Mark done">✓</button>' : '<span class="chk none"></span>') +
+    '</li>';
+}
+function nowCard(blocks, m){
+  if (m < 7 * 60 || m >= 23 * 60) return '<div class="now c-routine"><div class="lbl">Now</div><div class="big">Sleep</div><p>Up at 07:00.</p></div>';
+  const cur = blocks.find(b => b.s <= m && m < b.e), nxt = blocks.find(b => b.s > m);
+  const nextLine = nxt ? '<span class="muted">Next at ' + tm(nxt.s) + ': ' + esc(nxt.t) + '</span>' : '';
+  if (!cur) return '<div class="now c-free"><div class="lbl">Now</div><div class="big">Short gap</div><div class="nowfoot">' + nextLine + '</div></div>';
+  const left = cur.e - m, pct = Math.round((m - cur.s) / (cur.e - cur.s) * 100), done = !!S.done[cur.id];
+  return '<div class="now c-' + cur.cat + '"><div class="lbl">Now · until ' + tm(cur.e) + ' · ' + left + ' min left</div>' +
+    '<div class="big">' + esc(cur.t) + '</div>' + (cur.n ? '<p>' + esc(cur.n) + '</p>' : '') +
+    '<div class="prog"><i style="width:' + pct + '%"></i></div><div class="nowfoot">' +
+    (tickable(cur) ? '<button class="btn primary" data-act="tick" data-id="' + esc(cur.id) + '">' + (done ? 'Done ✓' : 'Mark done') + '</button>' : '') + nextLine + '</div></div>';
+}
+function behindPanel(){
+  const lec = behindLectures(), h = lec.reduce((a, x) => a + (x.e - x.s) / 60, 0), n = now();
+  const od = allDL().filter(x => !isDone(x) && dueDate(x) < n);
+  const t = today(), m = nowM();
+  const missed = dayBlocks(t).filter(b => tickable(b) && !b.opt && b.e <= m && !S.done[b.id]).length;
+  return '<section class="card"><h2>Where you are behind</h2>' +
+    '<div class="stat ' + (lec.length ? 'bad' : 'good') + '"><b>' + lec.length + '</b><span class="grow">lecture' + (lec.length === 1 ? '' : 's') + ' to catch up' + (lec.length ? ' (' + hrs(h) + ')' : '') + '</span><button class="btn small" data-act="go" data-tab="catch">Catch-up</button></div>' +
+    '<div class="stat ' + (od.length ? 'bad' : 'good') + '"><b>' + od.length + '</b><span class="grow">overdue deadline' + (od.length === 1 ? '' : 's') + '</span>' + (od.length ? '<button class="btn small" data-act="go" data-tab="deadlines">Fix</button>' : '') + '</div>' +
+    '<div class="stat ' + (missed ? 'warn' : 'good') + '"><b>' + missed + '</b><span class="grow">block' + (missed === 1 ? '' : 's') + ' not ticked today</span></div></section>';
+}
+function duePanel(){
+  const n = now(), lim = new Date(n.getTime() + 7 * 864e5);
+  const list = allDL().filter(x => !isDone(x) && dueDate(x) <= lim).slice(0, 7);
+  return '<section class="card"><h2>Due in the next 7 days</h2>' + (list.length ? list.map(x =>
+    '<div class="due' + (dueDate(x) < n ? ' over' : '') + '"><span class="code">' + esc(x.code) + '</span><span>' + esc(x.title) + '</span><span class="when">' + esc(dueWhen(x)) + ' · ' + untilText(x) + '</span></div>').join('')
+    : '<p class="muted" style="margin:0">Nothing due. Add deadlines from Moodle in the Deadlines tab.</p>') + '</section>';
+}
+function weekPanel(ws, title){
+  const r = weekStats(ws);
+  const bar = (label, cat, d, p, unit) => { const pct = p ? Math.min(100, Math.round(d / p * 100)) : 0;
+    return '<div class="bar c-' + cat + '"><span>' + label + '</span><span class="track"><i style="width:' + pct + '%"></i></span><span class="v">' + (unit ? hrs(d) + ' / ' + hrs(p) : d + ' / ' + p) + '</span></div>'; };
+  return '<section class="card"><h2>' + (title || 'This week') + '</h2><div class="bars">' +
+    bar('Gym sessions', 'gym', r.gym.d, r.gym.p) + bar('Study', 'study', r.study.d, r.study.p, 1) +
+    bar('Academy', 'academy', r.academy.d, r.academy.p, 1) + bar('Business', 'business', r.business.d, r.business.p, 1) +
+    bar('Up at 07:00', 'routine', r.wake.d, r.wake.p) + bar('In bed by 23:00', 'admin', r.bed.d, r.bed.p) +
+    '</div><p class="muted" style="margin:10px 0 0;font-size:12.5px">Counts only what you tick.</p></section>';
+}
+function welcome(){
+  if (S.welcomed) return '';
+  return '<section class="card welcome"><h2>How this works</h2><ul>' +
+    '<li>Every day from now to September 2027 is planned around your LSE timetable.</li>' +
+    '<li>You only go to campus on days with a class. Other lectures are watched at home.</li>' +
+    '<li>Tick blocks as you do them. "Where you are behind" shows what slipped.</li>' +
+    '<li>Install it on your phone and laptop, and choose your alerts: Setup tab. Alerts are visual by default.</li>' +
+    '<li>While it is open it alerts you when a block starts and stops you at 23:00. Set up the 07:00 alarm and Bedtime mode on your phone too.</li>' +
+    '</ul><div class="row-flex"><button class="btn primary" data-act="welcomed">Got it</button>' +
+    ('Notification' in window && Notification.permission === 'default' && !S.alerts.system ? '<button class="btn" data-act="tog" data-k="system">Allow notifications</button>' : '') +
+    '<button class="btn" data-act="go" data-tab="setup">Open Setup</button></div></section>';
+}
+function renderToday(){
+  const t = today(), d = viewDay || t, isToday = d === t, m = nowM(), blocks = dayBlocks(d);
+  const where = blocks.campus ? 'Campus day · leave at ' + tm(blocks.leave) : 'Home day';
+  view.innerHTML =
+    '<section class="daybar"><button class="navbtn" data-act="dprev" aria-label="Previous day">‹</button>' +
+    '<div><h1>' + (isToday ? 'Today' : dayName(d)) + ' <span>' + niceDate(d) + '</span></h1><div class="muted">' + esc(periodLabel(d)) + ' · ' + where + '</div></div>' +
+    '<button class="navbtn" data-act="dnext" aria-label="Next day">›</button>' + (isToday ? '' : '<button class="btn small" data-act="dtoday">Back to today</button>') + '</section>' +
+    '<div class="grid2"><div>' + welcome() + (isToday ? nowCard(blocks, m) : '') +
+    '<ol class="timeline">' + blocks.map(b => rowHtml(b, d, isToday, m)).join('') + '</ol></div>' +
+    '<aside>' + behindPanel() + '<div style="height:14px"></div>' + duePanel() + '<div style="height:14px"></div>' + weekPanel(weekStart(d), isToday ? 'This week' : 'That week') + '</aside></div>';
+}
+
+/* ================= WEEK ================= */
+const PX = 46 / 60, START = 7 * 60, END = 23 * 60;
+function renderWeek(){
+  const t = today(), ws = viewWeek || weekStart(t), m = nowM();
+  const days = [0,1,2,3,4,5,6].map(i => addD(ws, i));
+  const periods = [...new Set(days.map(d => periodOf(d).name))].join(' / ');
+  let gut = '<div class="gut" style="height:' + (END - START) * PX + 'px">';
+  for (let h = 8; h < 23; h++) gut += '<span style="top:' + (h * 60 - START) * PX + 'px">' + pad(h) + ':00</span>';
+  gut += '</div>';
+  const cols = days.map(d => {
+    const bl = dayBlocks(d).map(b => {
+      const s = Math.max(b.s, START), e = Math.min(b.e, END); if (e <= s) return '';
+      const past = d < t || (d === t && b.e <= m), done = !!S.done[b.id], missed = tickable(b) && past && !done && !b.opt;
+      return '<div class="blk c-' + b.cat + (e - s < 25 ? ' tiny' : '') + (done ? ' done' : '') + (missed ? ' missed' : '') + '" style="top:' + (s - START) * PX + 'px;height:' + Math.max(10, (e - s) * PX - 2) + 'px" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '" title="' + esc(tm(b.s) + '–' + tm(b.e) + ' ' + b.t) + '">' +
+        (e - s >= 45 ? '<span class="t">' + tm(b.s) + '</span>' : '') + '<b>' + esc(b.t) + '</b></div>';
+    }).join('');
+    const nl = d === t && m >= START && m < END ? '<div class="nowline" style="top:' + (m - START) * PX + 'px"></div>' : '';
+    return '<div class="col' + (d === t ? ' today' : '') + '" style="height:' + (END - START) * PX + 'px">' + bl + nl + '</div>';
+  }).join('');
+  const heads = '<div class="dh"></div>' + days.map(d => '<div class="dh' + (d === t ? ' today' : '') + '">' + dayName(d, true) + ' ' + dOf(d).getDate() + '<small>' + (dayBlocks(d).campus ? 'Campus' : 'Home') + '</small></div>').join('');
+  const list = days.map(d => '<h3>' + dayName(d) + ' ' + niceDate(d) + ' · ' + (dayBlocks(d).campus ? 'campus' : 'home') + '</h3><ol class="timeline">' + dayBlocks(d).map(b => rowHtml(b, d, d === t, m)).join('') + '</ol>').join('');
+  const legend = [['lse','LSE'],['study','Study'],['academy','Academy'],['gym','Gym'],['business','Business'],['meal','Food'],['chores','Shopping'],['travel','Travel'],['admin','Review'],['free','Free']]
+    .map(([c, l]) => '<span class="c-' + c + '">' + l + '</span>').join('');
+  view.innerHTML = '<section class="wkhead"><button class="navbtn" data-act="wprev" aria-label="Previous week">‹</button><div><h1>Week of ' + niceDate(ws) + '</h1><div class="muted">' + esc(periods) + '</div></div>' +
+    '<button class="navbtn" data-act="wnext" aria-label="Next week">›</button>' + (ws === weekStart(t) ? '' : '<button class="btn small" data-act="wtoday">This week</button>') + '</section>' +
+    '<div class="wk">' + heads + gut + cols + '</div><div class="wklist">' + list + '</div><div class="legend">' + legend + '</div>' +
+    '<div style="margin-top:16px;max-width:520px">' + weekPanel(ws, ws === weekStart(t) ? 'This week' : 'That week') + '</div>';
+}
+
+/* ================= CATCH-UP ================= */
+function renderCatch(){
+  const n = now();
+  let list = ALLSESS.filter(x => x.kind === 'lecture' || x.kind === 'help' || x.kind === 'class' || x.kind === 'workshop');
+  const isPast = x => at(x.date, x.e) <= n;
+  if (catchFilter === 'behind') list = list.filter(x => x.kind === 'lecture' && isPast(x) && !S.done[x.id]);
+  else if (catchFilter === 'past') list = list.filter(isPast);
+  const beh = behindLectures(), h = beh.reduce((a, x) => a + (x.e - x.s) / 60, 0);
+  const notesDue = ALLSESS.filter(x => x.kind === 'lecture' && isPast(x) && S.done[x.id] && !S.notes[x.id]).length;
+  const groups = {};
+  for (const x of list){ const k = weekStart(x.date); (groups[k] = groups[k] || []).push(x); }
+  const keys = Object.keys(groups).sort();
+  const row = x => {
+    const past = isPast(x), done = !!S.done[x.id], behind = x.kind === 'lecture' && past && !done;
+    const inPerson = dayBlocks(x.date).campus && x.kind !== 'help';
+    const verb = x.kind === 'class' || x.kind === 'workshop' ? 'Attended' : (inPerson ? 'Attended' : 'Watched');
+    return '<div class="lrow' + (behind ? ' behind' : '') + (past ? '' : ' future') + '"><span class="d">' + dayName(x.date, true) + ' ' + niceDate(x.date).replace(/ (\w{3})\w*$/, ' $1') + ' · ' + tm(x.s) + '</span>' +
+      '<span class="code">' + x.code + '</span><span>' + esc(x.label) + (x.kind === 'help' ? ' <span class="tag">optional</span>' : '') + ' <span class="muted">· ' + hrs((x.e - x.s) / 60) + '</span></span>' +
+      '<span class="row-flex"><button class="tg' + (done ? ' on' : '') + '" data-act="tick" data-id="' + esc(x.id) + '">' + verb + '</button>' +
+      (x.kind === 'lecture' || x.kind === 'help' ? '<button class="tg' + (S.notes[x.id] ? ' on' : '') + '" data-act="note" data-id="' + esc(x.id) + '">Notes</button>' : '') + '</span></div>';
+  };
+  const seg = (k, l) => '<button data-act="cfilter" data-f="' + k + '" aria-pressed="' + (catchFilter === k) + '">' + l + '</button>';
+  view.innerHTML = '<section class="daybar"><div><h1>Catch-up</h1><div class="muted">' +
+    (beh.length ? beh.length + ' lecture' + (beh.length === 1 ? '' : 's') + ' behind, ' + hrs(h) + ' of watching. Clear the oldest first, in Sunday\'s catch-up block or any study block.' : 'Up to date on lectures.') +
+    (notesDue ? ' ' + notesDue + ' watched lecture' + (notesDue === 1 ? ' still needs' : 's still need') + ' notes.' : '') + '</div></div></section>' +
+    '<div class="seg">' + seg('behind', 'Behind') + seg('past', 'All so far') + seg('all', 'Whole year') + '</div>' +
+    (keys.length ? keys.map(k => '<div class="wkgroup"><h3>Week of ' + niceDate(k) + ' · ' + esc(periodOf(k).name) + '</h3>' + groups[k].map(row).join('') + '</div>').join('')
+      : '<p class="muted" style="margin-top:18px">Nothing here. Nice.</p>');
+}
+
+/* ================= DEADLINES ================= */
+function renderDeadlines(){
+  const n = now(), soon = new Date(n.getTime() + 3 * 864e5);
+  let all = allDL(); if (dlFilter !== 'ALL') all = all.filter(x => x.code === dlFilter);
+  const over = all.filter(x => !isDone(x) && dueDate(x) < n);
+  const week = all.filter(x => !isDone(x) && dueDate(x) >= n && dueDate(x) <= new Date(n.getTime() + 7 * 864e5));
+  const later = all.filter(x => !isDone(x) && dueDate(x) > new Date(n.getTime() + 7 * 864e5));
+  const done = all.filter(isDone).reverse();
+  const row = x => { const dd = dueDate(x), d0 = isDone(x);
+    return '<div class="drow' + (d0 ? ' isdone' : dd < n ? ' over' : dd <= soon ? ' soon' : '') + '">' +
+      '<button class="chk' + (d0 ? ' on' : '') + '" data-act="dltick" data-id="' + esc(x.id) + '" aria-label="Done">✓</button>' +
+      '<span class="code">' + esc(x.code) + '</span><div><div class="t">' + esc(x.title) + '</div>' + (x.note ? '<div class="n">' + esc(x.note) + '</div>' : '') + '</div>' +
+      '<div class="w">' + esc(dueWhen(x)) + '<br>' + (d0 ? 'done' : untilText(x)) + (x.custom ? '<br><button class="btn small danger" data-act="dldel" data-id="' + esc(x.id) + '">Delete</button>' : '') + '</div></div>'; };
+  const codes = ['ALL','EC2A1','EC2B1','EC2C1','FM214','FM215','BUS','OTHER'];
+  const t = today();
+  view.innerHTML = '<section class="daybar"><div><h1>Deadlines</h1><div class="muted">Add anything new from Moodle in your Sunday weekly review.</div></div></section>' +
+    '<section class="card"><h2>Add a deadline</h2><form class="form" id="dlform">' +
+    '<select name="code" aria-label="Course">' + codes.slice(1).map(c => '<option value="' + c + '">' + (c === 'BUS' ? 'Business' : c === 'OTHER' ? 'Other' : c) + '</option>').join('') + '</select>' +
+    '<input name="title" class="wide" placeholder="What is due (e.g. Problem set 3)" required aria-label="Title">' +
+    '<input name="date" type="date" value="' + t + '" required aria-label="Date"><input name="time" type="time" value="23:59" required aria-label="Time">' +
+    '<button class="btn primary" type="submit">Add</button></form></section>' +
+    '<div class="seg" style="margin-top:16px;flex-wrap:wrap">' + codes.map(c => '<button data-act="dlfilter" data-f="' + c + '" aria-pressed="' + (dlFilter === c) + '">' + (c === 'ALL' ? 'All' : c === 'BUS' ? 'Business' : c === 'OTHER' ? 'Other' : c) + '</button>').join('') + '</div>' +
+    (over.length ? '<h2 class="sec" style="color:var(--bad)">Overdue</h2>' + over.map(row).join('') : '') +
+    '<h2 class="sec">Next 7 days</h2>' + (week.length ? week.map(row).join('') : '<p class="muted">Nothing.</p>') +
+    '<h2 class="sec">Later</h2>' + (later.length ? later.map(row).join('') : '<p class="muted">Nothing.</p>') +
+    (done.length ? '<details style="margin-top:18px"><summary class="muted" style="cursor:pointer">Done (' + done.length + ')</summary><div style="margin-top:8px">' + done.map(row).join('') + '</div></details>' : '');
+  $('#dlform').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = new FormData(e.target), title = String(f.get('title') || '').trim();
+    if (!title) return;
+    S.custom.push({id:'c' + Date.now(), code:f.get('code'), title, due:f.get('date') + 'T' + f.get('time'), note:'', custom:true});
+    save(); toast('Added.'); renderDeadlines(); updateChrome();
+  });
+}
+
+/* ================= FOOD ================= */
+const SHOP = {
+  sat:['Chicken thighs, about 1.5 kg (curry, stir-fry, wraps)','Beef mince 500 g (or 2 more tins of lentils)','Frozen salmon fillets ×2','Eggs ×15','Milk, 4 pints','Greek yoghurt 1 kg','Cheese (block)','Oats 1 kg','Basmati rice 1 kg','Pasta 1 kg','Noodles','Wraps ×8','Bread, 1 loaf','Potatoes 2.5 kg','Onions, garlic, ginger','Tinned tomatoes ×2, passata ×1','Chickpeas ×2, lentils ×2','Frozen mixed veg, broccoli, spinach','Curry paste or spices','Peanut butter','Bananas, apples'],
+  wed:['Milk','Bananas','Salad leaves, cucumber, tomatoes','Peppers ×3','Bread or wraps if low','Anything you ran out of']
+};
+const PLAN = [
+  ['Mon','Oats: milk, banana, peanut butter','Curry + rice (Sunday batch)','Salmon tray bake: potatoes, broccoli'],
+  ['Tue','3 eggs on toast + fruit','Curry + rice','Chicken stir-fry, noodles, frozen veg'],
+  ['Wed','Oats','Curry + rice','Pasta bake (Wednesday batch)'],
+  ['Thu','Overnight oats (made Wed night)','Pasta bake','Chicken or bean wraps, peppers, yoghurt'],
+  ['Fri','Eggs on toast','Pasta bake','Shawarma-style chicken wraps + salad (your Friday fakeaway)'],
+  ['Sat','Oats or eggs','Jacket potato, tuna or beans, cheese','Pasta with tuna, sweetcorn and veg'],
+  ['Sun','Eggs and beans on toast','Leftovers or eggs','Curry (Sunday batch, first portion)']
+];
+function renderFood(){
+  const list = k => {
+    const items = [...SHOP[k].map((t, i) => ({t, key:k + i})), ...S.shopExtra[k].map((t, i) => ({t, key:k + 'x' + i, x:i}))];
+    return '<ul class="shop">' + items.map(it => '<li class="' + (S.shop[it.key] ? 'got' : '') + '"><input type="checkbox" data-act="shop" data-k="' + it.key + '"' + (S.shop[it.key] ? ' checked' : '') + ' aria-label="Got it"><span>' + esc(it.t) + '</span>' +
+      (it.x != null ? '<button class="x" data-act="shopdel" data-l="' + k + '" data-i="' + it.x + '" aria-label="Remove">✕</button>' : '') + '</li>').join('') + '</ul>' +
+      '<form class="row-flex" style="margin-top:10px" data-shopform="' + k + '"><input name="item" placeholder="Add an item" style="flex:1;min-width:0;font:inherit;padding:7px 9px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);color:inherit"><button class="btn small" type="submit">Add</button><button class="btn small" type="button" data-act="shopclear" data-l="' + k + '">Untick all</button></form>';
+  };
+  view.innerHTML = '<section class="daybar"><div><h1>Food</h1><div class="muted">Shop twice a week (Wednesday and Saturday). Batch cook on Sunday and Wednesday. Budget £50 a week.</div></div></section>' +
+    '<div class="cols"><section class="card"><h2>How much to eat (hand portions)</h2><div class="tablewrap"><table><tr><th>Per main meal</th><th>Amount</th><th>Examples</th></tr>' +
+    '<tr><td>Protein</td><td>2 palms</td><td>Chicken, fish, 3 eggs, Greek yoghurt, tofu, paneer, a cup of lentils or chickpeas</td></tr>' +
+    '<tr><td>Veg</td><td>2 fists</td><td>Any veg. Frozen is fine and cheaper</td></tr>' +
+    '<tr><td>Carbs</td><td>2 cupped hands</td><td>Rice, pasta, potatoes, oats, 2 slices of bread</td></tr>' +
+    '<tr><td>Fats</td><td>2 thumbs</td><td>Oil, cheese, nuts, peanut butter</td></tr></table></div>' +
+    '<div class="prose" style="margin-top:12px"><ul><li>This is a common starting point for a man training 4–5 times a week. Your hand size scales it to you.</li>' +
+    '<li>After the gym: Greek yoghurt and fruit, or milk and a banana.</li><li>Water: one full bottle by lunch, another by dinner.</li>' +
+    '<li>Weigh yourself once a week, same morning. Gaining and don\'t want to? Drop one cupped hand of carbs at dinner. Losing and don\'t want to? Add one to two meals.</li></ul></div></section>' +
+    '<section class="card"><h2>This week\'s meals</h2><div class="tablewrap"><table><tr><th>Day</th><th>Breakfast</th><th>Lunch</th><th>Dinner</th></tr>' +
+    PLAN.map(r => '<tr><td><b>' + r[0] + '</b></td><td>' + esc(r[1]) + '</td><td>' + esc(r[2]) + '</td><td>' + esc(r[3]) + '</td></tr>').join('') + '</table></div>' +
+    '<div class="prose" style="margin-top:12px"><p><b>Sunday batch:</b> chicken (or chickpea) and spinach curry with rice. 4 portions.</p><p><b>Wednesday batch:</b> beef (or lentil) bolognese pasta bake with peppers and cheese. 3 portions.</p>' +
+    '<p class="muted">Vegetarian swaps: chicken → paneer, tofu or chickpeas; mince → lentils; salmon → eggs or tofu.</p></div></section>' +
+    '<section class="card"><h2>Saturday main shop</h2>' + list('sat') + '</section><section class="card" style="margin-top:0"><h2>Wednesday top-up</h2>' + list('wed') +
+    '<p class="muted" style="margin:12px 0 0;font-size:13px">Lidl or Aldi keeps both lists inside £50. Five meal deals a week would cost over £20 on their own.</p></section></div>';
+  view.querySelectorAll('[data-shopform]').forEach(f => f.addEventListener('submit', e => {
+    e.preventDefault(); const v = String(new FormData(f).get('item') || '').trim(); if (!v) return;
+    S.shopExtra[f.dataset.shopform].push(v); save(); renderFood();
+  }));
+}
+
+/* ================= SETUP ================= */
+function tog(k, label, sub){
+  const on = !!S.alerts[k];
+  return '<div class="sw"><div>' + label + (sub ? '<small>' + sub + '</small>' : '') + '</div><button class="tog" role="switch" aria-checked="' + on + '" data-act="tog" data-k="' + k + '" aria-label="' + esc(label) + '"></button></div>';
+}
+function renderSetup(){
+  const perm = 'Notification' in window ? Notification.permission : 'unsupported';
+  const A = S.alerts;
+  const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const isWeb = /^https?:/.test(location.protocol);
+  const sysSub = perm === 'granted' ? 'Appears on your lock screen or desktop when the app is in the background.'
+    : perm === 'denied' ? 'Blocked. Allow notifications for this app in Android Settings › Apps › Life Planner, or in your browser\'s site settings.'
+    : perm === 'unsupported' ? 'Not available here.' : 'Turn on and you will be asked for permission.';
+  const CATS = [['lse','LSE sessions'],['study','Study'],['academy','Academy'],['gym','Gym'],['business','Business'],['meal','Meals'],['chores','Shopping'],['admin','Weekly review']];
+  const bed = (v, l) => '<button data-act="bed" data-v="' + v + '" aria-pressed="' + (A.bedtime === v) + '">' + l + '</button>';
+  view.innerHTML = '<section class="daybar"><div><h1>Setup</h1><div class="muted">Install, alerts and backups · version ' + APP_VERSION + '</div></div></section>' +
+    '<div class="cols">' +
+    '<section class="card prose"><h2>Install on your phone and laptop</h2>' +
+    (installed ? '<p><b>Installed on this device.</b></p>' : '') +
+    '<p><b>Android phone:</b> open <b>' + APP_URL + '</b> in Chrome, then menu ⋮ › <b>Install app</b> (or Add to home screen). Open it from the new icon.</p>' +
+    '<p><b>Laptop:</b> open the same link in Chrome or Edge, then click the install icon at the right of the address bar (or menu › Apps › Install). It opens in its own window. Right-click its taskbar icon › Pin.</p>' +
+    (deferredInstall ? '<p><button class="btn primary" data-act="install">Install on this device</button></p>' : '') +
+    '<p><b>It updates itself.</b> When Claude pushes a new version, you get it the next time you open the app. If a bar says "A new version is ready", tap Update.</p>' +
+    '<p class="muted">Works offline after the first open. Each device keeps its own ticks, so tick on your phone and use the laptop for the week view and alerts while you work.</p>' +
+    (isWeb ? '' : '<p class="muted">You are running a local copy. Install from the link above instead.</p>') + '</section>' +
+    '<section class="card"><h2>Alerts</h2>' +
+    tog('banner', 'Banner in the app', 'A bar across the top of the screen when a block starts.') +
+    tog('system', 'Phone or desktop notification', sysSub) +
+    tog('vibrate', 'Vibrate (phone)', 'Off keeps notifications silent.') +
+    tog('sound', 'Sound', 'A short chime.') +
+    tog('leave', 'Leave warning', '5 minutes before you need to cycle to campus.') +
+    '<div class="sw" style="display:block"><div>Bedtime, at 22:30 and 23:00</div><div class="seg" style="margin-top:8px">' + bed('lock', 'Full-screen stop') + bed('notify', 'Notification only') + bed('off', 'Off') + '</div></div>' +
+    '<div class="sw" style="display:block"><div>Alert me when these start</div><div class="chips">' +
+    CATS.map(([c, l]) => '<button class="chip c-' + c + '" data-act="cat" data-c="' + c + '" aria-pressed="' + !!A.cats[c] + '">' + l + '</button>').join('') + '</div></div>' +
+    '<div class="row-flex" style="margin-top:12px"><button class="btn" data-act="testalert">Test alert</button></div>' +
+    '<p class="muted" style="margin:12px 0 0;font-size:13px">Alerts fire only while the app is open or was used recently. Android does not let web apps wake themselves up, so keep the 07:00 alarm and Bedtime mode on your phone.</p></section>' +
+    '<section class="card prose"><h2>Your phone does the forcing</h2><ul>' +
+    '<li><b>Clock app:</b> alarm at 07:00 every day, labelled "Up. Planner." Phone across the room.</li>' +
+    '<li><b>Bedtime mode:</b> Settings › Digital Wellbeing & parental controls › Bedtime mode, 22:45 to 07:00. On a Samsung: Settings › Modes and Routines › Sleep.</li>' +
+    '<li><b>How notifications look:</b> Settings › Apps › Life Planner › Notifications.</li></ul></section>' +
+    '<section class="card prose"><h2>Backups</h2><p>Your ticks are stored on each device, not online. In every Sunday weekly review, export a backup and keep it in <b>OneDrive › Planner › Backups</b>. To move ticks to another device, export on one and import on the other.</p>' +
+    '<p class="muted">Last backup on this device: ' + (S.lastBackup ? niceDate(S.lastBackup) : 'never') + '.</p>' +
+    '<div class="row-flex"><button class="btn primary" data-act="export">Export backup</button><button class="btn" data-act="copy">Copy as text</button><label class="btn">Import backup<input type="file" accept=".json,application/json" id="imp" hidden></label></div>' +
+    '<textarea id="impText" placeholder="Or paste backup text here, then press Import text" style="margin-top:10px"></textarea><div class="row-flex" style="margin-top:8px"><button class="btn small" data-act="importText">Import text</button></div></section>' +
+    '<section class="card prose"><h2>How your days are built</h2><ul>' +
+    '<li>Times come from your LSE Google Calendar. Campus only on days with a class or workshop. Lectures on those days are in person; other lectures are watched at home.</li>' +
+    '<li>Leave 45 minutes before your first in-person session (40 minutes by bike). EC2C1 help lectures are optional and appear only in Catch-up.</li>' +
+    '<li>Gym 4 times a week, plus an optional fifth on Sunday. Saturday is a day off.</li>' +
+    '<li>Shopping Wednesday and Saturday only. Batch cook Sunday and Wednesday, so campus lunches are packed.</li>' +
+    '<li>Business follows your operating manual: Tue and Thu 20:00–22:00 plus Sunday admin in autumn, about 8 hours in winter term and the breaks, Sunday admin only in exams.</li>' +
+    '<li>Academy about 6 hours a week in term. One academy at a time.</li>' +
+    '<li>Winter and summer timetables can change. Ask Claude to update it each January and April; the app updates itself.</li></ul>' +
+    '<div class="row-flex"><button class="btn small danger" data-act="reset">Clear all ticks</button></div></section></div>';
+  $('#imp').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => importText(String(r.result)); r.readAsText(f); });
+}
+function importText(txt){
+  try {
+    const obj = JSON.parse(txt);
+    if (!obj || typeof obj !== 'object' || !obj.done) throw new Error('bad');
+    S = normalise(obj); save(); cache.clear(); toast('Backup imported.'); render();
+  } catch(e) { toast('That is not a planner backup.'); }
+}
+function exportBackup(){
+  S.lastBackup = today(); save();
+  const blob = new Blob([JSON.stringify(S)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = today() + '_Planner_Backup.json';
+  document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+  toast('Saved as ' + a.download + '. Move it to OneDrive › Planner › Backups.');
+  if (TAB === 'setup') renderSetup();
+}
+
+/* ================= dialog ================= */
+function findBlock(d, id){ return dayBlocks(d).find(b => b.id === id); }
+function openBlock(d, id){
+  const b = findBlock(d, id); if (!b) return;
+  const dlg = $('#dlg'), done = !!S.done[b.id];
+  dlg.innerHTML = '<div class="dlg c-' + b.cat + '"><div class="muted">' + dayName(d) + ' ' + niceDate(d) + ' · ' + tm(b.s) + '–' + tm(b.e) + '</div><h3>' + esc(b.t) + '</h3>' +
+    (b.n ? '<p>' + esc(b.n) + '</p>' : '') + (b.moved ? '<p class="muted">Moved to fit around your timetable today.</p>' : '') +
+    '<div class="acts"><button class="btn" data-act="close">Close</button>' + (tickable(b) ? '<button class="btn primary" data-act="tick" data-id="' + esc(b.id) + '" data-close="1">' + (done ? 'Mark not done' : 'Mark done') + '</button>' : '') + '</div></div>';
+  dlg.showModal();
+}
+
+/* ================= events ================= */
+document.addEventListener('click', e => {
+  unlockAudio();
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const a = el.dataset.act;
+  if (a === 'tick'){ e.stopPropagation(); const id = el.dataset.id; if (S.done[id]) delete S.done[id]; else S.done[id] = true; save(); if (el.dataset.close) $('#dlg').close(); render(); return; }
+  if (a === 'open'){ openBlock(el.dataset.d, el.dataset.id); return; }
+  if (a === 'close'){ $('#dlg').close(); return; }
+  if (a === 'note'){ const id = el.dataset.id; if (S.notes[id]) delete S.notes[id]; else S.notes[id] = true; save(); render(); return; }
+  if (a === 'go'){ setTab(el.dataset.tab); return; }
+  if (a === 'welcomed'){ S.welcomed = true; save(); render(); return; }
+  if (a === 'dprev' || a === 'dnext'){ viewDay = addD(viewDay || today(), a === 'dprev' ? -1 : 1); if (viewDay === today()) viewDay = null; render(); return; }
+  if (a === 'dtoday'){ viewDay = null; render(); return; }
+  if (a === 'wprev' || a === 'wnext'){ viewWeek = addD(viewWeek || weekStart(today()), a === 'wprev' ? -7 : 7); render(); return; }
+  if (a === 'wtoday'){ viewWeek = null; render(); return; }
+  if (a === 'cfilter'){ catchFilter = el.dataset.f; render(); return; }
+  if (a === 'dlfilter'){ dlFilter = el.dataset.f; render(); return; }
+  if (a === 'dltick'){ const k = 'd|' + el.dataset.id; if (S.done[k]) delete S.done[k]; else S.done[k] = true; save(); render(); return; }
+  if (a === 'dldel'){ if (confirm('Delete this deadline?')){ S.custom = S.custom.filter(x => x.id !== el.dataset.id); save(); render(); } return; }
+  if (a === 'shop'){ const k = el.dataset.k; if (el.checked) S.shop[k] = true; else delete S.shop[k]; save(); el.closest('li').classList.toggle('got', el.checked); return; }
+  if (a === 'shopdel'){ S.shopExtra[el.dataset.l].splice(+el.dataset.i, 1); Object.keys(S.shop).filter(k => k.startsWith(el.dataset.l + 'x')).forEach(k => delete S.shop[k]); save(); renderFood(); return; }
+  if (a === 'shopclear'){ Object.keys(S.shop).filter(k => k.startsWith(el.dataset.l)).forEach(k => delete S.shop[k]); save(); renderFood(); return; }
+  if (a === 'export'){ exportBackup(); return; }
+  if (a === 'copy'){ const txt = JSON.stringify(S); const ta = $('#impText'); ta.value = txt; ta.select();
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject()).then(() => toast('Copied. Paste it into a note in OneDrive › Planner › Backups.'), () => toast('Selected in the box below. Press Ctrl+C.')); return; }
+  if (a === 'importText'){ importText($('#impText').value); return; }
+  if (a === 'tog'){
+    const k = el.dataset.k;
+    if (k === 'system' && !S.alerts.system){
+      if (!('Notification' in window)){ toast('Notifications are not available here.'); return; }
+      if (Notification.permission === 'denied'){ toast('Notifications are blocked for this app in your settings.'); return; }
+      if (Notification.permission === 'default'){ Notification.requestPermission().then(pm => { S.alerts.system = pm === 'granted'; save(); render(); }); return; }
+    }
+    S.alerts[k] = !S.alerts[k]; save(); render(); return; }
+  if (a === 'bed'){ S.alerts.bedtime = el.dataset.v; save(); nightMode = null; renderSetup(); checkNight(); return; }
+  if (a === 'cat'){ const c = el.dataset.c; S.alerts.cats[c] = !S.alerts.cats[c]; save(); renderSetup(); return; }
+  if (a === 'install'){ doInstall(); return; }
+  if (a === 'testalert'){ alertUser('Test alert', 'This is what a block starting looks like.', true); return; }
+  if (a === 'reset'){ if (confirm('Clear every tick, note and shopping tick? Deadlines you added stay.')){ S.done = {}; S.notes = {}; S.shop = {}; S.nights = {}; save(); render(); } return; }
+});
+document.querySelectorAll('#tabs button').forEach(b => b.addEventListener('click', () => setTab(b.dataset.tab)));
+$('#dlg').addEventListener('click', e => { if (e.target === $('#dlg')) $('#dlg').close(); });
+
+/* ================= alerts ================= */
+let AC = null, SWREG = null, deferredInstall = null;
+function unlockAudio(){ if (!S.alerts.sound) return; try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch(e) {} }
+function chime(){
+  if (!S.alerts.sound) return;
+  unlockAudio(); if (!AC) return;
+  try { const t0 = AC.currentTime; [660, 880].forEach((f, i) => { const os = AC.createOscillator(), g = AC.createGain(); os.type = 'sine'; os.frequency.value = f;
+    g.gain.setValueAtTime(0, t0 + i * .18); g.gain.linearRampToValueAtTime(.18, t0 + i * .18 + .02); g.gain.exponentialRampToValueAtTime(.001, t0 + i * .18 + .5);
+    os.connect(g).connect(AC.destination); os.start(t0 + i * .18); os.stop(t0 + i * .18 + .55); }); } catch(e) {}
+}
+function notifySystem(title, body, force){
+  const A = S.alerts;
+  if (!A.system || !('Notification' in window) || Notification.permission !== 'granted') return;
+  if (!force && document.visibilityState === 'visible' && document.hasFocus()) return;
+  const opts = {body, icon:'icons/icon-192.png', badge:'icons/icon-192.png', tag:'planner', renotify:true, silent:!A.sound && !A.vibrate};
+  if (A.vibrate) opts.vibrate = [180, 90, 180];
+  if (SWREG && SWREG.showNotification) SWREG.showNotification(title, opts).catch(() => {});
+  else { try { new Notification(title, opts); } catch(e) {} }
+}
+function alertUser(title, body, force){
+  const A = S.alerts;
+  if (A.banner || force){
+    const bn = $('#banner'); bn.innerHTML = '<b>' + esc(title) + '</b>' + esc(body); bn.hidden = false;
+    clearTimeout(alertUser.t); alertUser.t = setTimeout(() => bn.hidden = true, 60000);
+    document.title = '● ' + title;
+    clearTimeout(alertUser.tt); alertUser.tt = setTimeout(() => document.title = 'Life Planner', 90000);
+  }
+  chime();
+  notifySystem(title, body, force);
+}
+$('#banner').addEventListener('click', () => { $('#banner').hidden = true; document.title = 'Life Planner'; });
+const alerted = new Set();
+function primeAlerts(){ const m = nowM(); for (const b of dayBlocks(today())) if (b.s <= m) alerted.add(today() + b.id + 's'); }
+function checkAlerts(){
+  const t = today(), m = nowM(), A = S.alerts;
+  for (const b of dayBlocks(t)){
+    if (b.cat === 'travel'){
+      if (A.leave && b.t === 'Cycle to campus' && m >= b.s - 5 && m < b.s && !alerted.has(t + b.id + 'p')){
+        alerted.add(t + b.id + 'p'); alertUser('Leave in ' + (b.s - m) + ' min', 'Cycle to campus at ' + tm(b.s) + '.');
+      }
+      continue;
+    }
+    if (A.cats[b.cat] && m >= b.s && m < b.s + 3 && !alerted.has(t + b.id + 's')){
+      alerted.add(t + b.id + 's'); alertUser('Now: ' + b.t, 'Until ' + tm(b.e) + '.');
+    }
+  }
+}
+
+/* ================= night lock ================= */
+function nightDate(){ const n = now(); return n.getHours() < 5 ? iso(new Date(n.getFullYear(), n.getMonth(), n.getDate() - 1)) : iso(n); }
+let nightMode = null; const nightSent = new Set();
+function checkNight(){
+  const n = now(), m = n.getHours() * 60 + n.getMinutes(), nd = nightDate();
+  const windId = 'b|' + nd + '|22:30|routine';
+  let mode = null;
+  if (!S.done[windId] && !(S.nights[nd] && S.nights[nd].bed) && Date.now() + OFFSET >= (S.snoozeUntil || 0)){
+    if (m >= 22 * 60 + 30 && m < 23 * 60) mode = 'soft';
+    else if (m >= 23 * 60 || n.getHours() < 5) mode = 'hard';
+  }
+  const ov = $('#night'), B2 = S.alerts.bedtime;
+  if (!mode || B2 === 'off'){ ov.hidden = true; nightMode = null; return; }
+  const head = mode === 'soft' ? 'Wind down' : 'It\'s past 11pm', text = mode === 'soft' ? 'Laptop shut by 23:00. Up at 07:00.' : 'Close the laptop and go to bed.';
+  if (B2 === 'notify'){ ov.hidden = true; if (!nightSent.has(nd + mode)){ nightSent.add(nd + mode); alertUser(head, text); } return; }
+  if (!nightSent.has(nd + mode)){ nightSent.add(nd + mode); notifySystem(head, text); }
+  $('#nightClock').textContent = tm(m);
+  if (mode !== nightMode){
+    nightMode = mode;
+    if (mode === 'soft'){
+      $('#nightHead').textContent = 'Wind down.'; $('#nightText').textContent = 'Laptop shut by 23:00. Lay out tomorrow, then read. Up at 07:00.';
+      $('#nightGo').textContent = 'Shutting down now'; $('#nightSnooze').textContent = '10 more minutes';
+    } else {
+      $('#nightHead').textContent = 'It\'s past 11pm.'; $('#nightText').textContent = 'Sleep is guardrail 1. Close the laptop now. Anything unfinished goes in tomorrow\'s first study block.';
+      $('#nightGo').textContent = 'I\'m going to bed'; $('#nightSnooze').textContent = '5 more minutes (counts as a late night)';
+    }
+    chime();
+  }
+  ov.hidden = false;
+}
+$('#nightGo').addEventListener('click', () => {
+  const n = now(), m = n.getHours() * 60 + n.getMinutes(), nd = nightDate();
+  const onTime = n.getHours() >= 5 && m <= 23 * 60 + 10;
+  S.nights[nd] = o(S.nights[nd] || {}, {bed:tm(m), late:!onTime || !!(S.nights[nd] && S.nights[nd].late)});
+  if (onTime && !S.nights[nd].late) S.done['b|' + nd + '|22:30|routine'] = true;
+  save(); $('#night').hidden = true; nightMode = null; render();
+});
+$('#nightSnooze').addEventListener('click', () => {
+  const nd = nightDate(), hard = nightMode === 'hard';
+  if (hard) S.nights[nd] = o(S.nights[nd] || {}, {late:true});
+  S.snoozeUntil = Date.now() + OFFSET + (hard ? 5 : 10) * 6e4; save();
+  $('#night').hidden = true; nightMode = null;
+});
+
+/* ================= loop ================= */
+let lastMin = -1;
+function loop(){
+  const m = nowM();
+  checkAlerts(); checkNight();
+  if (m !== lastMin){ lastMin = m; updateChrome(); if (TAB === 'today' && !$('#dlg').open) renderToday(); }
+}
+
+/* ================= boot ================= */
+load();
+const startTab = (location.hash || '').slice(1);
+setTab(['today','week','catch','deadlines','food','setup'].includes(startTab) ? startTab : 'today');
+primeAlerts();
+lastMin = nowM();
+checkNight();
+setInterval(loop, 15000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) loop(); });
+if (S.lastVersion !== APP_VERSION){ if (S.lastVersion) toast('Updated to version ' + APP_VERSION + '.'); S.lastVersion = APP_VERSION; save(); }
+try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch(e) {}
+
+/* ================= installable app ================= */
+let wantReload = false;
+function showUpdate(reg){
+  $('#updateBar').hidden = false;
+  $('#updateGo').onclick = () => { wantReload = true; if (reg.waiting) reg.waiting.postMessage('skip'); else location.reload(); };
+}
+if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)){
+  navigator.serviceWorker.register('./sw.js').then(reg => {
+    SWREG = reg;
+    if (reg.waiting && navigator.serviceWorker.controller) showUpdate(reg);
+    reg.addEventListener('updatefound', () => { const w = reg.installing; if (w) w.addEventListener('statechange', () => { if (w.state === 'installed' && navigator.serviceWorker.controller) showUpdate(reg); }); });
+    setInterval(() => reg.update().catch(() => {}), 60 * 60 * 1000);
+  }).catch(() => {});
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (wantReload){ wantReload = false; location.reload(); } });
+}
+function doInstall(){
+  if (!deferredInstall){ toast('Use your browser menu: Install app.'); return; }
+  deferredInstall.prompt();
+  deferredInstall.userChoice.finally(() => { deferredInstall = null; $('#installBtn').hidden = true; if (TAB === 'setup') renderSetup(); });
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferredInstall = e; $('#installBtn').hidden = false; if (TAB === 'setup') renderSetup(); });
+window.addEventListener('appinstalled', () => { deferredInstall = null; $('#installBtn').hidden = true; toast('Installed. Open it from its icon.'); });
+$('#installBtn').addEventListener('click', doInstall);
+
+/* test hook */
+window.__planner = {
+  selfTest(){
+    CONFLICTS.length = 0; cache.clear();
+    for (let d = '2026-09-28'; d <= '2027-09-26'; d = addD(d, 1)) dayBlocks(d);
+    const dowBad = ALLSESS.filter(x => dow(x.date) !== x.wd).map(x => x.id);
+    const overlaps = [];
+    for (let d = '2026-10-11'; d <= '2027-09-26'; d = addD(d, 1)){
+      const bl = dayBlocks(d);
+      for (let i = 0; i < bl.length; i++) for (let j = i + 1; j < bl.length; j++)
+        if (overlap(bl[i], bl[j]) && !(bl[i].opt || bl[j].opt)) overlaps.push(d + ' ' + tm(bl[i].s) + ' ' + bl[i].t + ' × ' + tm(bl[j].s) + ' ' + bl[j].t);
+    }
+    return {conflicts: CONFLICTS.slice(), dowBad, overlaps, sessions: ALLSESS.length, deadlines: DL.length};
+  },
+  weekHours(ws){ const sums = {}; for (let i = 0; i < 7; i++) for (const b of dayBlocks(addD(ws, i))) if (!b.opt) sums[b.cat] = (sums[b.cat] || 0) + (b.e - b.s) / 60; return sums; },
+  day: d => dayBlocks(d).map(b => tm(b.s) + '-' + tm(b.e) + ' [' + b.cat + '] ' + b.t)
+};
+})();
+</script>
+</body>
+</html>
