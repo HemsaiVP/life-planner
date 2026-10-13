@@ -324,6 +324,13 @@ td input{min-height:38px;padding:6px 8px;font-size:14px}
 
 .dlg .seg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
 
+/* live lecture reminder line */
+.liveln{display:flex;align-items:center;gap:12px;padding:7px 10px;border-radius:14px;color:var(--muted);font-size:13.5px;cursor:pointer;line-height:1.35}
+.liveln:hover{background:var(--panel2)}
+.liveln .tm{width:46px;flex:none;font-size:14px;font-weight:600}
+.liveln .ring{width:9px;height:9px;border-radius:50%;border:2px solid var(--lse);flex:none;box-sizing:border-box}
+.liveln .tx{flex:1;min-width:0}
+
 /* gym picker */
 .pick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
 .pick button{border:1.5px solid var(--line);background:var(--panel2);border-radius:16px;padding:10px 12px;text-align:left;display:flex;flex-direction:column;gap:1px;min-height:64px}
@@ -444,12 +451,12 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '3.2';
+const APP_VERSION = '3.3';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
   cats:{lse:true, study:true, academy:true, gym:true, business:true, career:true, meal:true, chores:true, admin:true}});
-const defPrefs = () => ({budget:35, careerMin:60, careerBreakMin:120, gymMin:4, gymMax:5, homeMin:2, homeMax:3,
+const defPrefs = () => ({recDelay:60, budget:35, careerMin:60, careerBreakMin:120, gymMin:4, gymMax:5, homeMin:2, homeMax:3,
   proteinLo:120, proteinHi:130, startKg:58, goalKg:65});
 // Food values per base amount. Conservative label-style estimates for plain food: log butter or oil separately.
 // Edit any of them in Food & body › Your foods (use your own labels).
@@ -717,7 +724,7 @@ const N = {
   catchup:'Open Behind and watch the oldest lecture you are behind on.',
   dayoff:'Day off. No study and no business. See people, rest, get outside.',
   library:'In the library between sessions.',
-  watch:'If there is no live stream, watch the recording later. Tick Watched back when you do: if you don\'t, it goes to Behind with a study block suggested.',
+  watch:'Watch the recording once it is on Echo360. Tick Watched back when you do: if you don\'t, it goes to Behind with a study block suggested.',
   inperson:'In person, because you have a class on campus today.',
   travel:'40 minutes by bike.',
   qa:'Optional Zoom Q&A. Post questions on the Moodle doc beforehand.',
@@ -913,16 +920,23 @@ const WIND = () => B('22:30','23:00','routine','Wind down',{tk:true,n:N.wind});
 const overlap = (a, b) => a.s < b.e && b.s < a.e;
 const cache = new Map();
 const CONFLICTS = [];
-function autoBlocks(d){
+/* Lectures you watch at home: Echo360 only has the recording a while after the lecture ends,
+   so each one is planned into study time after that (never at the live time). The live time
+   shows as a reminder line, and the plain study block under it stays as study. */
+const isHomeLecture = x => x.kind === 'lecture' && !(SESS[x.date] || []).some(y => y.kind === 'class' || y.kind === 'workshop');
+const recDelay = () => (S.prefs.recDelay >= 0 ? +S.prefs.recDelay : 60);
+function baseDay(d){
+  const ck = 'B|' + d; if (cache.has(ck)) return cache.get(ck);
   const p = periodOf(d), w = dow(d), ss = sessionsOn(d);
   const campus = ss.some(x => x.kind === 'class' || x.kind === 'workshop');
   const ctx = {campus, p, d};
-  const out = [], busy = [];
+  const out = [], busy = [], deferred = [];
   for (const x of ss){
     if (x.kind === 'help') continue;
+    if (x.kind === 'lecture' && !campus){ deferred.push(x); continue; }
     const inPerson = campus && x.kind !== 'qa';
     let t = x.label, n = 'In person.';
-    if (x.kind === 'lecture'){ t += inPerson ? ' · in person' : ' · watch at home'; n = inPerson ? N.inperson : N.watch; }
+    if (x.kind === 'lecture'){ t += ' · in person'; n = N.inperson; }
     if (x.kind === 'qa') n = N.qa;
     const b = {s:x.s, e:x.e, cat:'lse', t, n, id:x.id, sess:x, opt:x.kind === 'qa', plan: inPerson ? 'attend' : 'watch'};
     out.push(b); busy.push(b);
@@ -952,7 +966,86 @@ function autoBlocks(d){
     if (busy.some(x => overlap(b, x)) || b.e > 22 * 60 + 30) CONFLICTS.push(d + ' move ' + tm(b0.s) + ' ' + b.t);
     out.push(b); busy.push(b);
   }
-  for (const b of tpl.filter(b => b.flex)){
+  const res = {out, busy, flex:tpl.filter(b => b.flex), deferred, campus, leave, p, w};
+  cache.set(ck, res);
+  return res;
+}
+// How much it costs to watch a recording over a template block (per minute). Plain study is ideal;
+// deadline work and days off are protected.
+function flexWeight(f, d){
+  const t = typeof f.t === 'string' ? f.t : '';
+  if (f.cat === 'free') return HOLIDAYS[d] || /Day off/.test(t) ? 8 : 3;
+  if (f.cat === 'academy') return 1.5;
+  if (f.cat === 'study'){
+    if (t === 'Study' || /^Catch-up/.test(t)) return 0;
+    if (/due|submit|finish/i.test(t)) return 12;
+    if (/^Revision/.test(t)) return 2;
+    return 3;
+  }
+  return 3;
+}
+function watchOverride(x){
+  let r = null;
+  for (const e of S.edits) if (e.kind === 'watchSet' && e.sid === x.id) r = {date:e.date, s:e.s, e:e.s + (x.e - x.s), how:'you', src:e.id};
+  if (r) return r;
+  for (const e of S.edits) if (e.kind === 'watchRule' && e.code === x.code && e.sk === x.kind && e.wd === x.wd && e.s0 === origStart(x) && x.date >= e.from)
+    r = {date:addD(x.date, e.off), s:e.ws, e:e.ws + (x.e - x.s), how:'you', src:e.id, rule:true};
+  return r;
+}
+function watchPlan(){
+  if (cache.has('WP')) return cache.get('WP');
+  const res = {byId:{}, byDate:{}, none:[]}, used = {}, delay = recDelay();
+  const lecs = ALLSESS.filter(isHomeLecture);
+  const put = (x, w) => { w.sid = x.id; res.byId[x.id] = w; (res.byDate[w.date] = res.byDate[w.date] || []).push(w); (used[w.date] = used[w.date] || []).push([w.s, w.e]); };
+  for (const x of lecs){ const w = watchOverride(x); if (w) put(x, w); }
+  for (const x of lecs){
+    if (res.byId[x.id]) continue;
+    const D = x.e - x.s, avail = x.e + delay; let best = null;
+    for (let k = 0; k <= 3; k++){
+      const d = addD(x.date, k), B = baseDay(d);
+      const busy = B.busy.map(b => [b.s, b.e]).concat(used[d] || []);
+      for (const e of S.edits) if (addMatches(e, d)) busy.push([e.s, e.e]);
+      const lo = Math.max(k ? 0 : avail, 7 * 60 + 15), hi = 22 * 60 + 30;
+      for (let st = Math.ceil(lo / 15) * 15; st + D <= hi; st += 15){
+        const en = st + D;
+        if (busy.some(([a, z]) => st < z && a < en)) continue;
+        let cost = (k * 1440 + st - avail) * 0.1;
+        for (const f of B.flex){
+          const ov = Math.min(en, f.e) - Math.max(st, f.s); if (ov <= 0) continue;
+          const wt = flexWeight(f, d), l = st - f.s, rt = f.e - en;
+          cost += ov * wt;
+          if (l > 0 && l < 25) cost += l * wt;
+          if (rt > 0 && rt < 25) cost += rt * wt;
+        }
+        if (!best || cost < best.cost) best = {date:d, s:st, e:en, cost, how:'auto'};
+      }
+    }
+    if (best) put(x, best); else res.none.push(x.id);
+  }
+  cache.set('WP', res);
+  return res;
+}
+const watchWhen = (w, d) => (w.date === d ? '' : dayName(w.date, true) + ' ' + dOf(w.date).getDate() + ' ') + tm(w.s);
+function relabelNotes(t, d, s, WP){
+  return t.replace(/notes on the (\S+) lecture(, )?/g, (all, code) => {
+    const x = ALLSESS.filter(y => y.code === code && y.kind === 'lecture' && (y.date < d || (y.date === d && y.s <= s))).pop();
+    if (!x || !isHomeLecture(x)) return all;
+    const w = WP.byId[x.id], end = w ? at(w.date, w.e) : at(x.date, Math.min(x.e + recDelay(), 1439));
+    return end > at(d, s) ? '' : all;
+  }).replace(/[:,] ?$/, '').replace(/^Study$/, 'Study');
+}
+function autoBlocks(d){
+  const B = baseDay(d), out = B.out.slice(), busy = B.busy.slice(), WP = watchPlan(), t = today(), m = nowM(), delay = recDelay();
+  for (const w of WP.byDate[d] || []){
+    const x = findSess(w.sid); if (!x) continue;
+    if (covered(x.id) && (d > t || (d === t && w.s > m))) continue;   // watched early: the time goes back to study
+    const b = {s:w.s, e:w.e, cat:'lse', t:x.label + ' · watch the recording', id:x.id, sess:x, plan:'watch', watch:w,
+      n:'Recording of the ' + (x.date === d ? 'lecture from ' + tm(x.s) + ' today' : dayName(x.date) + ' ' + niceDate(x.date) + ' lecture') + '. It goes up on Echo360 about ' + delay + ' min after the lecture ends. Tick Watched back when you have watched it.'};
+    out.push(b); busy.push(b);
+  }
+  for (const x of B.deferred) out.push({s:x.s, e:x.e, cat:'lse', t:x.label + ' (live)', id:'live|' + x.id, sess:x, opt:true, live:true, watch:WP.byId[x.id] || null});
+  for (const b0 of B.flex){
+    const b = typeof b0.t === 'string' && /notes on the \S+ lecture/.test(b0.t) ? o(b0, {t:relabelNotes(b0.t, d, b0.s, WP)}) : b0;
     let pieces = [[b.s, b.e]];
     for (const x of busy){
       pieces = pieces.flatMap(([a, z]) => (x.e <= a || x.s >= z) ? [[a, z]] : [[a, Math.max(a, x.s)], [Math.min(z, x.e), z]].filter(([p1, q]) => q > p1));
@@ -962,9 +1055,9 @@ function autoBlocks(d){
   }
   out.sort((a, b) => a.s - b.s || a.e - b.e);
   for (const b of out) if (!b.id) b.id = 'b|' + d + '|' + tm(b.s) + '|' + b.cat;
-  addCareer(d, out, p, w);
+  addCareer(d, out, B.p, B.w);
   for (const b of out) b.key = b.sess ? null : tm(b.s) + '|' + b.cat;
-  out.campus = campus; out.leave = leave;
+  out.campus = B.campus; out.leave = B.leave;
   return out;
 }
 
@@ -1204,7 +1297,13 @@ function finishDraft(blockHint){
 
 /* ================= lectures and catch-up ================= */
 const isPastS = x => at(x.date, x.e) <= now();
-const behindLectures = () => ALLSESS.filter(x => x.kind === 'lecture' && isPastS(x) && !covered(x.id));
+function dueAt(x){
+  if (!isHomeLecture(x)) return at(x.date, x.e);
+  const w = watchPlan().byId[x.id];
+  return w ? at(w.date, w.e) : at(x.date, Math.min(x.e + recDelay(), 1439));
+}
+const isDue = x => dueAt(x) <= now();
+const behindLectures = () => ALLSESS.filter(x => x.kind === 'lecture' && isDue(x) && !covered(x.id));
 const missedClasses = () => ALLSESS.filter(x => (x.kind === 'class' || x.kind === 'workshop') && isPastS(x) && !covered(x.id) && !S.done['sol|' + x.id]);
 const notesToWrite = () => ALLSESS.filter(x => (x.kind === 'lecture' || x.kind === 'help') && isPastS(x) && covered(x.id) && !S.notes[x.id]);
 const helpSkipped = () => ALLSESS.filter(x => x.kind === 'help' && isPastS(x) && !covered(x.id) && daysBetween(x.date, today()) <= 28);
@@ -1246,7 +1345,7 @@ function weekStats(ws){
       if (b.tk && b.s === 22 * 60 + 30){ if (d < t || (d === t && m >= 23 * 60)) r.bed.p++; if (done) r.bed.d++; }
       if (b.tk && b.s === 7 * 60){ if (d <= t) r.wake.p++; if (done) r.wake.d++; }
     }
-    for (const x of sessionsOn(d)) if (x.kind === 'lecture' && isPastS(x)){ r.lect.p++; if (covered(x.id)) r.lect.d++; }
+    for (const x of sessionsOn(d)) if (x.kind === 'lecture' && isDue(x)){ r.lect.p++; if (covered(x.id)) r.lect.d++; }
   }
   r.gym = weekGym(ws);
   return r;
@@ -1375,6 +1474,7 @@ function subOf(b, d, st){
     if (x.kind === 'qa') p.push('Optional, on Zoom');
     else if (st.missed && x.kind === 'lecture') return {t:'Not covered yet: it is in Behind', cls:'bad'};
     else if (st.missed) return {t:'Missed: go through the class solutions (in Behind)', cls:'bad'};
+    else if (b.watch){ if (!st.cur) p.push('From ' + (x.date === d ? 'today' : dayName(x.date, true) + ' ' + dOf(x.date).getDate()) + ' · live ' + tm(x.s)); if (b.watch.how === 'you') p.push('time set by you'); }
     else if (!st.cur) p.push(b.plan === 'attend' ? 'Attend in person' : 'Watch at home');
     if (x.moved) p.push('moved by you');
   } else if (b.cat === 'gym'){ if (st.missed) return {t:'Not ticked: if you went, tap ✓ and pick the workout', cls:'bad'}; const n = gymDayOf(d, b); if (n) p.push(PROG[n].mins + (b.opt ? ' · optional' : '')); else if (b.opt) p.push('Optional'); }
@@ -1392,16 +1492,22 @@ function lseTicks(id, compact){
 function itemHtml(b, d, st){
   st = st || stOf(b, d);
   const sb = subOf(b, d, st), tk = tickable(b);
-  const showTicks = b.cat === 'lse' && (st.past || st.cur || d < today());
+  const showTicks = b.cat === 'lse' && (st.past || st.cur || d < today() || (b.watch && at(b.sess.date, b.sess.e) <= now()));
   return '<li class="it c-' + b.cat + (st.cur ? ' cur' : '') + (st.done ? ' done' : '') + (st.missed ? ' missed' : '') + (b.cat === 'travel' ? ' travel' : '') + '" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '">' +
     '<span class="tm">' + tm(b.s) + '</span><span class="dot"></span><div class="tx"><div class="tt">' + esc(bTitle(b, d)) + '</div>' +
     (sb.t ? '<div class="sb ' + sb.cls + '">' + esc(sb.t) + '</div>' : '') + (showTicks ? lseTicks(b.id, true) : '') + '</div>' +
     (tk && b.cat !== 'lse' ? '<button class="chk' + (st.done ? ' on' : '') + '" data-act="tick" data-d="' + d + '" data-id="' + esc(b.id) + '" aria-pressed="' + st.done + '" aria-label="Mark done">' + ic('check') + '</button>' : '') + '</li>';
 }
+function liveLine(b, d){
+  const x = b.sess, w = b.watch;
+  const txt = covered(x.id) ? 'covered ✓' : 'not watchable yet: on Echo360 from about ' + tm(Math.min(x.e + recDelay(), 1439)) + (w ? ' · you watch it ' + (w.date === d ? 'at ' : '') + watchWhen(w, d) : '');
+  return '<li class="liveln" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '"><span class="tm">' + tm(b.s) + '</span><span class="ring"></span><div class="tx">' + esc(x.label) + ' is live until ' + tm(x.e) + ', ' + esc(txt) + '</div></li>';
+}
 function agendaHtml(d, fold){
   const bl = dayBlocks(d), folded = [], items = [];
   for (const b of bl){
     const st = stOf(b, d);
+    if (b.live){ if (!(fold && st.isT && st.past)) items.push([b, st]); continue; }
     if (fold && st.isT && st.past && !st.cur && !st.missed) folded.push([b, st]); else items.push([b, st]);
   }
   let h = '<ol class="agenda">';
@@ -1411,6 +1517,7 @@ function agendaHtml(d, fold){
       folded.filter(([b]) => b.cat !== 'free').map(([b, st]) => itemHtml(b, d, st)).join('') + '</ol></details></li>';
   }
   for (const [b, st] of items){
+    if (b.live){ h += liveLine(b, d); continue; }
     if (b.cat === 'free'){ h += '<li class="freeln">' + esc(b.t === 'Free time' ? 'Free' : b.t) + ' · ' + tm(b.s) + '–' + tm(b.e) + '</li>'; continue; }
     h += itemHtml(b, d, st);
   }
@@ -1463,7 +1570,7 @@ function todayB(){
 function focusHtml(d){
   const bl = dayBlocks(d), m = nowM();
   if (m < 7 * 60 || m >= 23 * 60) return '<div class="focus c-routine"><div class="lbl">Night</div><div class="big">Sleep</div><p>Up at 07:00.</p></div>';
-  const cand = bl.filter(b => b.cat !== 'free');
+  const cand = bl.filter(b => b.cat !== 'free' && !b.live);
   const cur = cand.find(b => b.s <= m && m < b.e && !(doneB(b) && tickable(b)));
   const b = cur || cand.find(b => b.s > m);
   if (!b) return '<div class="focus c-free"><div class="lbl">Evening</div><div class="big">Free until wind-down</div><p>Wind down at 22:30.</p></div>';
@@ -1490,7 +1597,7 @@ function todayA(){
   }
   const d = t, bl = dayBlocks(d), m = nowM();
   const beh = behindLectures(), nd = nextDue(), g = weekGym(weekStart(t)), nw = notesToWrite().length;
-  const upcoming = bl.filter(b => b.cat !== 'free' && b.s > m).filter(b => !(b.s <= m)).slice(0, 5);
+  const upcoming = bl.filter(b => b.cat !== 'free' && !b.live && b.s > m).filter(b => !(b.s <= m)).slice(0, 5);
   const curId = (bl.find(b => b.cat !== 'free' && b.s <= m && m < b.e) || {}).id;
   view.innerHTML = '<div class="topbar" style="align-items:center"><div><h1 style="font-size:20px">' + dayName(d) + ' ' + niceDate(d) + '</h1><div class="sub">' + (bl.campus ? 'Campus day · leave ' + tm(bl.leave) : 'Home day') + ' · ' + esc(periodLabel(d)) + '</div></div><div class="row-flex" style="flex-wrap:nowrap"><span style="font-weight:750;font-size:18px">' + tm(m) + '</span><button class="pillbtn" data-act="day" data-d="' + addD(t, 1) + '">Tomorrow ›</button></div></div>' +
     welcome() + focusHtml(d) +
@@ -1585,6 +1692,7 @@ function renderWeek(){
   gut += '</div>';
   const cols = days.map(d => {
     const bl = dayBlocks(d).map(b => {
+      if (b.live) return '';
       const s = Math.max(b.s, START), e = Math.min(b.e, END); if (e <= s) return '';
       const st = stOf(b, d);
       return '<div class="blk c-' + b.cat + (st.done ? ' done' : '') + (st.missed ? ' missed' : '') + '" style="top:' + (s - START) * PX + 'px;height:' + Math.max(10, (e - s) * PX - 2) + 'px" data-act="open" data-d="' + d + '" data-id="' + esc(b.id) + '" title="' + esc(tm(b.s) + '–' + tm(b.e) + ' ' + bTitle(b, d)) + '">' +
@@ -1627,7 +1735,7 @@ function renderBehind(){
     body = '<div class="row-flex" style="margin-top:12px"><button class="btn small" data-act="trackall">' + (trackAll ? 'Show only so far' : 'Show the whole year') + '</button></div>' +
       keys.map(k => '<div class="sec">Week of ' + niceDate(k) + ' · ' + esc(periodOf(k).name) + '</div><section class="card" style="padding-top:6px;padding-bottom:6px">' + groups[k].map((x, i) => {
         const past = isPastS(x), cov = covered(x.id);
-        const flag = past && !cov ? (x.kind === 'lecture' ? '<span class="tag bad">behind</span>' : x.kind === 'help' ? '<span class="tag">optional</span>' : S.done['sol|' + x.id] ? '<span class="tag good">solutions done</span>' : '<span class="tag bad">missed</span>') : '';
+        const flag = past && !cov ? (x.kind === 'lecture' ? (isDue(x) ? '<span class="tag bad">behind</span>' : '<span class="tag">to watch</span>') : x.kind === 'help' ? '<span class="tag">optional</span>' : S.done['sol|' + x.id] ? '<span class="tag good">solutions done</span>' : '<span class="tag bad">missed</span>') : '';
         return '<div class="li' + (i ? '' : ' first') + '" style="flex-wrap:wrap' + (past ? '' : ';opacity:.6') + '"><span class="code">' + x.code + '</span><div class="tx"><div class="t">' + esc(x.label) + flag + '</div><div class="s">' + sessWhen(x) + ' · ' + tm(x.s) + '–' + tm(x.e) + '</div></div><div style="flex-basis:100%;padding-left:64px;margin-top:-4px">' + lseTicks(x.id) + '</div></div>';
       }).join('') + '</section>').join('');
   }
@@ -1712,7 +1820,7 @@ function renderProgress(){
       if (b.tk && b.s === 7 * 60){ wake[1]++; if (S.done[b.id]) wake[0]++; }
       if (b.tk && b.s === 22 * 60 + 30 && (d < t || nowM() >= 23 * 60)){ bed[1]++; if (S.done[b.id]) bed[0]++; }
     }
-    for (const x of sessionsOn(d)) if (x.kind === 'lecture' && isPastS(x)){ lec[1]++; if (covered(x.id)) lec[0]++; if (S.notes[x.id]) notes++; }
+    for (const x of sessionsOn(d)) if (x.kind === 'lecture' && isDue(x)){ lec[1]++; if (covered(x.id)) lec[0]++; if (S.notes[x.id]) notes++; }
   }
   const hb = (l, c, v) => '<span class="lb">' + l + '</span><span class="track c-' + c + '"><i style="width:' + (v[1] ? Math.min(100, Math.round(v[0] / v[1] * 100)) : 0) + '%"></i></span><span class="v">' + hrs(v[0]) + ' / ' + hrs(v[1]) + '</span>';
   const cb = (l, c, v) => '<span class="lb">' + l + '</span><span class="track c-' + c + '"><i style="width:' + (v[1] ? Math.round(v[0] / v[1] * 100) : 0) + '%"></i></span><span class="v">' + v[0] + ' / ' + v[1] + '</span>';
@@ -1972,6 +2080,8 @@ function tog(k, label, sub){
 function editText(e){
   const wd = e.wd != null ? DAYS[e.wd] + 's' : '';
   const when = e.scope === 'day' || e.date ? niceDate(e.d || e.date, true) : 'every ' + wd.replace(/s$/, '') + ' from ' + niceDate(e.from, true) + (e.to ? ' to ' + niceDate(e.to, true) : '');
+  if (e.kind === 'watchSet') return 'Watch ' + (e.label || 'a lecture') + ' (' + niceDate(e.d, true) + ') on ' + niceDate(e.date, true) + ' at ' + tm(e.s);
+  if (e.kind === 'watchRule') return 'Watch every ' + (e.label || 'lecture') + ' ' + (e.off ? e.off + ' day' + (e.off === 1 ? '' : 's') + ' later' : 'the same day') + ' at ' + tm(e.ws) + ', from ' + niceDate(e.from, true);
   if (e.kind === 'blk') return (e.op === 'del' ? 'Removed ' : 'Changed ') + '"' + (e.label || e.key || '') + '" · ' + when + (e.op !== 'del' && e.s != null ? ' → ' + tm(e.s) + '–' + tm(e.e) : '') + (e.t ? ' "' + e.t + '"' : '');
   if (e.kind === 'blkAdd') return 'Added "' + e.t + '" ' + tm(e.s) + '–' + tm(e.e) + ' · ' + when;
   if (e.kind === 'sessAdd') return 'Added ' + (e.code === 'OTHER' ? '' : e.code + ' ') + KINDNAME[e.sk] + ' ' + tm(e.s) + '–' + tm(e.e) + ' · ' + when;
@@ -2005,7 +2115,7 @@ function renderSetup(){
       '<p class="muted small" style="margin:12px 0 0">Saved on this device only, so your phone and laptop can look different. Backups do not change it.</p></section>' +
     '<section class="card"><h2>Your numbers</h2><div class="fgrid">' + num('budget', 'Food budget (£ a week)') + num('careerMin', 'Career, minutes each weekday', 15) + num('careerBreakMin', 'Career in the breaks (min)', 15) +
       num('gymMin', 'Gym sessions a week, at least') + num('gymMax', 'Gym sessions a week, at most') + num('homeMin', 'Home sessions, at least') + num('homeMax', 'Home sessions, at most') +
-      num('proteinLo', 'Protein g a day, from') + num('proteinHi', 'Protein g a day, to') + num('goalKg', 'Goal weight (kg)', 0.5) + '</div>' +
+      num('proteinLo', 'Protein g a day, from') + num('proteinHi', 'Protein g a day, to') + num('goalKg', 'Goal weight (kg)', 0.5) + num('recDelay', 'Recordings on Echo360: minutes after a lecture ends', 15) + '</div>' +
       '<p class="muted small" style="margin:12px 0 0">To move a gym day, a block or a lecture: tap it in Today or Week. To add one: the + button.</p></section>' +
     '<section class="card"><h2>Your changes<span class="r">' + edits.length + '</span></h2>' + (edits.length ? edits.map(e => '<div class="li"><div class="tx small">' + esc(editText(e)) + '</div><button class="btn small" data-act="undoedit" data-id="' + esc(e.id) + '">Undo</button></div>').join('') : '<p class="empty">None yet. Changes you make in the app appear here, and each can be undone.</p>') + '</section>' +
     '<section class="card prose"><h2>Install on your phone and laptop</h2>' + (installed ? '<p><b>Installed on this device.</b></p>' : '') +
@@ -2024,7 +2134,7 @@ function renderSetup(){
       '<textarea id="impText" placeholder="Or paste backup text here, then press Import text" style="margin-top:10px"></textarea><div class="row-flex" style="margin-top:8px"><button class="btn small" data-act="importText">Import text</button></div></section>' +
     '<section class="card prose"><h2>Claude</h2><p>One tap copies a short summary of your week: ticks, gym log, weight trend, what is behind and what is due. Paste it into any chat.</p><button class="btn primary" data-act="copyweek">Copy week for Claude</button><p class="muted" style="margin-top:10px">Small changes you make here. Big ones (new term timetable, new templates): ask Claude.</p></section>' +
     '<section class="card prose"><h2>How your days are built</h2><ul>' +
-      '<li>Times come from your LSE calendar. Campus only on days with a class or workshop; lectures those days are in person, others watched at home. Leave 45 minutes before the first in-person session.</li>' +
+      '<li>Times come from your LSE calendar. Campus only on days with a class or workshop; lectures those days are in person. Lectures you watch are planned into study time after the recording goes up on Echo360 (about ' + recDelay() + ' min after they end); the live time shows as a reminder line. Leave 45 minutes before the first in-person session.</li>' +
       '<li>Every lecture and class: Attended, Watched back, Notes made. Either of the first two covers it. Uncovered lectures go to Behind with a suggested study block; missed classes become "go through the solutions".</li>' +
       '<li>Career ' + P.careerMin + ' minutes each weekday (' + P.careerBreakMin + ' in the breaks), from free time.</li>' +
       '<li>Gym ' + P.gymMin + '–' + P.gymMax + ' times a week; Days 1–6 rotate and wait for you; Day 7 is optional and floats. Saturday afternoon is a day off.</li>' +
@@ -2071,14 +2181,30 @@ const origStart = x => x.src === 'cal' ? hm(x.id.split('|')[4]) : ((S.edits.find
 const CATOPTS = [['study','Study'],['academy','Academy'],['gym','Gym'],['career','Career'],['business','Business'],['meal','Food'],['chores','Shopping or chores'],['admin','Admin'],['free','Free time']];
 let DLG = null; // {d, id}
 
+const sidOf = id => String(id || '').replace(/^live\|/, '');
 function openBlock(d, id, mode){
-  const b = dayBlocks(d).find(x => x.id === id); if (!b) return;
+  const b = dayBlocks(d).find(x => x.id === id); if (!b){ closeDlg(); return; }
   DLG = {d, id};
   const st = stOf(b, d), wd = DAYS[dow(d)], per = periodOf(d);
   let h = '<div class="muted">' + dayName(d) + ' ' + niceDate(d) + ' · ' + tm(b.s) + '–' + tm(b.e) + '</div><h3>' + esc(bTitle(b, d)) + '</h3>';
   if (b.cat === 'lse'){
     const x = b.sess, sl = CP.byLec[x.id];
-    if (!mode){
+    const home = isHomeLecture(x), w = home ? watchPlan().byId[x.id] : null, delay = recDelay();
+    if (!mode && home){
+      h += '<p>' + (b.live ? 'You watch this one at home, but Echo360 only has the recording about ' + delay + ' min after the lecture ends.' : esc(b.n || '')) + '</p>' +
+        '<p class="small">' + (covered(x.id) ? 'Covered ✓' : w ? 'You watch it: <b>' + dayName(w.date) + ' ' + niceDate(w.date) + ', ' + tm(w.s) + '–' + tm(w.e) + '</b>' + (w.how === 'you' ? ' (set by you)' : '') : 'No study time found for it: it goes to Behind once the recording is up.') + '</p>' +
+        lseTicks(x.id) + '<p class="muted small">Either Attended or Watched back covers it, whatever was planned.</p>' +
+        (sl ? '<p class="small" style="color:var(--soft-ink)">Suggested catch-up: ' + slotText(sl) + '.</p>' : '') +
+        '<hr><div class="row-flex"><button class="btn small" data-act="smode" data-m="wmove">Watch it at another time</button>' + (w && w.how === 'you' ? '<button class="btn small" data-act="wreset">' + (w.rule ? 'Stop the weekly time' : 'Back to the suggested time') + '</button>' : '') + '</div>' +
+        '<div class="row-flex" style="margin-top:8px"><button class="btn small" data-act="smode" data-m="move">Lecture moved</button><button class="btn small" data-act="scancel">Lecture cancelled</button><button class="btn small" data-act="smode" data-m="week">Lecture changed every week</button></div>';
+    } else if (mode === 'wmove'){
+      const D = x.e - x.s;
+      h += '<form data-form="wmove" class="fgrid" style="margin-top:12px"><label class="f full">Day<input type="date" name="date" value="' + (w ? w.date : x.date) + '" min="' + x.date + '" required></label>' + timeIn('s', w ? w.s : Math.min(x.e + delay, 22 * 60), 'Start') +
+        '<p class="muted small full" style="margin:0">It takes ' + hrs(D / 60) + ', so it ends at the start plus that. Study and free time on that day fit around it.</p>' +
+        '<fieldset class="full" style="border:0;padding:0;margin:4px 0 0"><label class="f" style="flex-direction:row;gap:8px;align-items:center;color:var(--ink)"><input type="radio" name="scope" value="one" checked style="width:20px;height:20px;min-height:0"> Just this lecture</label>' +
+        '<label class="f" style="flex-direction:row;gap:8px;align-items:center;color:var(--ink);margin-top:6px"><input type="radio" name="scope" value="week" style="width:20px;height:20px;min-height:0"> Every ' + esc(x.label) + ' from now on</label></fieldset>' +
+        '<div class="full acts"><button type="button" class="btn" data-act="smode" data-m="">Back</button><button class="btn primary" type="submit">Save</button></div></form>';
+    } else if (!mode){
       h += '<p>' + esc(b.n || '') + '</p><p class="muted small">Planned: ' + (x.kind === 'qa' ? 'optional, on Zoom' : b.plan === 'attend' ? 'attend in person' : 'watch at home') + '. Either Attended or Watched back covers it.</p>' + lseTicks(x.id) +
         (sl ? '<p class="small" style="color:var(--soft-ink)">Suggested catch-up: ' + slotText(sl) + '.</p>' : '') +
         '<hr><div class="row-flex"><button class="btn small" data-act="smode" data-m="move">Move this one</button><button class="btn small" data-act="scancel">Cancelled this week</button><button class="btn small" data-act="smode" data-m="week">Change every week</button></div>';
@@ -2201,12 +2327,12 @@ document.addEventListener('click', e => {
   if (a === 'lt'){
     e.stopPropagation();
     const f = el.dataset.f, id = el.dataset.id; if (S[f][id]) delete S[f][id]; else S[f][id] = true;
-    save(); render(); if ($('#dlg').open && DLG) openBlock(DLG.d, DLG.id); return;
+    save(); cache.clear(); render(); if ($('#dlg').open && DLG) openBlock(DLG.d, DLG.id); return;
   }
   if (a === 'lt1' || a === 'sol'){
     const f = a === 'sol' ? null : el.dataset.f, id = el.dataset.id, key = a === 'sol' ? 'sol|' + id : id, tgt = a === 'sol' ? S.done : S[f];
-    tgt[key] = true; save(); render();
-    toast(a === 'sol' ? 'Cleared.' : f === 'notes' ? 'Notes ticked.' : 'Marked watched.', () => { delete tgt[key]; save(); render(); });
+    tgt[key] = true; save(); cache.clear(); render();
+    toast(a === 'sol' ? 'Cleared.' : f === 'notes' ? 'Notes ticked.' : 'Marked watched.', () => { delete tgt[key]; save(); cache.clear(); render(); });
     return;
   }
   if (a === 'open'){ if (e.target.closest('.tk,.chk,a')) return; openBlock(el.dataset.d, el.dataset.id); return; }
@@ -2237,7 +2363,10 @@ document.addEventListener('click', e => {
   if (a === 'bmode2' && DLG){ openBlock(DLG.d, DLG.id, el.dataset.m || null); return; }
   if (a === 'bdel' && DLG){ const b = findB(DLG.d, DLG.id); if (b) addEdits([blockEdit(el.dataset.scope, DLG.d, b, {op:'del'})], 'Removed.'); return; }
   if (a === 'smode' && DLG){ openBlock(DLG.d, DLG.id, el.dataset.m || null); return; }
-  if (a === 'scancel' && DLG){ const x = findSess(DLG.id); if (x) addEdits([{kind:'sessCancel', sid:x.id, d:x.date, label:x.label}], 'Cancelled for this week.'); return; }
+  if (a === 'wreset' && DLG){ const x = findSess(sidOf(DLG.id)); if (!x) return; const ov = watchOverride(x); if (!ov) return;
+    const gone = S.edits.filter(e2 => e2.id === ov.src); S.edits = S.edits.filter(e2 => e2.id !== ov.src); commit(); closeDlg();
+    toast(ov.rule ? 'Weekly time removed.' : 'Back to the suggested time.', () => { S.edits.push(...gone); commit(); }); return; }
+  if (a === 'scancel' && DLG){ const x = findSess(sidOf(DLG.id)); if (x) addEdits([{kind:'sessCancel', sid:x.id, d:x.date, label:x.label}], 'Cancelled for this week.'); return; }
   /* deadlines */
   if (a === 'dlfilter'){ dlFilter = el.dataset.f; render(); return; }
   if (a === 'dltick'){ const k = 'd|' + el.dataset.id; if (S.done[k]) delete S.done[k]; else S.done[k] = true; save(); render(); return; }
@@ -2341,13 +2470,22 @@ document.addEventListener('submit', e => {
     } else addEdits([blockEdit('week', d0, b, {op:'del'}), {kind:'blkAdd', scope:'week', wd, from:d0, pid:periodOf(d0).id, s, e:en, cat:'gym', t:'Gym', n:N.gym}], 'Gym moved to ' + DAYS[wd] + 's.');
     return;
   }
+  if (k === 'wmove' && DLG){
+    const x = findSess(sidOf(DLG.id)); if (!x) return;
+    const D = x.e - x.s;
+    if (v.date < x.date){ toast('Pick a day on or after the lecture.'); return; }
+    if (s + D > 23 * 60){ toast('Too late: it takes ' + hrs(D / 60) + '.'); return; }
+    if (v.scope === 'week') addEdits([{kind:'watchRule', code:x.code, sk:x.kind, wd:x.wd, s0:origStart(x), from:x.date, off:daysBetween(x.date, v.date), ws:s, label:x.label}], 'Every ' + x.label + ' now planned ' + (daysBetween(x.date, v.date) ? daysBetween(x.date, v.date) + ' day' + (daysBetween(x.date, v.date) === 1 ? '' : 's') + ' later' : 'the same day') + ' at ' + tm(s) + '.');
+    else { S.edits = S.edits.filter(e2 => !(e2.kind === 'watchSet' && e2.sid === x.id)); addEdits([{kind:'watchSet', sid:x.id, d:x.date, date:v.date, s, label:x.label}], 'Moved to ' + dayName(v.date, true) + ' ' + tm(s) + '.'); }
+    return;
+  }
   if (k === 'smove' && DLG){
-    const x = findSess(DLG.id); if (!x) return;
+    const x = findSess(sidOf(DLG.id)); if (!x) return;
     S.edits = S.edits.filter(e2 => !(e2.kind === 'sessMove' && e2.sid === x.id));
     addEdits([{kind:'sessMove', sid:x.id, d:x.orig || x.date, date:v.date, s, e:en, label:x.label}], 'Moved.'); return;
   }
   if (k === 'sweek' && DLG){
-    const x = findSess(DLG.id); if (!x) return;
+    const x = findSess(sidOf(DLG.id)); if (!x) return;
     const stop = {kind:'sessStop', code:x.code, sk:x.kind, wd:x.wd, s:origStart(x), from:v.from, src:x.src};
     if (v.stop) addEdits([stop], 'Stopped from ' + niceDate(v.from, true) + '.');
     else addEdits([stop, {kind:'sessAdd', code:x.code, sk:x.kind, wd:+v.wd, s, e:en, from:v.from, to:x.ruleTo > v.from ? x.ruleTo : addD(v.from, 70), label:x.label}], 'Changed every week from ' + niceDate(v.from, true) + '.');
@@ -2430,6 +2568,7 @@ function primeAlerts(){ const m = nowM(); for (const b of dayBlocks(today())) if
 function checkAlerts(){
   const t = today(), m = nowM(), A = S.alerts;
   for (const b of dayBlocks(t)){
+    if (b.live) continue;
     if (b.cat === 'travel'){
       if (A.leave && b.t === 'Cycle to campus' && m >= b.s - 5 && m < b.s && !alerted.has(t + b.id + 'p')){
         alerted.add(t + b.id + 'p'); alertUser('Leave in ' + (b.s - m) + ' min', 'Cycle to campus at ' + tm(b.s) + '.');
@@ -2557,10 +2696,10 @@ window.__planner = {
         if (overlap(bl[i], bl[j]) && !(bl[i].opt || bl[j].opt)) overlaps.push(d + ' ' + tm(bl[i].s) + ' ' + bl[i].t + ' × ' + tm(bl[j].s) + ' ' + bl[j].t);
       if (d >= V3_START && dow(d) >= 1 && dow(d) <= 5 && !HOLIDAYS[d] && !bl.some(b => b.cat === 'career')) noCareer.push(d);
     }
-    return {conflicts: CONFLICTS.slice(), dowBad, overlaps, noCareer, sessions: ALLSESS.length, deadlines: DL.length};
+    return {conflicts: CONFLICTS.slice(), dowBad, overlaps, noCareer, unplanned: watchPlan().none.slice(), sessions: ALLSESS.length, deadlines: DL.length};
   },
   day: d => dayBlocks(d).map(b => tm(b.s) + '-' + tm(b.e) + ' [' + b.cat + '] ' + b.t + ' {' + b.id + '}'),
-  state: () => S, weekText, behind: () => behindLectures().map(x => x.id), plan: () => CP, gp: () => GP
+  state: () => S, weekText, watch: () => Object.values(watchPlan().byId).map(w => w.sid.split('|').slice(1, 3).join(' ') + ' → ' + w.date + ' ' + tm(w.s) + '–' + tm(w.e) + ' ' + w.how), behind: () => behindLectures().map(x => x.id), plan: () => CP, gp: () => GP
 };
 })();
 </script>
