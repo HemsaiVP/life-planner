@@ -2,7 +2,7 @@
 
 **Whiteboard by day, chalkboard by night.**
 
-Status: proposal, 13 October 2026. Previewed on the design canvas "Life Planner · Board redesign". The live app (version 3.3) does not use it yet. When it is approved, every change to how the app looks follows this file.
+Status: approved and applied in version 4.0, 14 October 2026. Previewed first on the design canvas "Life Planner · Board redesign". Every change to how the app looks follows this file.
 
 ---
 
@@ -268,6 +268,8 @@ background:
 ---
 
 ## 12. Applying it to the app
+
+Done in version 4.0. Setup calls the board picker "Board on this device"; Auto shows the chalkboard from 20:00 until 06:00. Hours bars use the chalk-line style from the desk preview (a marker line with the rest dashed).
 
 Nothing about how the planner works changes: same tabs, ticks, editing, food log, gym log, Behind and Progress. The work is:
 
