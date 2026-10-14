@@ -188,14 +188,15 @@ details>summary::-webkit-details-marker{display:none}
 /* ---------- week strip, today circled in marker ---------- */
 .striprow{display:flex;gap:2px;align-items:center;margin-top:12px}
 .striprow .strip{flex:1;margin-top:0}
-.navarrow{width:34px;height:52px;flex:none;border:0;background:none;display:grid;place-items:center;color:var(--ink-2);padding:0}
+.navarrow{width:34px;height:60px;flex:none;border:0;background:none;display:grid;place-items:center;color:var(--ink-2);padding:0}
 .strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:0;margin-top:12px}
-.strip button{position:relative;min-height:52px;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0;color:var(--ink)}
+.strip button{position:relative;min-height:60px;border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0;color:var(--ink)}
 .strip button span{font-size:12px;color:var(--ink-2)}
 .strip button b{font-size:17px;font-weight:700}
 .strip button[aria-current="date"],.strip button[aria-current="date"] span{color:var(--study);font-weight:700}
 .strip button.today:not([aria-current="date"]) b{text-decoration:underline 2px var(--study);text-underline-offset:3px}
-.circ{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-21px 0 0 -23px;fill:none;stroke:var(--study);stroke-width:2.2;stroke-linecap:round;pointer-events:none}
+/* a tall marker loop round the day and the date together (4.4) */
+.circ{position:absolute;left:50%;top:50%;width:min(42px,calc(100% + 4px));height:58px;transform:translate(-50%,-50%);overflow:visible;fill:none;stroke:var(--study);stroke-width:2.2;stroke-linecap:round;pointer-events:none}
 
 /* ---------- sticky notes held by magnets (Night board: chalk boxes) ---------- */
 .notes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 14px;margin-top:18px}
@@ -436,13 +437,18 @@ body:not(.L-C) .wk{display:none} body:not(.L-C) .wklist{display:block}
 .foodmini h2{display:flex;justify-content:space-between;align-items:baseline;gap:10px;font-size:17px;margin:0 0 4px}
 .foodmini h2 .r{font-size:13.5px;font-weight:400;color:var(--ink-2)}
 .pbig.sm{font-size:40px;line-height:44px}
-.water{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.water{display:grid;gap:10px}
 .glasses{display:flex;gap:3px;flex-wrap:wrap;align-items:flex-end}
 .glasses svg{width:22px;height:28px;fill:none;stroke:var(--study);stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
 .glasses svg.e .gl{stroke-dasharray:3 3;opacity:.5}
 .glasses .wf{fill:var(--study);stroke:none;opacity:.35}
-.wbtns{display:flex;gap:6px;align-items:center}
-.wnote{font-size:14px;color:var(--ink-2);margin-top:4px}
+.wbtns{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.wnote{font-size:14px;color:var(--ink-2)}
+.wnote b{color:var(--ink)}
+.wchips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.wchip{display:inline-flex;align-items:center;padding-left:11px;border:1.5px solid var(--rule);border-radius:var(--r3);font-size:14px;color:var(--ink);background:var(--cell)}
+.wchip .x{min-width:40px;min-height:40px}
+.wchip .x svg{width:13px;height:13px}
 .wrows{display:flex;flex-direction:column}
 .wrow{display:grid;grid-template-columns:64px minmax(0,1fr) 112px;gap:10px;align-items:center;min-height:44px;border:0;background:none;padding:4px 0;text-align:left;font-size:14px;color:var(--ink)}
 .wrow:hover{background:var(--wash)}
@@ -644,13 +650,13 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '4.3';
+const APP_VERSION = '4.4';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
   cats:{lse:true, study:true, academy:true, gym:true, business:true, career:true, meal:true, chores:true, admin:true}});
 const defPrefs = () => ({recDelay:60, budget:35, careerMin:60, careerBreakMin:120, gymMin:4, gymMax:5, homeMin:2, homeMax:3,
-  proteinLo:120, proteinHi:130, startKg:58, goalKg:65, waterGoal:8, glassMl:250});
+  proteinLo:120, proteinHi:130, startKg:58, goalKg:65, waterL:2, glassMl:250, bottleMl:500});
 // Food values per base amount. Conservative label-style estimates for plain food: log butter or oil separately.
 // Edit any of them in Food & body › Your foods (use your own labels).
 const FOODS = {
@@ -679,7 +685,7 @@ const FOODS = {
 const QUICK = ['bagel','bot','thighR','cereal','egg','rice','shake','milk'];
 const MEALS = ['Breakfast','Lunch','Dinner','Snack','Every day','Extra'];
 const USUAL_DEF = () => [{f:'bagel', q:2, m:'Breakfast'}, {f:'bot', q:1, m:'Lunch'}, {f:'thighR', q:200, m:'Dinner'}, {f:'rice', q:75, m:'Dinner'}, {f:'cereal', q:1, m:'Snack'}, {f:'shake', q:1, m:'Every day'}];
-const foodDefault = () => ({log:{}, usual:USUAL_DEF(), custom:[], over:{}, creatine:{}, water:{}});
+const foodDefault = () => ({log:{}, usual:USUAL_DEF(), custom:[], over:{}, creatine:{}, water:{}, waterLog:{}});
 const OLD_SHOP = {
   sat:['Chicken thighs, about 1.5 kg (curry, stir-fry, wraps)','Eggs ×15','Milk, 4 pints','Greek-style yoghurt 1 kg','Oats 1 kg',
        'Rice 1 kg','Pasta 1 kg','Wraps ×8','Bread, 1 loaf','Potatoes 2.5 kg','Onions, garlic','Tinned tomatoes ×3',
@@ -740,6 +746,26 @@ function normalise(obj){
   for (const k of ['log','over','creatine','water']) if (!st.food[k] || typeof st.food[k] !== 'object') st.food[k] = {};
   if (!Array.isArray(st.food.custom)) st.food.custom = [];
   if (!Array.isArray(st.food.usual)) st.food.usual = USUAL_DEF();
+  // 4.4: water in millilitres, one entry per drink. Glasses counted before 4.4 become one entry per glass,
+  // with the same ids on every device, so sync never counts them twice. The goal moves from glasses to litres.
+  {
+    const W = st.food.waterLog = (st.food.waterLog && typeof st.food.waterLog === 'object' && !Array.isArray(st.food.waterLog)) ? st.food.waterLog : {};
+    const gml = +st.prefs.glassMl >= 10 ? Math.round(+st.prefs.glassMl) : 250;
+    for (const [d, n] of Object.entries(st.food.water)){
+      const g = Math.min(40, Math.max(0, Math.round(+n || 0)));
+      if (!g) continue;
+      const L = Array.isArray(W[d]) ? W[d] : (W[d] = []);
+      for (let i = 0; i < g; i++){ const id = 'g' + d + '.' + i; if (!L.some(x => x && x.id === id)) L.push({id, ml:gml}); }
+    }
+    st.food.water = {};
+    for (const d of Object.keys(W)){
+      const L = Array.isArray(W[d]) ? W[d].filter(x => x && typeof x === 'object' && x.id != null && +x.ml > 0) : [];
+      if (L.length) W[d] = L; else delete W[d];
+    }
+    const op = obj.prefs || {};
+    if (op.waterL == null && op.waterGoal != null) st.prefs.waterL = Math.max(0.25, Math.round((+op.waterGoal || 8) * gml / 250) / 4);
+    delete st.prefs.waterGoal;
+  }
   if (!obj.foodV){
     // 3.2: shopping lists follow what you actually eat. Items you added yourself are kept.
     const mine = k => (st.shopList[k] || []).filter(x => !OLD_SHOP[k].includes(x) && !SHOP_DEF[k].includes(x));
@@ -932,16 +958,18 @@ async function syncNow(force){
 const TOKENS_URL = 'https://github.com/settings/personal-access-tokens', NEWTOKEN_URL = 'https://github.com/settings/personal-access-tokens/new';
 const tokenDaysLeft = () => syncOn() && SYNC.exp ? daysBetween(today(), SYNC.exp) : null;
 const syncTrouble = () => syncOn() && syncBlocked ? (SYNC.errCode === 403 ? 'perm' : SYNC.errCode === 404 ? 'repo' : 'renew') : null;
+// GitHub needs every token to have its own name, so the phone's and the laptop's are named apart.
+const tokName = () => DEV.phone ? 'Slate sync phone' : 'Slate sync';
 function tokenSteps(kind){
   const lnk = (u, t) => '<a href="' + u + '" target="_blank" rel="noopener">' + t + '</a>';
   if (kind === 'perm') return '<ol class="prose small steps"><li>Open your tokens on GitHub: ' + lnk(TOKENS_URL, 'github.com/settings/personal-access-tokens') + '.</li>' +
-    '<li>Click <b>Slate sync</b>, then <b>Edit</b>. Under Repository access, check <b>' + esc(SYNC.repo) + '</b> is picked. Under Repository permissions, set <b>Contents</b> to <b>Read and write</b>. Press <b>Update</b>.</li>' +
+    '<li>Click <b>' + tokName() + '</b>, then <b>Edit</b>. Under Repository access, check <b>' + esc(SYNC.repo) + '</b> is picked. Under Repository permissions, set <b>Contents</b> to <b>Read and write</b>. Press <b>Update</b>.</li>' +
     '<li>Come back here and press <b>Sync now</b>. The token itself stays the same.</li></ol>';
   if (kind === 'repo') return '<ol class="prose small steps"><li>Check the repository on GitHub is called <b>' + esc(SYNC.repo) + '</b> and belongs to <b>' + esc(SYNC.owner) + '</b>. Fix the names below if not.</li>' +
-    '<li>Open your tokens: ' + lnk(TOKENS_URL, 'github.com/settings/personal-access-tokens') + '. Click <b>Slate sync</b>, then <b>Edit</b>, and under Repository access add <b>' + esc(SYNC.repo) + '</b>. Press <b>Update</b>.</li>' +
+    '<li>Open your tokens: ' + lnk(TOKENS_URL, 'github.com/settings/personal-access-tokens') + '. Click <b>' + tokName() + '</b>, then <b>Edit</b>, and under Repository access add <b>' + esc(SYNC.repo) + '</b>. Press <b>Update</b>.</li>' +
     '<li>Press <b>Sync now</b>, or <b>Connect</b> below if you changed the names.</li></ol>';
   return '<ol class="prose small steps"><li>Open your tokens on GitHub: ' + lnk(TOKENS_URL, 'github.com/settings/personal-access-tokens') + '.</li>' +
-    '<li>Click <b>Slate sync</b> (the one for this ' + (DEV.phone ? 'phone' : 'laptop') + '), then <b>Regenerate token</b>. Pick <b>1 year</b> and press <b>Regenerate token</b>. If it is not in the list, make a new one: ' + lnk(NEWTOKEN_URL, 'new fine-grained token') + ', with Only select repositories › ' + esc(SYNC.repo || 'slate-data') + ' and Repository permissions › Contents › Read and write.</li>' +
+    '<li>Click <b>' + tokName() + '</b> (the one for this ' + (DEV.phone ? 'phone' : 'laptop') + '), then <b>Regenerate token</b>. Pick <b>1 year</b> and press <b>Regenerate token</b>. If it is not in the list, make a new one: ' + lnk(NEWTOKEN_URL, 'new fine-grained token') + ', with Only select repositories › ' + esc(SYNC.repo || 'slate-data') + ' and Repository permissions › Contents › Read and write.</li>' +
     '<li>Copy the new token, paste it below with its new expiry date, and press <b>Connect</b>. Your data is safe on this device meanwhile.</li></ol>';
 }
 const tokenForm = label => '<form data-form="sync" class="fgrid" style="margin-top:12px"><label class="f">GitHub username<input type="text" name="owner" value="' + esc(SYNC.owner || 'HemsaiVP') + '" autocomplete="off" autocapitalize="off" spellcheck="false" required></label>' +
@@ -979,7 +1007,7 @@ function syncCard(){
   return '<section class="card"><h2>Sync your phone and laptop</h2>' +
     '<p class="small" style="margin:8px 0 0">Keeps one copy of your planner in a private GitHub repository, so both devices show the same ticks. Free. Set it up once on each device:</p>' +
     '<ol class="prose small steps"><li>On GitHub, make a <b>private</b> repository called <b>slate-data</b>: <a href="https://github.com/new" target="_blank" rel="noopener">github.com/new</a>. Tick Add a README file.</li>' +
-    '<li>Make a token: <a href="' + NEWTOKEN_URL + '" target="_blank" rel="noopener">new fine-grained token</a>. Name it Slate sync and pick <b>1 year</b>. Under Repository access choose <b>Only select repositories</b>, then slate-data. Open <b>Repository permissions</b> and set <b>Contents</b> to <b>Read and write</b>. Generate it and copy it.</li>' +
+    '<li>Make a token: <a href="' + NEWTOKEN_URL + '" target="_blank" rel="noopener">new fine-grained token</a>. Name it <b>' + tokName() + '</b> and pick <b>1 year</b>. (Each token needs its own name. If one called that already exists, open it and press Regenerate token instead.) Under Repository access choose <b>Only select repositories</b>, then slate-data. Open <b>Repository permissions</b> and set <b>Contents</b> to <b>Read and write</b>. Generate it and copy it.</li>' +
     '<li>Paste it below with its expiry date and press Connect.</li><li>On your other device, open Setup there and repeat steps 2 and 3. Making a second token on that device is easiest; the repository stays the same.</li></ol>' +
     tokenForm('Connect') + '</section>';
 }
@@ -1850,8 +1878,8 @@ function weekText(){
   { let n = 0, sp = 0, sk = 0, cr = 0; for (let i = 1; i <= 7; i++){ const d = addD(t, -i), Lg = dayLog(d); if (S.food.creatine[d]) cr++; if (Lg.length){ const T = foodTotals(Lg); n++; sp += T.p; sk += T.k; } }
     const Tt = foodTotals(dayLog(t));
     L.push('Food, last 7 days: ' + (n ? 'average ' + Math.round(sp / n) + ' g protein and ' + kcal(sk / n) + ' kcal on ' + n + ' logged day' + (n === 1 ? '' : 's') : 'not logged') + '; creatine ' + cr + ' of 7 days. Today so far: ' + Math.round(Tt.p) + ' g protein, ' + kcal(Tt.k) + ' kcal (app estimates).');
-    let wn = 0, wg = 0; for (let i = 1; i <= 7; i++){ const w = waterOf(addD(t, -i)); if (w){ wn++; wg += w; } }
-    L.push('Water, last 7 days: ' + (wn ? 'about ' + fmtN(wg / wn) + ' glasses a day (' + litres(wg / wn) + ') on ' + wn + ' counted day' + (wn === 1 ? '' : 's') : 'not counted') + '. Today: ' + waterOf(t) + ' of ' + (S.prefs.waterGoal || 8) + ' glasses.'); }
+    let wn = 0, wm = 0; for (let i = 1; i <= 7; i++){ const w = waterOf(addD(t, -i)); if (w){ wn++; wm += w; } }
+    L.push('Water, last 7 days: ' + (wn ? 'about ' + mlText(wm / wn) + ' a day on ' + wn + ' counted day' + (wn === 1 ? '' : 's') : 'not counted') + '. Today: ' + mlText(waterOf(t)) + ' of ' + mlText(goalMl()) + '.'); }
   const od = allDL().filter(x => !isDone(x) && dueDate(x) < n), soon = allDL().filter(x => !isDone(x) && dueDate(x) >= n && dueDate(x) <= new Date(n.getTime() + 7 * 864e5));
   if (od.length) L.push('Overdue: ' + od.map(x => x.code + ' ' + x.title + ' (' + dueWhen(x) + ')').join('; ') + '.');
   L.push('Due next 7 days: ' + (soon.length ? soon.map(x => x.code + ' ' + x.title + ' (' + dueWhen(x) + ')').join('; ') : 'nothing') + '.');
@@ -1886,7 +1914,7 @@ const tickSvg = cls => '<svg class="' + (cls || '') + '" viewBox="0 0 24 24" ari
 const X_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.5 5.8c4.4 4 8.6 8.2 13 12.6M18.6 5.4c-4.2 4.4-8.6 8.8-13 13"/></svg>';
 const ringSvg = on => '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="rg' + (on ? ' on' : '') + '" d="M13 3.6c5.2-.1 8.2 3.6 7.9 8.6-.3 5-4 8.4-9 8.2-5-.2-8.2-3.8-7.9-8.6C4.3 7 7.6 3.9 13.8 4.4"/></svg>';
 const DOT_SVG = '<svg viewBox="0 0 24 24" aria-hidden="true"><path class="dt" d="M12.6 8.2c2.6.1 4 1.9 3.8 4.3-.2 2.4-2 3.9-4.4 3.8-2.4-.1-3.9-1.8-3.8-4.2.1-2.3 2-4 4.6-3.7Z"/></svg>';
-const CIRC = '<svg class="circ" viewBox="0 0 46 46" aria-hidden="true"><path d="M25 5.5C36.5 5 43 13 42.4 23.5 41.8 34.4 33.4 41.6 22.6 41.2 11.6 40.8 4.6 33.4 5.2 22.4 5.8 12 13.5 6.2 27 7.4"/></svg>';
+const CIRC = '<svg class="circ" viewBox="0 0 40 60" preserveAspectRatio="none" aria-hidden="true"><path vector-effect="non-scaling-stroke" d="M22 2.8C30.5 2.4 37.4 8.6 37.6 19 37.9 27 37.8 34 37.3 41.5 36.6 51.6 29.6 57.6 20.2 57.4 10.4 57.2 3 51.2 2.6 41.2 2.2 33.5 2.3 26.5 2.7 19.4 3.3 9 10.2 3.2 18.6 3.1 21.2 3.1 23.8 3.6 26 4.6"/></svg>';
 const UL = '<svg class="ul" viewBox="0 0 40 7" preserveAspectRatio="none" aria-hidden="true"><path d="M2 4.6C9 2.4 22 6 38 3"/></svg>';
 const UL2 = '<svg class="ul2" viewBox="0 0 56 8" preserveAspectRatio="none" aria-hidden="true"><path d="M2 5C14 2.6 32 6.6 54 3.4"/></svg>';
 const xBtn = (act, attrs, label) => '<button class="x" data-act="' + act + '" ' + attrs + ' aria-label="' + label + '">' + X_SVG + '</button>';
@@ -2080,7 +2108,7 @@ function welcome(){
   if (S.seen4) return '';
   return '<section class="paper"><h2>New in version 4</h2><div class="prose"><ul>' +
     '<li>A new look: a whiteboard by day and a chalkboard at night. Pick Day board, Night board or Auto in Setup.</li>' +
-    '<li>Food and body: rename any food, mark it as food or a drink, and count glasses of water.</li>' +
+    '<li>Food and body: rename any food, mark it as food or a drink, and log your water.</li>' +
     '<li>The food list puts your five most-logged foods first, then food A to Z, then drinks A to Z.</li></ul></div>' +
     '<div class="row-flex"><button class="btn primary" data-act="seen4">Got it</button><button class="btn" data-act="go" data-tab="food">Open Food and body</button></div></section>';
 }
@@ -2508,19 +2536,54 @@ function foodTotals(list){
 }
 const kcal = n => Math.round(n).toLocaleString('en-GB');
 const dayLog = d => S.food.log[d] || [];
-/* water: glasses a day */
-const waterOf = d => Math.max(0, +(S.food.water[d] || 0));
-const litres = g => { const l = Math.round(g * (S.prefs.glassMl || 250) / 10) / 100; return l.toLocaleString('en-GB') + ' litre' + (l === 1 ? '' : 's'); };
+/* water: millilitres, one entry per drink, {id, ml} in S.food.waterLog[date] (4.4) */
+const waterList = d => Array.isArray(S.food.waterLog[d]) ? S.food.waterLog[d] : [];
+const waterOf = d => waterList(d).reduce((s, x) => s + (+x.ml || 0), 0);
+const goalMl = () => +S.prefs.waterL > 0 ? Math.round(+S.prefs.waterL * 1000) : 2000;
+const prefMl = (k, def) => +S.prefs[k] >= 10 ? Math.round(+S.prefs[k]) : def;
+const glassMl = () => prefMl('glassMl', 250), bottleMl = () => prefMl('bottleMl', 500);
+const mlText = ml => { ml = Math.round(+ml || 0); if (ml < 1000) return ml + ' ml'; const l = Math.round(ml / 10) / 100; return l.toLocaleString('en-GB') + ' litre' + (l === 1 ? '' : 's'); };
+const waterSoFar = d => { const w = waterOf(d), g = goalMl(); return w ? mlText(w) + ' of ' + mlText(g) : 'none yet, aim for ' + mlText(g); };
 const GLASS = '<path class="gl" d="M5 4c4.6-.4 9.4-.4 14 0-.5 5.4-1 10.8-1.8 16.2-3.4.4-7 .4-10.4 0C6 14.8 5.5 9.4 5 4Z"/>';
-const WFILL = '<path class="wf" d="M6.2 9.4c3.9.3 7.7.3 11.6 0-.4 3.6-.8 7.2-1.4 10.6-2.9.3-5.9.3-8.8 0-.6-3.4-1-7-1.4-10.6Z"/>';
+// water in one glass, f = 0 to 1 full
+const wfill = f => { if (!(f > 0)) return ''; const y = 20 - 10.6 * Math.min(1, f), k = (y - 9.4) / 10.6;
+  return '<path class="wf" d="M' + (6.2 + 1.4 * k).toFixed(2) + ' ' + y.toFixed(2) + 'H' + (17.8 - 1.4 * k).toFixed(2) + 'L16.4 20C13.5 20.3 10.5 20.3 7.6 20Z"/>'; };
+// the amount buttons: your glass, your bottle, a litre (one tap each)
+const waterBtns = (d, cls) => { const g = glassMl(), b = bottleMl(), btn = (ml, l, pr) => '<button class="btn' + (cls || '') + (pr ? ' primary' : '') + '" data-act="wadd" data-d="' + d + '" data-ml="' + ml + '">+ ' + l + '</button>';
+  return btn(g, 'Glass ' + mlText(g), true) + (b !== g ? btn(b, 'Bottle ' + mlText(b)) : '') + (g !== 1000 && b !== 1000 ? btn(1000, '1 litre') : ''); };
 function waterHtml(d){
-  const n = waterOf(d), goal = S.prefs.waterGoal || 8, show = Math.min(Math.max(n, goal), 16);
+  const w = waterOf(d), goal = goalMl(), g = glassMl(), show = Math.max(1, Math.min(16, Math.ceil(Math.max(w, goal) / g - 0.001)));
   let gl = '';
-  for (let i = 0; i < show; i++) gl += '<svg viewBox="0 0 24 24" class="' + (i < n ? 'f' : 'e') + '" aria-hidden="true">' + (i < n ? WFILL : '') + GLASS + '</svg>';
-  return '<div class="water"><div><div class="glasses" role="img" aria-label="' + n + ' of ' + goal + ' glasses of water">' + gl + '</div>' +
-    '<div class="wnote">' + n + ' of ' + goal + ' glasses' + (n ? ', ' + litres(n) : '') + (n >= goal ? '. Done for the day ✓' : '') + '</div></div>' +
-    '<div class="wbtns"><button class="btn small sq" data-act="water" data-d="' + d + '" data-n="-1" aria-label="One glass less"' + (n ? '' : ' disabled') + '>−</button>' +
-    '<button class="btn small primary" data-act="water" data-d="' + d + '" data-n="1">Add a glass</button></div></div>';
+  for (let i = 0; i < show; i++){ const f = Math.max(0, Math.min(1, (w - i * g) / g)); gl += '<svg viewBox="0 0 24 24" class="' + (f >= 1 ? 'f' : f > 0 ? 'p' : 'e') + '" aria-hidden="true">' + wfill(f) + GLASS + '</svg>'; }
+  // what you drank, grouped by amount in the order you first had it; × takes one away
+  const groups = [];
+  for (const x of waterList(d)){ const ml = Math.round(+x.ml); let gr = groups.find(z => z.ml === ml); if (!gr) groups.push(gr = {ml, ids:[]}); gr.ids.push(x.id); }
+  const chips = groups.map(gr => '<span class="wchip">' + (gr.ids.length > 1 ? gr.ids.length + ' × ' : '') + mlText(gr.ml) + xBtn('wdel', 'data-d="' + d + '" data-id="' + esc(gr.ids[gr.ids.length - 1]) + '"', 'Remove ' + mlText(gr.ml)) + '</span>').join('');
+  const left = goal - w;
+  return '<div class="water"><div class="glasses" role="img" aria-label="' + mlText(w) + ' of ' + mlText(goal) + ' of water">' + gl + '</div>' +
+    '<div class="wnote">' + (w ? '<b>' + mlText(w) + '</b> of ' + mlText(goal) + (left > 0 ? '. ' + mlText(left) + ' to go.' : '. Done for the day ✓') : 'Nothing yet. Aim for ' + mlText(goal) + '.') + '</div>' +
+    '<div class="wbtns">' + waterBtns(d, ' small') + '<button class="btn small" data-act="wother" data-d="' + d + '">Other amount</button></div>' +
+    (chips ? '<div class="wchips"><span class="muted small">' + (d === today() ? 'Today:' : 'That day:') + '</span>' + chips + '</div>' : '') +
+    '<p class="muted small" style="margin:0">One glass is ' + mlText(g) + ' and your bottle ' + mlText(bottleMl()) + '. Change them in Setup › Your numbers.</p></div>';
+}
+function openWater(d, typing){
+  d = d || today();
+  showDlg('<h3>Add water</h3><p class="muted small" style="margin:4px 0 0">' + (d === today() ? 'Today' : dayName(d) + ' ' + niceDate(d)) + ': ' + waterSoFar(d) + '.</p>' +
+    '<div class="row-flex" style="margin-top:12px">' + waterBtns(d) + '</div>' +
+    '<form data-form="water" data-d="' + d + '" class="row-flex" style="margin-top:16px;align-items:flex-end"><label class="f" style="flex:1;min-width:150px">Other amount<input type="text" name="amt" inputmode="decimal" placeholder="e.g. 330 or 1.5" autocomplete="off" required></label><button class="btn primary" type="submit">Add</button></form>' +
+    '<p class="muted small" style="margin:8px 0 0">Type millilitres, like 330, or litres, like 1.5.</p>' +
+    '<div class="acts"><button class="btn" data-act="close">Close</button></div>', 'meal');
+  if (typing) setTimeout(() => { const i = $('#dlg [name="amt"]'); if (i) i.focus(); }, 60);
+}
+function addWater(d, ml){
+  const id = 'w' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  (S.food.waterLog[d] = waterList(d)).push({id, ml});
+  save(); if ($('#dlg').open) closeDlg(); render();
+  const w = waterOf(d), g = goalMl();
+  toast('Added ' + mlText(ml) + ' of water. ' + (d === today() ? 'Today: ' : '') + mlText(w) + ' of ' + mlText(g) + (w >= g ? ' ✓' : '.'), () => {
+    const L = waterList(d), i = L.findIndex(x => x.id === id);
+    if (i >= 0){ L.splice(i, 1); if (!L.length) delete S.food.waterLog[d]; save(); render(); }
+  });
 }
 function pbar(p, sm){
   const P = S.prefs, max = P.proteinHi + 25, lo = P.proteinLo / max * 100, hi = P.proteinHi / max * 100, w = Math.min(97, p / max * 100);
@@ -2599,7 +2662,7 @@ function foodWeekCard(){
   }
   return '<section class="card"><h2>Last 7 days<span class="r">creatine on ' + cr + ' of 7</span></h2><div class="wrows">' + rows + '</div>' +
     '<p class="small" style="margin:10px 0 0">' + (n ? 'Average over ' + n + ' finished day' + (n === 1 ? '' : 's') + ': <b>' + Math.round(sp / n) + ' g protein</b> and <b>' + kcal(sk / n) + ' kcal</b>. ' + hit + ' of ' + n + ' reached ' + P.proteinLo + ' g.' : 'Log a few days to see your averages.') + '</p>' +
-    (wn ? '<p class="small" style="margin:6px 0 0">Water: about <b>' + fmtN(wg / wn) + ' glasses</b> a day (' + litres(wg / wn) + ') on the ' + wn + ' day' + (wn === 1 ? '' : 's') + ' you counted.</p>' : '') +
+    (wn ? '<p class="small" style="margin:6px 0 0">Water: about <b>' + mlText(wg / wn) + '</b> a day on the ' + wn + ' day' + (wn === 1 ? '' : 's') + ' you counted. Aim for ' + mlText(goalMl()) + '.</p>' : '') +
     '<p class="muted small" style="margin:6px 0 0">No fixed calorie target: your weight trend decides. If the 7-day average weight is flat for 2–3 weeks, eat about 250–400 kcal more a day.</p></section>';
 }
 function usualCard(){
@@ -2633,11 +2696,11 @@ function foodsCard(){
     '<div class="row-flex" style="margin-top:12px"><button class="btn small" data-act="fnew">New food or drink</button></div></details></section>';
 }
 function foodMiniCard(){
-  const t = today(), list = dayLog(t), T = foodTotals(list), P = S.prefs, st = proteinStatus(list, T), w = waterOf(t);
+  const t = today(), list = dayLog(t), T = foodTotals(list), P = S.prefs, st = proteinStatus(list, T);
   return '<section class="frame foodmini"><h2>Food today<span class="r">' + (S.food.creatine[t] ? 'creatine ✓' : 'creatine not ticked') + '</span></h2>' +
     '<div class="ptop" style="margin-top:2px"><b class="pbig sm">' + Math.round(T.p) + ' g</b><span class="muted">protein of ' + P.proteinLo + '–' + P.proteinHi + ' g, ' + kcal(T.k) + ' kcal</span></div>' + pbar(T.p, true) +
-    '<p class="small pst ' + st.cls + '">' + esc(st.t) + '</p><p class="small muted" style="margin:6px 0 0">Water: ' + w + ' of ' + (P.waterGoal || 8) + ' glasses.</p>' +
-    '<div class="row-flex" style="margin-top:12px"><button class="btn small primary" data-act="go" data-tab="food">Log food</button><button class="btn small" data-act="water" data-d="' + t + '" data-n="1">Add a glass of water</button></div></section>';
+    '<p class="small pst ' + st.cls + '">' + esc(st.t) + '</p><p class="small muted" style="margin:6px 0 0">Water: ' + waterSoFar(t) + '.</p>' +
+    '<div class="row-flex" style="margin-top:12px"><button class="btn small primary" data-act="go" data-tab="food">Log food</button><button class="btn small" data-act="wopen" data-d="' + t + '">Add water</button></div></section>';
 }
 function addFood(d, entry, label){
   pFrom = foodTotals(dayLog(d)).p;
@@ -2651,7 +2714,7 @@ function foodDayText(d){
   const fs = list.filter(e => entryKind(e) === 'food'), ds = list.filter(e => entryKind(e) === 'drink');
   return 'Food on ' + dayName(d) + ' ' + niceDate(d) + ' (estimates from my planner, plain food unless butter or oil is listed):\n' +
     (fs.length ? 'Food:\n' + fs.map(line).join('\n') + '\n' : '') + (ds.length ? 'Drinks:\n' + ds.map(line).join('\n') + '\n' : '') +
-    'Water: ' + (w ? w + ' glasses (' + litres(w) + ')' : 'not counted') + '.\n' +
+    'Water: ' + (w ? mlText(w) : 'not counted') + '.\n' +
     'Total: ~' + Math.round(T.p) + ' g protein, ~' + kcal(T.k) + ' kcal, ~' + Math.round(T.c) + ' g carbs, ~' + Math.round(T.fat) + ' g fat. Creatine: ' + (S.food.creatine[d] ? 'yes' : 'no') + '.' +
     '\nPlease check the estimates against my usual foods and tell me what I still need today.';
 }
@@ -2737,7 +2800,7 @@ function renderSetup(){
       '<p class="muted small" style="margin:8px 0 0">Saved on this device only, so your phone and laptop can look different. Backups do not change it.</p></section>' +
     '<section class="card"><h2>Your numbers</h2><div class="fgrid" style="margin-top:10px">' + num('budget', 'Food budget (£ a week)') + num('careerMin', 'Career, minutes each weekday', 15) + num('careerBreakMin', 'Career in the breaks (min)', 15) +
       num('gymMin', 'Gym sessions a week, at least') + num('gymMax', 'Gym sessions a week, at most') + num('homeMin', 'Home sessions, at least') + num('homeMax', 'Home sessions, at most') +
-      num('proteinLo', 'Protein g a day, from') + num('proteinHi', 'Protein g a day, to') + num('waterGoal', 'Water: glasses a day') + num('glassMl', 'One glass (ml)', 50) + num('goalKg', 'Goal weight (kg)', 0.5) + num('recDelay', 'Recordings on Echo360: minutes after a lecture ends', 15) + '</div>' +
+      num('proteinLo', 'Protein g a day, from') + num('proteinHi', 'Protein g a day, to') + num('waterL', 'Water a day (litres)', 0.25) + num('glassMl', 'One glass (ml)', 50) + num('bottleMl', 'Your bottle (ml)', 50) + num('goalKg', 'Goal weight (kg)', 0.5) + num('recDelay', 'Recordings on Echo360: minutes after a lecture ends', 15) + '</div>' +
       '<p class="muted small" style="margin:12px 0 0">To move a gym day, a block or a lecture: tap it in Today or Week. To add one: the + button.</p></section>' +
     '<section class="card"><h2>Your changes<span class="r hand">' + edits.length + '</span></h2>' + (edits.length ? edits.map(e => '<div class="li"><div class="tx small">' + esc(editText(e)) + '</div><button class="btn small" data-act="undoedit" data-id="' + esc(e.id) + '">Undo</button></div>').join('') : '<p class="empty">None yet. Changes you make in the app appear here, and each can be undone.</p>') + '</section>' +
     '<section class="card prose"><h2>Install on your phone and laptop</h2>' + (installed ? '<p><b>Installed on this device.</b></p>' : '') +
@@ -2893,9 +2956,9 @@ function openAdd(kind, d){
   const seg = (k, l) => '<button data-act="add" data-k="' + k + '" aria-pressed="' + (kind === k) + '">' + l + '</button>';
   let h = '<h3>Add</h3><div class="seg" style="margin:8px 0 14px">' + seg('blk', 'Block') + seg('sess', 'Lecture or class') + seg('dl', 'Deadline') + seg('food', 'Food') + '</div>';
   if (kind === 'food'){ const fd0 = d > today() ? today() : d;
-    h += '<p class="muted small" style="margin:0 0 4px">' + (fd0 === today() ? 'Today' : dayName(fd0) + ' ' + niceDate(fd0)) + ' so far: ' + Math.round(foodTotals(dayLog(fd0)).p) + ' g protein and ' + waterOf(fd0) + ' of ' + (S.prefs.waterGoal || 8) + ' glasses of water.</p>' +
+    h += '<p class="muted small" style="margin:0 0 4px">' + (fd0 === today() ? 'Today' : dayName(fd0) + ' ' + niceDate(fd0)) + ' so far: ' + Math.round(foodTotals(dayLog(fd0)).p) + ' g protein. Water: ' + waterSoFar(fd0) + '.</p>' +
       '<div class="sec" style="margin-top:12px">Food</div>' + quickHtml(quickFood(), fd0) + '<div class="sec">Drinks</div>' + quickHtml(quickDrinks(), fd0) +
-      '<div class="row-flex" style="margin-top:16px"><button class="btn" data-act="water" data-d="' + fd0 + '" data-n="1">Add a glass of water</button><button class="btn" data-act="logusual" data-d="' + fd0 + '">Log my usual day</button><button class="btn" data-act="go" data-tab="food">Open Food and body</button></div>' +
+      '<div class="row-flex" style="margin-top:16px"><button class="btn" data-act="wopen" data-d="' + fd0 + '">Add water</button><button class="btn" data-act="logusual" data-d="' + fd0 + '">Log my usual day</button><button class="btn" data-act="go" data-tab="food">Open Food and body</button></div>' +
       '<div class="acts"><button class="btn" data-act="close">Close</button></div>';
   }
   if (kind === 'blk') h += '<form data-form="addblk" class="fgrid"><label class="f full">Name<input type="text" name="t" placeholder="e.g. Group project meeting" required></label>' +
@@ -3013,10 +3076,11 @@ document.addEventListener('click', e => {
     const fd = e.o ? null : foodOf(e.f), stp = fd ? fd.st : 1, nq = Math.round((e.q + (+el.dataset.dir) * stp) * 100) / 100;
     if (nq > 0){ pFrom = foodTotals(L).p; e.q = nq; save(); render(); } return; }
   if (a === 'creatine'){ const d = el.dataset.d || today(); if (S.food.creatine[d]) delete S.food.creatine[d]; else { S.food.creatine[d] = true; justTicked = 'cr|' + d; } save(); render(); return; }
-  if (a === 'water'){ const d = el.dataset.d || foodDay || today(), n = +el.dataset.n, before = waterOf(d), after = Math.max(0, before + n), goal = S.prefs.waterGoal || 8;
-    if (after) S.food.water[d] = after; else delete S.food.water[d];
-    save(); if ($('#dlg').open) closeDlg(); render();
-    if (n > 0) toast('Glass of water added: ' + after + ' of ' + goal + (d === today() ? ' today.' : '.'), () => { if (before) S.food.water[d] = before; else delete S.food.water[d]; save(); render(); });
+  if (a === 'wadd'){ const ml = Math.round(+el.dataset.ml); if (ml > 0) addWater(el.dataset.d || foodDay || today(), ml); return; }
+  if (a === 'wopen' || a === 'wother'){ openWater(el.dataset.d || foodDay || today(), a === 'wother'); return; }
+  if (a === 'wdel'){ const d = el.dataset.d, L = waterList(d), i = L.findIndex(x => x.id === el.dataset.id); if (i < 0) return;
+    const [x] = L.splice(i, 1); if (!L.length) delete S.food.waterLog[d]; save(); render();
+    toast('Removed ' + mlText(x.ml) + ' of water.', () => { const M = (S.food.waterLog[d] = waterList(d)); M.splice(Math.min(i, M.length), 0, x); save(); render(); });
     return; }
   if (a === 'fedit'){ openFoodEdit(el.dataset.id); return; }
   if (a === 'fday'){ const t = today(), d = addD(foodDay || t, +el.dataset.n); foodDay = d >= t ? null : d; render(); return; }
@@ -3086,6 +3150,14 @@ document.addEventListener('submit', e => {
   e.preventDefault();
   const v = Object.fromEntries(new FormData(f).entries());
   const b = DLG ? findB(DLG.d, DLG.id) : null;
+  if (k === 'water'){
+    // 330, 330ml, 33cl, 1.5, 1.5l: numbers under 10 are litres
+    const raw = String(v.amt || '').trim().toLowerCase().replace(',', '.'), x = parseFloat(raw);
+    if (!(x > 0)){ toast('Type an amount, like 330 or 1.5.'); return; }
+    const ml = Math.round(/ml/.test(raw) ? x : /cl/.test(raw) ? x * 10 : /l/.test(raw) || x < 10 ? x * 1000 : x);
+    if (ml < 10 || ml > 5000){ toast('Type an amount between 10 ml and 5 litres.'); return; }
+    addWater(f.dataset.d || foodDay || today(), ml); return;
+  }
   if (k === 'weight'){ const kg = parseFloat(String(v.kg).replace(',', '.')); if (!(kg > 25 && kg < 200)){ toast('Type your weight in kg, e.g. 58.4'); return; } S.weights[today()] = Math.round(kg * 10) / 10; save(); render(); toast('Saved ' + S.weights[today()] + ' kg.'); return; }
   if (k === 'foodadd'){ const fd = foodOf(v.id), q = parseFloat(v.q); if (!fd || !(q > 0)){ toast('Type an amount.'); return; }
     const d = foodDay || today(), entry = {f:v.id, q}, msg = addFood(d, entry, entryLabel(entry)); render();
