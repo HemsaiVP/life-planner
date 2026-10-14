@@ -136,6 +136,14 @@ body:not(.L-C) .cols{grid-template-columns:1fr}
 .paper{position:relative;margin-top:20px;padding:18px 16px 14px;background:var(--y);color:#1A1D23;border-radius:2px 3px 2px 3px;box-shadow:var(--note-shadow);transform:rotate(-.4deg)}
 .paper::before{content:"";position:absolute;top:-7px;left:50%;width:15px;height:15px;margin-left:-7px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#7D9CF0,#1E4FC2 68%);box-shadow:0 2px 3px rgba(0,0,0,.3)}
 .paper h2{font-size:17px;margin:0 0 6px}
+.paper.pink{background:var(--p)}
+.paper.pink::before{background:radial-gradient(circle at 35% 30%,#F08B83,#CC2F2A 68%)}
+:root[data-board="night"] .paper.pink{background:transparent;border-color:rgba(243,162,158,.75)}
+.steps{padding-left:20px;margin:8px 0 0}
+.ctab{width:100%;border-collapse:collapse;font-size:15px;margin:10px 0 4px}
+.ctab th,.ctab td{padding:7px 6px;border-top:1.5px solid var(--rule);text-align:right;font-variant-numeric:tabular-nums}
+.ctab th{font-size:13.5px;color:var(--ink-2);border-top:0}
+.ctab td:first-child,.ctab th:first-child{text-align:left}
 .paper .btn{border-color:#1A1D23;color:#1A1D23}
 .paper .btn.primary{background:#1A1D23;color:#FFE97A}
 :root[data-board="night"] .paper{background:transparent;color:var(--ink);border:2px solid rgba(243,227,141,.7);border-radius:var(--r1);transform:none}
@@ -166,7 +174,7 @@ body:not(.L-C) .cols{grid-template-columns:1fr}
 .seg button{min-height:44px;padding:6px 14px;border:2px solid var(--btn-line);border-radius:var(--r3);background:transparent;color:var(--ink);font-weight:700;font-size:14.5px}
 .seg button:nth-child(2n){border-radius:var(--r4)}
 .seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--board)}
-input[type=text],input[type=number],input[type=date],input[type=time],select,textarea{background:var(--field);border:2px solid var(--field-line);border-radius:var(--r4);padding:8px 11px;min-height:44px;min-width:0;width:100%;font-size:16px;color:var(--ink)}
+input[type=text],input[type=password],input[type=number],input[type=date],input[type=time],select,textarea{background:var(--field);border:2px solid var(--field-line);border-radius:var(--r4);padding:8px 11px;min-height:44px;min-width:0;width:100%;font-size:16px;color:var(--ink)}
 input::placeholder,textarea::placeholder{color:var(--ink-2);opacity:.85}
 textarea{min-height:110px;font-size:13px;line-height:1.4}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:700;color:var(--ink-2)}
@@ -636,7 +644,7 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '4.2';
+const APP_VERSION = '4.3';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
@@ -829,9 +837,15 @@ const b64dec = b64 => { const bin = atob(String(b64).replace(/\s/g, '')), by = n
 const ghUrl = () => 'https://api.github.com/repos/' + encodeURIComponent(SYNC.owner) + '/' + encodeURIComponent(SYNC.repo) + '/contents/' + (SYNC.path || 'slate.json');
 const ghHead = extra => Object.assign({Authorization:'Bearer ' + SYNC.token, Accept:'application/vnd.github+json'}, extra || {});
 function syncFail(r){ const e = new Error('HTTP ' + r.status); e.code = r.status; e.rate = r.headers.get('X-RateLimit-Remaining') === '0'; return e; }
+// GitHub can send the token's expiry date with each reply. If the browser may read it, Slate fills it in itself.
+function noteExpiry(r){
+  const h = r.headers.get('github-authentication-token-expiration'), m = h && /(\d{4}-\d{2}-\d{2})/.exec(h);
+  if (m && SYNC.exp !== m[1]){ SYNC.exp = m[1]; SYNC.expAuto = true; saveSync(); }
+}
 async function ghGet(useTag){
   const h = useTag && SYNC.etag && SYNC.sha ? {'If-None-Match':SYNC.etag} : {};
   const r = await fetch(ghUrl() + '?t=' + Date.now(), {headers:ghHead(h), cache:'no-store'});
+  noteExpiry(r);
   if (r.status === 304) return {same:true};
   if (r.status === 404){ const repo = await fetch('https://api.github.com/repos/' + encodeURIComponent(SYNC.owner) + '/' + encodeURIComponent(SYNC.repo), {headers:ghHead(), cache:'no-store'}); if (!repo.ok) throw syncFail(repo); return {none:true}; }
   if (!r.ok) throw syncFail(r);
@@ -915,20 +929,99 @@ async function syncNow(force){
   syncBusy = false;
   if (syncAgain){ syncAgain = false; scheduleSync(1500); }
 }
+const TOKENS_URL = 'https://github.com/settings/personal-access-tokens', NEWTOKEN_URL = 'https://github.com/settings/personal-access-tokens/new';
+const tokenDaysLeft = () => syncOn() && SYNC.exp ? daysBetween(today(), SYNC.exp) : null;
+const syncTrouble = () => syncOn() && syncBlocked ? (SYNC.errCode === 403 ? 'perm' : SYNC.errCode === 404 ? 'repo' : 'renew') : null;
+function tokenSteps(kind){
+  const lnk = (u, t) => '<a href="' + u + '" target="_blank" rel="noopener">' + t + '</a>';
+  if (kind === 'perm') return '<ol class="prose small steps"><li>Open your tokens on GitHub: ' + lnk(TOKENS_URL, 'github.com/settings/personal-access-tokens') + '.</li>' +
+    '<li>Click <b>Slate sync</b>, then <b>Edit</b>. Under Repository access, check <b>' + esc(SYNC.repo) + '</b> is picked. Under Repository permissions, set <b>Contents</b> to <b>Read and write</b>. Press <b>Update</b>.</li>' +
+    '<li>Come back here and press <b>Sync now</b>. The token itself stays the same.</li></ol>';
+  if (kind === 'repo') return '<ol class="prose small steps"><li>Check the repository on GitHub is called <b>' + esc(SYNC.repo) + '</b> and belongs to <b>' + esc(SYNC.owner) + '</b>. Fix the names below if not.</li>' +
+    '<li>Open your tokens: ' + lnk(TOKENS_URL, 'github.com/settings/personal-access-tokens') + '. Click <b>Slate sync</b>, then <b>Edit</b>, and under Repository access add <b>' + esc(SYNC.repo) + '</b>. Press <b>Update</b>.</li>' +
+    '<li>Press <b>Sync now</b>, or <b>Connect</b> below if you changed the names.</li></ol>';
+  return '<ol class="prose small steps"><li>Open your tokens on GitHub: ' + lnk(TOKENS_URL, 'github.com/settings/personal-access-tokens') + '.</li>' +
+    '<li>Click <b>Slate sync</b> (the one for this ' + (DEV.phone ? 'phone' : 'laptop') + '), then <b>Regenerate token</b>. Pick <b>1 year</b> and press <b>Regenerate token</b>. If it is not in the list, make a new one: ' + lnk(NEWTOKEN_URL, 'new fine-grained token') + ', with Only select repositories › ' + esc(SYNC.repo || 'slate-data') + ' and Repository permissions › Contents › Read and write.</li>' +
+    '<li>Copy the new token, paste it below with its new expiry date, and press <b>Connect</b>. Your data is safe on this device meanwhile.</li></ol>';
+}
+const tokenForm = label => '<form data-form="sync" class="fgrid" style="margin-top:12px"><label class="f">GitHub username<input type="text" name="owner" value="' + esc(SYNC.owner || 'HemsaiVP') + '" autocomplete="off" autocapitalize="off" spellcheck="false" required></label>' +
+  '<label class="f">Repository<input type="text" name="repo" value="' + esc(SYNC.repo || 'slate-data') + '" autocomplete="off" autocapitalize="off" spellcheck="false" required></label>' +
+  '<label class="f full">Token<input type="password" name="token" autocomplete="off" placeholder="github_pat_…" required></label>' +
+  '<label class="f full">Token expires on (leave it empty if it never expires)<input type="date" name="exp" min="' + today() + '"></label>' +
+  '<p class="muted small full" style="margin:0">Never paste the token into a chat. It stays on this device.</p>' +
+  '<div class="full acts" style="justify-content:flex-start"><button class="btn primary" type="submit">' + label + '</button></div></form>';
+// A note on Today when sync needs you: paused, or the token runs out within 14 days.
+function syncNote(){
+  const tr = syncTrouble();
+  if (tr) return '<section class="paper pink"><h2>Sync is paused on this ' + (DEV.phone ? 'phone' : 'laptop') + '</h2><p class="small" style="margin:0">' + esc(syncErrText()) + ' Your data is safe here; it just is not reaching your other device.</p>' +
+    '<div class="row-flex" style="margin-top:10px"><button class="btn primary" data-act="go" data-tab="setup">Fix sync</button></div></section>';
+  const left = tokenDaysLeft();
+  if (left != null && left <= 14 && SYNC.expSnooze !== today()) return '<section class="paper"><h2>Your sync token runs out ' + (left <= 0 ? 'today' : left === 1 ? 'tomorrow' : 'on ' + dayName(SYNC.exp) + ' ' + niceDate(SYNC.exp)) + '</h2><p class="small" style="margin:0">Regenerating it takes about 2 minutes. Setup shows the steps.</p>' +
+    '<div class="row-flex" style="margin-top:10px"><button class="btn primary" data-act="go" data-tab="setup">Show me how</button><button class="btn" data-act="expsnooze">Remind me tomorrow</button></div></section>';
+  return '';
+}
 function syncCard(){
-  if (syncOn() && !syncBlocked) return '<section class="card"><h2>Sync your phone and laptop</h2><p class="small" style="margin:8px 0 0">Connected to <b>' + esc(SYNC.owner + '/' + SYNC.repo) + '</b> on GitHub. Ticks, food, gym, weight and your changes sync both ways.</p>' +
-    '<p class="small" style="margin:6px 0 0" data-sync>' + esc(syncLine()) + '</p><div class="row-flex" style="margin-top:12px"><button class="btn primary" data-act="syncnow">Sync now</button><button class="btn" data-act="syncoff">Turn off on this device</button></div>' +
-    '<p class="muted small" style="margin:10px 0 0">Layout and board stay per device. The token is kept on this device only, never in backups.</p></section>';
-  return '<section class="card"><h2>Sync your phone and laptop</h2>' + (syncOn() && syncBlocked ? '<p class="small" style="margin:8px 0 0;color:var(--bad);font-weight:700">' + esc(syncErrText()) + '</p>' : '') +
+  const tr = syncTrouble(), left = tokenDaysLeft();
+  if (syncOn() && !tr){
+    const y = addD(today(), -1);
+    return '<section class="card"><h2>Sync your phone and laptop</h2><p class="small" style="margin:8px 0 0">Connected to <b>' + esc(SYNC.owner + '/' + SYNC.repo) + '</b> on GitHub. Ticks, food, gym, weight and your changes sync both ways.</p>' +
+      '<p class="small" style="margin:6px 0 0" data-sync>' + esc(syncLine()) + '</p><div class="row-flex" style="margin-top:12px"><button class="btn primary" data-act="syncnow">Sync now</button><button class="btn" data-act="syncoff">Turn off on this device</button></div>' +
+      '<div class="sec">This device\'s token</div>' +
+      (left != null && left <= 14 ? '<p class="small" style="margin:0 0 6px;color:var(--bad);font-weight:700">It runs out ' + (left <= 0 ? 'today' : 'in ' + left + ' day' + (left === 1 ? '' : 's')) + '. Regenerate it now:</p>' + tokenSteps('renew') + tokenForm('Connect with the new token') :
+        '<form data-form="syncexp" class="row-flex"><label class="f" style="flex:1;min-width:180px">Expires on' + (SYNC.expAuto ? ' (from GitHub)' : '') + '<input type="date" name="exp" value="' + esc(SYNC.exp || '') + '"></label><button class="btn small" type="submit" style="align-self:flex-end">Save</button></form>' +
+        '<p class="muted small" style="margin:6px 0 0">' + (SYNC.exp ? 'Slate reminds you on Today two weeks before ' + niceDate(SYNC.exp) + '.' : 'No expiry date saved. If your token has one, add it and Slate reminds you two weeks before.') + '</p>') +
+      '<div class="sec">Go back to an earlier copy</div><p class="muted small" style="margin:0 0 8px">Every sync is saved on GitHub. Pick a day to see the copy from the end of that day, then restore it if you want.</p>' +
+      '<form data-form="restorefind" class="row-flex"><input type="date" name="day" value="' + y + '" max="' + today() + '" aria-label="Day" style="flex:1;min-width:150px"><button class="btn small" type="submit">Find that copy</button></form>' +
+      '<p class="muted small" style="margin:12px 0 0">Layout and board stay per device. The token is kept on this device only, never in backups.</p></section>';
+  }
+  if (tr) return '<section class="card"><h2>Sync your phone and laptop</h2><p class="small" style="margin:8px 0 0;color:var(--bad);font-weight:700">' + esc(syncErrText()) + '</p><p class="small" style="margin:6px 0 0">Here is how to fix it:</p>' + tokenSteps(tr) +
+    (tr === 'renew' ? tokenForm('Connect') : '<div class="row-flex" style="margin-top:12px"><button class="btn primary" data-act="syncnow">Sync now</button><button class="btn" data-act="syncoff">Turn off on this device</button></div>' + (tr === 'repo' ? tokenForm('Connect') : '')) + '</section>';
+  return '<section class="card"><h2>Sync your phone and laptop</h2>' +
     '<p class="small" style="margin:8px 0 0">Keeps one copy of your planner in a private GitHub repository, so both devices show the same ticks. Free. Set it up once on each device:</p>' +
-    '<ol class="prose small" style="padding-left:20px;margin:8px 0 0"><li>On GitHub, make a <b>private</b> repository called <b>slate-data</b>: <a href="https://github.com/new" target="_blank" rel="noopener">github.com/new</a>. Tick Add a README file.</li>' +
-    '<li>Make a token: <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">new fine-grained token</a>. Name it Slate sync and pick the longest expiry. Under Repository access choose Only select repositories, then slate-data. Under Permissions, set Contents to Read and write. Generate it and copy it.</li>' +
-    '<li>Paste it below and press Connect.</li><li>On your other device, open Setup there and repeat steps 2 and 3. Making a second token on that device is easiest; the repository stays the same.</li></ol>' +
-    '<form data-form="sync" class="fgrid" style="margin-top:12px"><label class="f">GitHub username<input type="text" name="owner" value="' + esc(SYNC.owner || 'HemsaiVP') + '" autocomplete="off" autocapitalize="off" spellcheck="false" required></label>' +
-    '<label class="f">Repository<input type="text" name="repo" value="' + esc(SYNC.repo || 'slate-data') + '" autocomplete="off" autocapitalize="off" spellcheck="false" required></label>' +
-    '<label class="f full">Token<input type="password" name="token" autocomplete="off" placeholder="github_pat_…" required></label>' +
-    '<p class="muted small full" style="margin:0">Never paste the token into a chat. It stays on this device.</p>' +
-    '<div class="full acts" style="justify-content:flex-start"><button class="btn primary" type="submit">Connect</button></div></form></section>';
+    '<ol class="prose small steps"><li>On GitHub, make a <b>private</b> repository called <b>slate-data</b>: <a href="https://github.com/new" target="_blank" rel="noopener">github.com/new</a>. Tick Add a README file.</li>' +
+    '<li>Make a token: <a href="' + NEWTOKEN_URL + '" target="_blank" rel="noopener">new fine-grained token</a>. Name it Slate sync and pick <b>1 year</b>. Under Repository access choose <b>Only select repositories</b>, then slate-data. Open <b>Repository permissions</b> and set <b>Contents</b> to <b>Read and write</b>. Generate it and copy it.</li>' +
+    '<li>Paste it below with its expiry date and press Connect.</li><li>On your other device, open Setup there and repeat steps 2 and 3. Making a second token on that device is easiest; the repository stays the same.</li></ol>' +
+    tokenForm('Connect') + '</section>';
+}
+/* earlier copies, from the repository's history */
+let RESTORE = null;
+async function ghCommitAt(day){
+  const d = dOf(day), until = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 23, 59, 59, 999).toISOString();
+  const r = await fetch('https://api.github.com/repos/' + encodeURIComponent(SYNC.owner) + '/' + encodeURIComponent(SYNC.repo) + '/commits?path=' + encodeURIComponent(SYNC.path || 'slate.json') + '&until=' + encodeURIComponent(until) + '&per_page=1', {headers:ghHead(), cache:'no-store'});
+  if (!r.ok) throw syncFail(r);
+  const list = await r.json();
+  return Array.isArray(list) && list[0] ? list[0] : null;
+}
+async function ghFileAt(sha){
+  const r = await fetch(ghUrl() + '?ref=' + encodeURIComponent(sha), {headers:ghHead(), cache:'no-store'});
+  if (!r.ok) throw syncFail(r);
+  const j = await r.json();
+  let txt = j.content ? b64dec(j.content) : null;
+  if (txt == null){ const raw = await fetch(ghUrl() + '?ref=' + encodeURIComponent(sha), {headers:ghHead({Accept:'application/vnd.github.raw+json'}), cache:'no-store'}); if (!raw.ok) throw syncFail(raw); txt = await raw.text(); }
+  const doc = JSON.parse(txt);
+  return doc && doc.state ? doc.state : doc;
+}
+function copyCounts(st){
+  const f = (st.food && st.food.log) || {};
+  return [['Ticks and lecture marks', Object.keys(st.done || {}).length + Object.keys(st.att || {}).length + Object.keys(st.wat || {}).length + Object.keys(st.notes || {}).length],
+    ['Days with food logged', Object.keys(f).filter(k => (f[k] || []).length).length], ['Gym sessions', ((st.gym && st.gym.sessions) || []).length],
+    ['Weigh-ins', Object.keys(st.weights || {}).length], ['Your changes to the plan', (st.edits || []).length], ['Deadlines you added', (st.custom || []).length]];
+}
+async function findCopy(day){
+  toast('Looking for the copy from ' + niceDate(day) + '…');
+  try {
+    const c = await ghCommitAt(day);
+    if (!c){ toast('There is no copy from ' + niceDate(day) + ' or before. Sync started after that.'); return; }
+    const st = await ghFileAt(c.sha), when = new Date(c.commit.committer.date), from = /phone/.test(c.commit.message) ? 'phone' : /laptop/.test(c.commit.message) ? 'laptop' : '';
+    RESTORE = {state:st, day:iso(when)};
+    const a = copyCounts(st), b = copyCounts(S);
+    showDlg('<h3>The copy from ' + dayName(iso(when)) + ' ' + niceDate(iso(when)) + '</h3><p class="small">Saved at ' + pad(when.getHours()) + ':' + pad(when.getMinutes()) + (from ? ' from the ' + from : '') + (iso(when) !== day ? ', the last save on or before ' + niceDate(day) : '') + '.</p>' +
+      '<table class="ctab"><thead><tr><th></th><th>That copy</th><th>Now</th></tr></thead><tbody>' + a.map((r, i) => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + b[i][1] + '</td></tr>').join('') + '</tbody></table>' +
+      '<p class="muted small">Restoring replaces what is on this device now and syncs to your other device. You can undo it straight after.</p>' +
+      '<div class="acts"><button class="btn" data-act="close">Cancel</button><button class="btn primary" data-act="restoreok">Restore this copy</button></div>', 'admin');
+  } catch(e){
+    toast(e instanceof TypeError ? 'You are offline. Try again when you are back online.' : 'Could not get that copy (' + (e.code || e.message) + ').');
+  }
 }
 
 /* ---------- this device's look (not part of backups) ---------- */
@@ -2003,7 +2096,7 @@ function todayB(){
   const leave = isT && bl.campus && bl.leave != null && m < bl.leave ? '<button class="pillbtn" data-act="open" data-d="' + d + '" data-id="' + esc((bl.find(b => b.t === 'Cycle to campus') || {}).id || '') + '">Leave at ' + tm(bl.leave) + '</button>' : '';
   view.innerHTML = ghost() + '<div class="topbar"><div><h1>' + dayName(d) + '</h1><div class="sub">' + esc(relDay(d) + dayHeadSub(d)) + '</div></div><div class="row-flex tb-acts">' + leave +
     (isT ? '<button class="pillbtn" data-act="day" data-d="' + addD(t, 1) + '">Tomorrow' + ic('right', 'width:14px;height:14px;stroke-width:2.6') + '</button>' : '<button class="pillbtn" data-act="day" data-d="' + t + '">Back to today</button>') + '</div></div>' +
-    stripHtml(d) + (isT ? tilesHtml() : '') + welcome() + agendaHtml(d, isT) + resetDayBtn(d);
+    stripHtml(d) + (isT ? tilesHtml() : '') + (isT ? syncNote() : '') + welcome() + agendaHtml(d, isT) + resetDayBtn(d);
 }
 function focusHtml(d){
   const bl = dayBlocks(d), m = nowM();
@@ -2047,7 +2140,7 @@ function todayA(){
   const upcoming = bl.filter(b => b.cat !== 'free' && !b.live && b.s > m && b.id !== curId).slice(0, 4);
   view.innerHTML = ghost() + '<div class="topbar"><div><h1 class="adate">' + dayName(d) + ' ' + niceDate(d) + '</h1><div class="sub">' + esc((bl.campus ? 'Campus day, leave at ' + tm(bl.leave) : 'Home day') + ', ' + periodSentence(d) + '.') + '</div></div>' +
     '<div class="row-flex" style="flex-wrap:nowrap;align-items:center"><span class="aclock">' + tm(m) + '</span></div></div>' +
-    welcome() + focusHtml(d) +
+    syncNote() + welcome() + focusHtml(d) +
     (aFull ? '<div class="sec">The whole day</div>' + agendaHtml(d, true)
       : (upcoming.length ? '<div class="sec">Next</div><ol class="agenda nextlist">' + upcoming.map((b, i) => itemHtml(b, d, null, i)).join('') + '</ol>' : '')) +
     countsHtml() +
@@ -2061,7 +2154,7 @@ function todayC(){
   view.innerHTML = ghost() + '<div class="topbar" style="align-items:flex-end;padding-top:0"><div><h1>' + dayName(d) + '</h1><div class="sub">' + esc(relDay(d) + dayHeadSub(d)) + '</div></div>' +
     '<div class="row-flex"><button class="btn small sq" data-act="dprev" aria-label="Previous day">' + ic('left', 'width:18px;height:18px') + '</button>' + (isT ? '' : '<button class="btn small" data-act="day" data-d="' + t + '">Back to today</button>') +
     '<button class="btn small sq" data-act="dnext" aria-label="Next day">' + ic('right', 'width:18px;height:18px') + '</button></div></div>' +
-    welcome() + '<div class="dash" style="margin-top:22px"><div>' + agendaHtml(d, isT) + resetDayBtn(d) + '</div>' +
+    (isT ? syncNote() : '') + welcome() + '<div class="dash" style="margin-top:22px"><div>' + agendaHtml(d, isT) + resetDayBtn(d) + '</div>' +
     '<div>' + (isT ? focusHtml(d) : '') + behindCard(true) + dueCard() + '</div>' +
     '<div>' + weekCard(ws, isT ? 'This week' : 'That week') + gymCard() + foodMiniCard() + bodyCard(true) + '</div></div>';
 }
@@ -2658,7 +2751,7 @@ function renderSetup(){
       '<div class="row-flex" style="margin-top:12px"><button class="btn" data-act="testalert">Test alert</button></div>' +
       '<p class="muted small" style="margin:12px 0 0">Alerts fire while the app is open or was used recently. Keep the 07:00 alarm and Bedtime mode on your phone.</p></section>' +
     '<section class="card prose"><h2>Backups</h2><p>Ticks, logs and your changes live on each device. Every Sunday, export a backup to <b>OneDrive › Planner › Backups</b>. To move them to the other device, import it there.</p>' +
-      '<p class="muted">Last backup on this device: ' + (S.lastBackup ? niceDate(S.lastBackup) : 'never') + '.</p>' +
+      '<p class="muted">Last backup on this device: ' + (S.lastBackup ? niceDate(S.lastBackup) : 'never') + '.' + (syncOn() ? ' Sync also keeps every version on GitHub, and you can go back to any day under Sync.' : '') + '</p>' +
       '<div class="row-flex"><button class="btn primary" data-act="export">Export backup</button><button class="btn" data-act="copy">Copy as text</button><label class="btn">Import backup<input type="file" accept=".json,application/json" id="imp" hidden></label></div>' +
       '<textarea id="impText" placeholder="Or paste backup text here, then press Import text" style="margin-top:10px"></textarea><div class="row-flex" style="margin-top:8px"><button class="btn small" data-act="importText">Import text</button></div></section>' +
     '<section class="card prose"><h2>Claude</h2><p>One tap copies a short summary of your week: ticks, gym log, weight trend, what is behind and what is due. Paste it into any chat.</p><button class="btn primary" data-act="copyweek">Copy week for Claude</button><p class="muted" style="margin-top:10px">Small changes you make here. Big ones (new term timetable, new templates): ask Claude.</p></section>' +
@@ -2960,7 +3053,10 @@ document.addEventListener('click', e => {
   /* setup */
   if (a === 'layout'){ DEV.layout = el.dataset.v; saveDev(); applyDev(); aFull = false; render(); return; }
   if (a === 'board'){ DEV.board = el.dataset.v; saveDev(); applyDev(); render(); return; }
-  if (a === 'syncnow'){ syncBlocked = false; syncNow(true).then(() => { if (syncState === 'ok') toast('Synced.'); }); return; }
+  if (a === 'syncnow'){ syncBlocked = false; syncNow(true).then(() => { render(); if (syncState === 'ok') toast('Synced.'); }); return; }
+  if (a === 'expsnooze'){ SYNC.expSnooze = today(); saveSync(); render(); return; }
+  if (a === 'restoreok' && RESTORE){ const before = clone(S), day = RESTORE.day; S = normalise(clone(RESTORE.state)); RESTORE = null; save(); rebuildSessions(); cache.clear(); closeDlg(); render();
+    toast('Restored the copy from ' + niceDate(day) + '.', () => { S = before; save(); rebuildSessions(); cache.clear(); render(); toast('Back to how it was.'); }); return; }
   if (a === 'syncoff'){ if (!confirm('Turn off sync on this device? Your data stays here, and the copy on GitHub stays too.')) return;
     SYNC = {}; saveSync(); try { localStorage.removeItem(SBASE); } catch(e) {} syncState = 'idle'; render(); toast('Sync is off on this device.'); return; }
   if (a === 'checkupd'){ checkUpdate(); return; }
@@ -3017,10 +3113,14 @@ document.addEventListener('submit', e => {
   if (k === 'sync'){
     const owner = String(v.owner || '').trim().replace(/^@/, ''), repo = String(v.repo || '').trim().replace(/^.*\//, ''), token = String(v.token || '').trim();
     if (!owner || !repo || !token){ toast('Fill in all three boxes.'); return; }
-    SYNC = {owner, repo, token, path:'slate.json'}; saveSync(); try { localStorage.removeItem(SBASE); } catch(e) {}
+    const same = SYNC.owner === owner && SYNC.repo === repo && loadBase() !== undefined;
+    SYNC = Object.assign(same ? {sha:SYNC.sha, etag:SYNC.etag, at:SYNC.at} : {}, {owner, repo, token, path:'slate.json', exp:/^\d{4}-\d{2}-\d{2}$/.test(v.exp || '') ? v.exp : ''});
+    saveSync(); if (!same){ try { localStorage.removeItem(SBASE); } catch(e) {} }
     syncBlocked = false; syncToasted = false; render();
     syncNow(true).then(() => { render(); toast(syncState === 'ok' ? 'Connected. This device is in sync.' : 'Could not connect: ' + syncLine()); });
     return; }
+  if (k === 'syncexp'){ SYNC.exp = /^\d{4}-\d{2}-\d{2}$/.test(v.exp || '') ? v.exp : ''; SYNC.expAuto = false; delete SYNC.expSnooze; saveSync(); render(); toast(SYNC.exp ? 'Saved. Slate reminds you two weeks before ' + niceDate(SYNC.exp) + '.' : 'Saved: no expiry date.'); return; }
+  if (k === 'restorefind'){ if (!v.day){ toast('Pick a day.'); return; } findCopy(v.day); return; }
   if (k === 'shop'){ const t = String(v.item || '').trim(); if (!t) return; S.shopList[f.dataset.l].push(t); save(); render(); return; }
   const s = hm(v.s || '00:00'), en = hm(v.e || '00:00');
   if ((k === 'blk' || k === 'gymday' || k === 'addblk' || k === 'addsess' || k === 'smove' || k === 'sweek') && v.s && en <= s){ toast('End time must be after the start.'); return; }
@@ -3271,7 +3371,7 @@ window.__planner = {
     return {conflicts: CONFLICTS.slice(), dowBad, overlaps, noCareer, unplanned: watchPlan().none.slice(), sessions: ALLSESS.length, deadlines: DL.length};
   },
   day: d => dayBlocks(d).map(b => tm(b.s) + '-' + tm(b.e) + ' [' + b.cat + '] ' + b.t + ' {' + b.id + '}'),
-  state: () => S, weekText, merge3, deepEq, sync: () => ({on:syncOn(), state:syncState, line:syncLine(), sha:SYNC.sha, blocked:syncBlocked}), syncNow, watch: () => Object.values(watchPlan().byId).map(w => w.sid.split('|').slice(1, 3).join(' ') + ' → ' + w.date + ' ' + tm(w.s) + '–' + tm(w.e) + ' ' + w.how), behind: () => behindLectures().map(x => x.id), plan: () => CP, gp: () => GP
+  state: () => S, weekText, merge3, deepEq, sync: () => ({on:syncOn(), state:syncState, line:syncLine(), sha:SYNC.sha, blocked:syncBlocked, exp:SYNC.exp, left:tokenDaysLeft()}), syncNow, watch: () => Object.values(watchPlan().byId).map(w => w.sid.split('|').slice(1, 3).join(' ') + ' → ' + w.date + ' ' + tm(w.s) + '–' + tm(w.e) + ' ' + w.how), behind: () => behindLectures().map(x => x.id), plan: () => CP, gp: () => GP
 };
 })();
 </script>
