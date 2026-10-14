@@ -1,6 +1,6 @@
 // Slate (formerly Life Planner) service worker: works offline, updates itself.
-const CACHE = 'planner-4.1';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
+const CACHE = 'planner-4.2';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/slate-192.png', './icons/slate-512.png', './icons/slate-maskable-512.png', './icons/slate-touch-180.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
@@ -27,6 +27,12 @@ self.addEventListener('fetch', e => {
     e.respondWith(within(net.then(res => res.clone()), 3000)
       .catch(() => caches.match('./index.html'))
       .then(x => x || net));
+    return;
+  }
+  // The app's name and icons: newest first, so an installed app picks up a new name or icon quickly.
+  const path = new URL(r.url).pathname;
+  if (/manifest\.webmanifest$|\/icons\//.test(path)){
+    e.respondWith(fetch(r, {cache:'no-cache'}).then(res => { if (res.ok){ const copy = res.clone(); caches.open(CACHE).then(c => c.put(r, copy)); } return res; }).catch(() => caches.match(r)));
     return;
   }
   e.respondWith(caches.match(r).then(m => m || fetch(r).then(res => {

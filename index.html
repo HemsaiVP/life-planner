@@ -6,8 +6,8 @@
 <title>Slate</title>
 <meta name="theme-color" content="#EEF1F0">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/slate-192.png">
+<link rel="apple-touch-icon" href="icons/slate-touch-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Kalam:wght@400;700&display=swap" rel="stylesheet">
@@ -68,7 +68,7 @@ main.wrap{position:relative;padding:6px 18px calc(130px + env(safe-area-inset-bo
 .ghost{position:absolute;right:20px;top:4px;z-index:-1;font-family:Kalam,cursive;font-size:20px;line-height:1.25;color:var(--ink);opacity:.065;transform:rotate(4deg);filter:blur(.4px);pointer-events:none;user-select:none;white-space:pre;text-align:right}
 .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 0 2px}
 .topbar>div:first-child{min-width:0}
-.topbar h1{font-family:Kalam,cursive;font-weight:700;font-size:46px;line-height:48px;overflow-wrap:anywhere}
+.topbar h1{font-family:Kalam,cursive;font-weight:700;font-size:46px;line-height:1.05;white-space:nowrap}
 .topbar h1.adate{font-family:inherit;font-size:16px;line-height:21px}
 .topbar .sub{color:var(--ink-2);font-size:14.5px;line-height:20px;margin-top:4px}
 .tb-acts{flex-direction:column;align-items:flex-end;flex:none}
@@ -91,7 +91,7 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 body.L-C .wrap{max-width:1360px}
 body.L-C #app{display:grid;grid-template-columns:236px minmax(0,1fr)}
 body.L-C main.wrap{width:100%;padding:24px 30px 90px}
-body.L-C .topbar h1{font-size:56px;line-height:58px}
+body.L-C .topbar h1{font-size:56px;line-height:1.05}
 body.L-C .topbar h1.adate{font-size:16px;line-height:21px}
 .sidenav{position:sticky;top:0;height:100vh;height:100dvh;padding:26px 16px 20px;border-right:1.5px solid var(--rule);display:flex;flex-direction:column;gap:2px;overflow-y:auto}
 .sidenav .brand{padding:0 8px 18px}
@@ -195,8 +195,8 @@ details>summary::-webkit-details-marker{display:none}
 .sticky{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:1px;min-height:92px;min-width:0;padding:16px 14px 12px;border:0;border-radius:2px 3px 2px 3px;background:var(--y);color:#1A1D23;text-align:left;box-shadow:var(--note-shadow);transform:rotate(var(--r,0deg))}
 .sticky::before{content:"";position:absolute;top:-7px;left:50%;width:15px;height:15px;margin-left:-7px;border-radius:50%;background:radial-gradient(circle at 35% 30%,var(--mag-hi),var(--mag) 68%);box-shadow:0 2px 3px rgba(0,0,0,.3)}
 .sticky .lb{font-size:13px;font-weight:700}
-.sticky .big{font-family:Kalam,cursive;font-weight:700;font-size:27px;line-height:31px;max-width:100%;overflow-wrap:anywhere}
-.sticky .big.sm{font-size:22px;line-height:27px}
+.sticky .big{font-family:Kalam,cursive;font-weight:700;font-size:27px;line-height:1.15;max-width:100%}
+.sticky .big.sm{font-size:22px;line-height:1.2}
 .sticky .ft{font-size:13px;color:#3B414A}
 .sticky .tally{color:#1A1D23}
 .sticky:active{transform:rotate(var(--r,0deg)) scale(.97)}
@@ -267,7 +267,7 @@ body.L-C .fab{bottom:24px;right:24px}
 .focus{margin-top:18px;padding:20px 18px 18px;border:2px solid var(--frame);border-radius:var(--r1);background:var(--frame-bg);display:flex;flex-direction:column;gap:12px}
 .focus .lbl{font-weight:700;font-size:14px;color:var(--gym)}
 :root[data-board="night"] .focus .lbl{color:var(--hi)}
-.focus .big{font-family:Kalam,cursive;font-weight:700;font-size:34px;line-height:38px;overflow-wrap:anywhere}
+.focus .big{font-family:Kalam,cursive;font-weight:700;font-size:34px;line-height:1.12}
 .focus p{margin:0;color:var(--ink-2);font-size:15px;line-height:21px}
 .prog{display:flex;align-items:center;height:10px}
 .prog i{display:block;flex:none;height:4px;border-radius:2px;background:var(--c,var(--ink))}
@@ -281,7 +281,7 @@ body.L-C .fab{bottom:24px;right:24px}
 .count{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;padding:10px 10px 12px;border:2px solid var(--btn-line);border-radius:var(--r3);background:transparent;color:var(--ink);text-align:left}
 .count:nth-child(2){border-radius:var(--r4)}
 .count .lb{font-size:12.5px;font-weight:700;color:var(--nc,var(--ink))}
-.count .big{font-family:Kalam,cursive;font-weight:700;font-size:20px;line-height:24px}
+.count .big{font-family:Kalam,cursive;font-weight:700;font-size:20px;line-height:1.2;max-width:100%}
 .count .ft{font-size:12.5px;color:var(--ink-2)}
 .count .mline{width:100%;height:8px}
 .count .tally{height:22px}
@@ -636,7 +636,7 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '4.1';
+const APP_VERSION = '4.2';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
@@ -756,9 +756,179 @@ function load(){
   if (obj && typeof obj === 'object' && obj.done) { S = normalise(obj); save(); }
   else { S = blank(); seed(); save(); }
 }
-function save(){
+function saveLocal(){
   try { localStorage.setItem(KEY, JSON.stringify(S)); return true; }
   catch(e) { toast('This browser blocked saving. Export a backup from Setup.'); return false; }
+}
+function save(){ const ok = saveLocal(); scheduleSync(); return ok; }
+
+/* ---------- sync between your devices, through a private GitHub repository ---------- */
+// Each device keeps working offline. When online it merges with the copy in the repository.
+// The merge is three-way, against the last copy both sides agreed on, so a tick on the phone and a food
+// entry on the laptop both survive. If the very same thing changed on both, the device doing the merge wins.
+// The token lives only in this device's storage (hlp1_sync): never in backups or in Copy week.
+const SKEY = 'hlp1_sync', SBASE = 'hlp1_sync_base';
+let SYNC = {}, syncBusy = false, syncAgain = false, syncT = null, syncState = 'idle', syncBlocked = false, syncToasted = false, lastPull = 0, pendingRender = false;
+try { SYNC = JSON.parse(localStorage.getItem(SKEY) || '{}') || {}; } catch(e) { SYNC = {}; }
+const syncOn = () => !!(SYNC.owner && SYNC.repo && SYNC.token);
+const saveSync = () => { try { localStorage.setItem(SKEY, JSON.stringify(SYNC)); } catch(e) {} };
+function loadBase(){ try { const r = localStorage.getItem(SBASE); return r ? JSON.parse(r) : undefined; } catch(e) { return undefined; } }
+function saveBase(st){ try { localStorage.setItem(SBASE, JSON.stringify(st)); } catch(e) {} }
+const isObj = v => v !== null && typeof v === 'object' && !Array.isArray(v);
+const clone = v => v === undefined ? undefined : JSON.parse(JSON.stringify(v));
+function deepEq(a, b){
+  if (a === b) return true;
+  if (a === null || b === null || typeof a !== 'object' || typeof b !== 'object' || Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a)){ if (a.length !== b.length) return false; for (let i = 0; i < a.length; i++) if (!deepEq(a[i], b[i])) return false; return true; }
+  const ka = Object.keys(a); if (ka.length !== Object.keys(b).length) return false;
+  for (const k of ka) if (!Object.prototype.hasOwnProperty.call(b, k) || !deepEq(a[k], b[k])) return false;
+  return true;
+}
+const stable = v => isObj(v) ? '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}' : Array.isArray(v) ? '[' + v.map(stable).join(',') + ']' : JSON.stringify(v);
+// Lists that only make sense as a whole: if both devices changed one, this device's version wins.
+const ATOMIC = ['meals', 'food.usual', 'shopList.sat', 'shopList.wed', 'gym.draft', 'gym.manual'];
+const atomicPath = p => ATOMIC.some(x => p === x || p.startsWith(x + '.')) || /(^|\.)sets(\.|$)/.test(p);
+const withIds = arr => !arr || arr.every(x => isObj(x) && x.id != null);
+function mergeArr(base, a, b, path){
+  const ba = Array.isArray(base) ? base : undefined;
+  if ((a.length || b.length) && withIds(a) && withIds(b) && withIds(ba)){
+    // records with ids (gym sessions, your changes, deadlines, own foods): merge record by record
+    const map = arr => new Map((arr || []).map(x => [String(x.id), x])), A = map(a), B = map(b), O = map(ba), out = [];
+    for (const id of [...A.keys(), ...[...B.keys()].filter(k => !A.has(k))]){ const v = merge3(ba ? O.get(id) : undefined, A.get(id), B.get(id), path + '[]'); if (v !== undefined) out.push(v); }
+    return out;
+  }
+  // anything else (a day's food log, home-session dates): keep what each side added and drop what each side removed
+  const count = arr => { const m = new Map(); for (const x of arr || []){ const k = stable(x); m.set(k, (m.get(k) || 0) + 1); } return m; };
+  const CA = count(a), CB = count(b), C0 = count(ba), want = new Map(), out = [];
+  for (const k of new Set([...CA.keys(), ...CB.keys(), ...C0.keys()])){
+    const na = CA.get(k) || 0, nb = CB.get(k) || 0;
+    want.set(k, ba ? Math.max(0, na + nb - (C0.get(k) || 0)) : Math.max(na, nb));
+  }
+  for (const x of [...a, ...b]){ const k = stable(x), n = want.get(k) || 0; if (n > 0){ out.push(clone(x)); want.set(k, n - 1); } }
+  return out;
+}
+function merge3(base, a, b, path){
+  path = path || '';
+  if (deepEq(a, b)) return clone(a);
+  if (deepEq(base, a)) return clone(b);
+  if (deepEq(base, b)) return clone(a);
+  if (atomicPath(path)) return clone(a);
+  if (isObj(a) && isObj(b)){
+    const bo = isObj(base) ? base : undefined, out = {};
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b), ...(bo ? Object.keys(bo) : [])])){
+      const v = merge3(bo ? bo[k] : undefined, a[k], b[k], path ? path + '.' + k : k);
+      if (v !== undefined) out[k] = v;
+    }
+    return out;
+  }
+  if (Array.isArray(a) && Array.isArray(b)) return mergeArr(base, a, b, path);
+  return clone(a);
+}
+const b64enc = str => { const by = new TextEncoder().encode(str); let bin = ''; for (let i = 0; i < by.length; i += 0x8000) bin += String.fromCharCode.apply(null, by.subarray(i, i + 0x8000)); return btoa(bin); };
+const b64dec = b64 => { const bin = atob(String(b64).replace(/\s/g, '')), by = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) by[i] = bin.charCodeAt(i); return new TextDecoder().decode(by); };
+const ghUrl = () => 'https://api.github.com/repos/' + encodeURIComponent(SYNC.owner) + '/' + encodeURIComponent(SYNC.repo) + '/contents/' + (SYNC.path || 'slate.json');
+const ghHead = extra => Object.assign({Authorization:'Bearer ' + SYNC.token, Accept:'application/vnd.github+json'}, extra || {});
+function syncFail(r){ const e = new Error('HTTP ' + r.status); e.code = r.status; e.rate = r.headers.get('X-RateLimit-Remaining') === '0'; return e; }
+async function ghGet(useTag){
+  const h = useTag && SYNC.etag && SYNC.sha ? {'If-None-Match':SYNC.etag} : {};
+  const r = await fetch(ghUrl() + '?t=' + Date.now(), {headers:ghHead(h), cache:'no-store'});
+  if (r.status === 304) return {same:true};
+  if (r.status === 404){ const repo = await fetch('https://api.github.com/repos/' + encodeURIComponent(SYNC.owner) + '/' + encodeURIComponent(SYNC.repo), {headers:ghHead(), cache:'no-store'}); if (!repo.ok) throw syncFail(repo); return {none:true}; }
+  if (!r.ok) throw syncFail(r);
+  const j = await r.json();
+  let txt = j.content ? b64dec(j.content) : null;
+  if (txt == null){ const raw = await fetch(ghUrl() + '?t=' + Date.now(), {headers:ghHead({Accept:'application/vnd.github.raw+json'}), cache:'no-store'}); if (!raw.ok) throw syncFail(raw); txt = await raw.text(); }
+  const doc = JSON.parse(txt);
+  return {sha:j.sha, etag:r.headers.get('ETag'), state:doc && doc.state ? doc.state : doc};
+}
+async function ghPut(state, sha){
+  const body = {message:'Slate sync from the ' + (DEV.phone ? 'phone' : 'laptop'), content:b64enc(JSON.stringify({app:'slate', v:1, savedAt:new Date().toISOString(), state}))};
+  if (sha) body.sha = sha;
+  const r = await fetch(ghUrl(), {method:'PUT', headers:ghHead({'Content-Type':'application/json'}), body:JSON.stringify(body), cache:'no-store'});
+  if (r.status === 409 || r.status === 422) return {conflict:true};
+  if (!r.ok) throw syncFail(r);
+  return {sha:(await r.json()).content.sha};
+}
+function syncLine(){
+  if (!syncOn()) return 'Sync is off on this device.';
+  if (syncState === 'busy') return 'Syncing…';
+  if (syncState === 'offline') return 'Offline. It syncs when you are back online.';
+  if (syncState === 'error') return syncErrText();
+  if (!SYNC.at) return 'Not synced yet.';
+  const m = Math.round((Date.now() - SYNC.at) / 60000), d = new Date(SYNC.at);
+  return 'Synced ' + (m < 1 ? 'just now.' : m < 60 ? m + ' min ago.' : 'at ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + (iso(d) === iso(new Date()) ? '.' : ' on ' + niceDate(iso(d), true) + '.'));
+}
+function syncErrText(){
+  const c = SYNC.errCode;
+  if (c === 401) return 'GitHub refused the token. Make a new one and connect again.';
+  if (c === 403 && SYNC.errRate) return 'GitHub says too many tries. It tries again in a few minutes.';
+  if (c === 403) return 'The token cannot change ' + SYNC.repo + '. Give it Contents: Read and write.';
+  if (c === 404) return 'Cannot find ' + SYNC.owner + '/' + SYNC.repo + '. Check the names, and that the token can see that repository.';
+  return 'Sync failed (' + (c || 'unknown') + '). It tries again soon.';
+}
+function showSyncStatus(st){
+  if (st) syncState = st;
+  const t = syncLine();
+  document.querySelectorAll('[data-sync]').forEach(el => { el.textContent = t; });
+}
+function scheduleSync(ms){
+  if (!syncOn() || syncBlocked) return;
+  clearTimeout(syncT); syncT = setTimeout(() => { syncT = null; syncNow(); }, ms == null ? 5000 : ms);
+}
+function applyMerged(m){
+  S = m; saveLocal(); rebuildSessions(); cache.clear();
+  if ($('#dlg').open || busyTyping()) pendingRender = true; else render();
+}
+async function syncNow(force){
+  if (!syncOn() || (syncBlocked && !force)) return;
+  if (!navigator.onLine){ showSyncStatus('offline'); return; }
+  if (syncBusy){ syncAgain = true; return; }
+  syncBusy = true; lastPull = Date.now(); clearTimeout(syncT); syncT = null; showSyncStatus('busy');
+  try {
+    for (let attempt = 0; ; attempt++){
+      if (attempt > 3) throw new Error('busy');
+      const L0 = clone(S), base = loadBase(), got = await ghGet(base !== undefined);
+      let remote, sha = null, etag = null;
+      if (got.same){ remote = base; sha = SYNC.sha; etag = SYNC.etag; }
+      else if (!got.none){ remote = got.state; sha = got.sha; etag = got.etag; }
+      let merged = remote === undefined ? L0 : normalise(merge3(base, L0, remote));
+      if (!deepEq(S, L0)) merged = normalise(merge3(L0, clone(S), merged));
+      if (!deepEq(merged, S)) applyMerged(merged);
+      if (remote !== undefined && deepEq(merged, remote)){ SYNC.sha = sha; SYNC.etag = etag; saveBase(merged); }
+      else {
+        const put = await ghPut(merged, sha);
+        if (put.conflict){ SYNC.etag = null; continue; }
+        SYNC.sha = put.sha; SYNC.etag = null; saveBase(merged);
+      }
+      break;
+    }
+    SYNC.at = Date.now(); delete SYNC.errCode; delete SYNC.errRate; syncBlocked = false; saveSync(); showSyncStatus('ok');
+  } catch(e){
+    if (e instanceof TypeError || !navigator.onLine){ showSyncStatus('offline'); }
+    else {
+      SYNC.errCode = e.code || 0; SYNC.errRate = !!e.rate; saveSync();
+      if ([401, 403, 404].includes(e.code) && !e.rate) syncBlocked = true;
+      showSyncStatus('error');
+      if (syncBlocked && !syncToasted){ syncToasted = true; toast('Sync stopped: ' + syncErrText()); }
+    }
+  }
+  syncBusy = false;
+  if (syncAgain){ syncAgain = false; scheduleSync(1500); }
+}
+function syncCard(){
+  if (syncOn() && !syncBlocked) return '<section class="card"><h2>Sync your phone and laptop</h2><p class="small" style="margin:8px 0 0">Connected to <b>' + esc(SYNC.owner + '/' + SYNC.repo) + '</b> on GitHub. Ticks, food, gym, weight and your changes sync both ways.</p>' +
+    '<p class="small" style="margin:6px 0 0" data-sync>' + esc(syncLine()) + '</p><div class="row-flex" style="margin-top:12px"><button class="btn primary" data-act="syncnow">Sync now</button><button class="btn" data-act="syncoff">Turn off on this device</button></div>' +
+    '<p class="muted small" style="margin:10px 0 0">Layout and board stay per device. The token is kept on this device only, never in backups.</p></section>';
+  return '<section class="card"><h2>Sync your phone and laptop</h2>' + (syncOn() && syncBlocked ? '<p class="small" style="margin:8px 0 0;color:var(--bad);font-weight:700">' + esc(syncErrText()) + '</p>' : '') +
+    '<p class="small" style="margin:8px 0 0">Keeps one copy of your planner in a private GitHub repository, so both devices show the same ticks. Free. Set it up once on each device:</p>' +
+    '<ol class="prose small" style="padding-left:20px;margin:8px 0 0"><li>On GitHub, make a <b>private</b> repository called <b>slate-data</b>: <a href="https://github.com/new" target="_blank" rel="noopener">github.com/new</a>. Tick Add a README file.</li>' +
+    '<li>Make a token: <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">new fine-grained token</a>. Name it Slate sync and pick the longest expiry. Under Repository access choose Only select repositories, then slate-data. Under Permissions, set Contents to Read and write. Generate it and copy it.</li>' +
+    '<li>Paste it below and press Connect.</li><li>On your other device, open Setup there and repeat steps 2 and 3. Making a second token on that device is easiest; the repository stays the same.</li></ol>' +
+    '<form data-form="sync" class="fgrid" style="margin-top:12px"><label class="f">GitHub username<input type="text" name="owner" value="' + esc(SYNC.owner || 'HemsaiVP') + '" autocomplete="off" autocapitalize="off" spellcheck="false" required></label>' +
+    '<label class="f">Repository<input type="text" name="repo" value="' + esc(SYNC.repo || 'slate-data') + '" autocomplete="off" autocapitalize="off" spellcheck="false" required></label>' +
+    '<label class="f full">Token<input type="password" name="token" autocomplete="off" placeholder="github_pat_…" required></label>' +
+    '<p class="muted small full" style="margin:0">Never paste the token into a chat. It stays on this device.</p>' +
+    '<div class="full acts" style="justify-content:flex-start"><button class="btn primary" type="submit">Connect</button></div></form></section>';
 }
 
 /* ---------- this device's look (not part of backups) ---------- */
@@ -1659,7 +1829,7 @@ function navHtml(){
   if (DEV.layout === 'C'){
     $('#side').hidden = false; $('#bottom').hidden = true;
     const t = today();
-    $('#side').innerHTML = '<div class="brand"><div class="bn"><img src="icons/icon-192.png" alt=""><b>Slate</b></div><div class="clock">' + dayName(t) + ' ' + niceDate(t) + ', ' + tm(nowM()) + '</div></div>' +
+    $('#side').innerHTML = '<div class="brand"><div class="bn"><img src="icons/slate-192.png" alt=""><b>Slate</b></div><div class="clock">' + dayName(t) + ' ' + niceDate(t) + ', ' + tm(nowM()) + '</div>' + (syncOn() ? '<div class="clock" data-sync>' + esc(syncLine()) + '</div>' : '') + '</div>' +
       ['today','week','behind','deadlines','gym','progress','food','setup'].map(k => '<button class="nav" data-act="go" data-tab="' + k + '"' + (TAB === k ? ' aria-current="page"' : '') + ' style="--tabc:var(' + TABC[k] + ')">' + ic(k) + '<span class="lbl">' + NAMES[k] + (TAB === k ? UL2 : '') + '</span><span class="badge">' + (badge(k) || '') + '</span></button>').join('') +
       '<div class="spacer"></div><button class="btn small dashed" data-act="copyweek">Copy week for Claude</button><button class="nav" data-act="checkupd">Check for updates</button>';
   } else {
@@ -1669,6 +1839,23 @@ function navHtml(){
   }
   $('#fab').hidden = !(TAB === 'week' || (TAB === 'today' && DEV.layout !== 'A'));
 }
+// Big handwriting shrinks to fit its space instead of splitting a word across two lines.
+const FIT = '.topbar h1, .sticky .big, .focus .big, .count .big, .kpi b, .wklist h3, .gname, .sidenav .brand b, .pbig';
+function fitText(){
+  const els = [...document.querySelectorAll(FIT)];
+  for (const el of els){ el.style.fontSize = ''; el.style.whiteSpace = ''; }
+  const over = els.filter(el => el.clientWidth && el.scrollWidth > el.clientWidth + 1);
+  for (const el of over){
+    const cs = getComputedStyle(el), base = parseFloat(cs.fontSize), min = Math.max(13, Math.round(base * .5));
+    let size = Math.max(min, Math.floor(base * el.clientWidth / el.scrollWidth));
+    el.style.fontSize = size + 'px';
+    while (size > min && el.scrollWidth > el.clientWidth + 1){ size--; el.style.fontSize = size + 'px'; }
+    if (el.scrollWidth > el.clientWidth + 1 && cs.whiteSpace === 'nowrap') el.style.whiteSpace = 'normal';
+  }
+}
+let fitT = null;
+window.addEventListener('resize', () => { clearTimeout(fitT); fitT = setTimeout(fitText, 120); });
+try { document.fonts.ready.then(fitText); document.fonts.addEventListener('loadingdone', fitText); } catch(e) {}
 // A screen "opens" when the tab, the day or the layout changes: only then is it written in.
 let lastScreen = null, animT = null, justTicked = null, justAdded = null, pFrom = null;
 const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -1678,7 +1865,7 @@ function render(){
   const key = screenKey(), opened = key !== lastScreen; lastScreen = key;
   clearTimeout(animT); view.classList.remove('anim');
   ({today:renderToday, week:renderWeek, behind:renderBehind, deadlines:renderDeadlines, gym:renderGym, progress:renderProgress, food:renderFood, setup:renderSetup, more:renderMore}[TAB] || renderToday)();
-  navHtml();
+  navHtml(); fitText();
   if (opened && !reduceMotion()){ void view.offsetWidth; view.classList.add('anim'); animT = setTimeout(() => view.classList.remove('anim'), 2200); }
   justTicked = null; justAdded = null; pFrom = null;
 }
@@ -2447,7 +2634,7 @@ function renderSetup(){
   const num = (k, l, step, unit) => '<label class="f">' + l + '<input type="number" data-pref="' + k + '" value="' + P[k] + '" step="' + (step || 1) + '" min="0">' + (unit ? '' : '') + '</label>';
   const edits = S.edits.slice().reverse();
   view.innerHTML = ghost() + '<div class="topbar"><div><h1>Setup</h1><div class="sub">Version ' + APP_VERSION + '. This device is a ' + (DEV.phone ? 'phone' : 'laptop') + '.</div></div></div>' +
-    '<div class="cols" style="margin-top:14px"><div>' +
+    '<div class="cols" style="margin-top:14px"><div>' + syncCard() +
     '<section class="card"><h2>Layout on this device</h2><div class="lay" style="margin-top:10px">' +
       lay(DEV.phone ? 'B' : 'C', DEV.phone ? 'Agenda' : 'Dashboard', DEV.phone ? 'See everything, like a normal phone app.' : 'See everything at once.') +
       lay('A', 'Calm focus', 'One thing at a time. Tap "See the whole day" when you want it.') +
@@ -2504,7 +2691,8 @@ function renderMore(){
   const item = (k, l, sub) => '<button class="li" data-act="go" data-tab="' + k + '">' + ic(k) + '<div class="tx"><div class="t">' + l + '</div><div class="s">' + sub + '</div></div>' + ic('right', 'width:18px;height:18px;color:var(--ink-2)') + '</button>';
   view.innerHTML = ghost() + '<div class="topbar"><div><h1>More</h1></div></div><section class="card more" style="margin-top:12px">' +
     item('deadlines', 'Deadlines', od ? od + ' overdue' : 'Add and tick off deadlines') + item('progress', 'Progress', 'Month calendar, gym, lectures, hours and lifts') + item('food', 'Food and body', 'Food and water, protein, usual day, shopping, bodyweight') + item('setup', 'Setup', 'Layout, board, alerts, your changes, backups') + '</section>' +
-    '<button class="btn wide" style="margin-top:22px" data-act="checkupd">Check for updates (version ' + APP_VERSION + ')</button><button class="btn primary wide" style="margin-top:10px" data-act="copyweek">' + ic('copy', 'width:18px;height:18px') + 'Copy week for Claude</button>';
+    (syncOn() ? '<p class="muted small" style="margin:16px 0 0" data-sync>' + esc(syncLine()) + '</p><button class="btn wide" style="margin-top:10px" data-act="syncnow">Sync now</button>' : '<p class="muted small" style="margin:16px 0 0">Phone and laptop not syncing yet. Set it up in Setup.</p>') +
+    '<button class="btn wide" style="margin-top:10px" data-act="checkupd">Check for updates (version ' + APP_VERSION + ')</button><button class="btn primary wide" style="margin-top:10px" data-act="copyweek">' + ic('copy', 'width:18px;height:18px') + 'Copy week for Claude</button>';
 }
 
 /* ================= your own changes ================= */
@@ -2516,7 +2704,7 @@ function addEdits(list, msg){
   commit(); closeDlg();
   toast(msg || 'Changed.', () => { S.edits = S.edits.filter(e => !ids.has(e.id)); commit(); toast('Undone.'); });
 }
-function closeDlg(){ const d = $('#dlg'); if (d.open) d.close(); }
+function closeDlg(){ const d = $('#dlg'); if (d.open) d.close(); if (pendingRender){ pendingRender = false; render(); } }
 function showDlg(html, cat){ const dlg = $('#dlg'); dlg.className = 'c-' + (cat || 'admin'); dlg.innerHTML = '<div class="dlg c-' + (cat || 'admin') + '" tabindex="-1" autofocus>' + html + '</div>'; if (!dlg.open) dlg.showModal(); }
 const timeIn = (name, v, l) => '<label class="f">' + l + '<input type="time" name="' + name + '" value="' + tm(v) + '" required></label>';
 const origStart = x => x.src === 'cal' ? hm(x.id.split('|')[4]) : ((S.edits.find(e => e.id === x.src) || {}).s ?? x.s);
@@ -2772,6 +2960,9 @@ document.addEventListener('click', e => {
   /* setup */
   if (a === 'layout'){ DEV.layout = el.dataset.v; saveDev(); applyDev(); aFull = false; render(); return; }
   if (a === 'board'){ DEV.board = el.dataset.v; saveDev(); applyDev(); render(); return; }
+  if (a === 'syncnow'){ syncBlocked = false; syncNow(true).then(() => { if (syncState === 'ok') toast('Synced.'); }); return; }
+  if (a === 'syncoff'){ if (!confirm('Turn off sync on this device? Your data stays here, and the copy on GitHub stays too.')) return;
+    SYNC = {}; saveSync(); try { localStorage.removeItem(SBASE); } catch(e) {} syncState = 'idle'; render(); toast('Sync is off on this device.'); return; }
   if (a === 'checkupd'){ checkUpdate(); return; }
   if (a === 'export'){ exportBackup(); return; }
   if (a === 'copy'){ const txt = JSON.stringify(S); const ta = $('#impText'); ta.value = txt; ta.select();
@@ -2823,6 +3014,13 @@ document.addEventListener('submit', e => {
       undo = () => { if (had) S.food.over[id] = had; else delete S.food.over[id]; };
     }
     save(); closeDlg(); foodsOpen = true; render(); toast('Saved ' + n + '.', () => { undo(); save(); render(); }); return; }
+  if (k === 'sync'){
+    const owner = String(v.owner || '').trim().replace(/^@/, ''), repo = String(v.repo || '').trim().replace(/^.*\//, ''), token = String(v.token || '').trim();
+    if (!owner || !repo || !token){ toast('Fill in all three boxes.'); return; }
+    SYNC = {owner, repo, token, path:'slate.json'}; saveSync(); try { localStorage.removeItem(SBASE); } catch(e) {}
+    syncBlocked = false; syncToasted = false; render();
+    syncNow(true).then(() => { render(); toast(syncState === 'ok' ? 'Connected. This device is in sync.' : 'Could not connect: ' + syncLine()); });
+    return; }
   if (k === 'shop'){ const t = String(v.item || '').trim(); if (!t) return; S.shopList[f.dataset.l].push(t); save(); render(); return; }
   const s = hm(v.s || '00:00'), en = hm(v.e || '00:00');
   if ((k === 'blk' || k === 'gymday' || k === 'addblk' || k === 'addsess' || k === 'smove' || k === 'sweek') && v.s && en <= s){ toast('End time must be after the start.'); return; }
@@ -2909,7 +3107,7 @@ function notifySystem(title, body, force){
   const A = S.alerts;
   if (!A.system || !('Notification' in window) || Notification.permission !== 'granted') return;
   if (!force && document.visibilityState === 'visible' && document.hasFocus()) return;
-  const opts = {body, icon:'icons/icon-192.png', badge:'icons/icon-192.png', tag:'planner', renotify:true, silent:!A.sound && !A.vibrate};
+  const opts = {body, icon:'icons/slate-192.png', badge:'icons/slate-192.png', tag:'planner', renotify:true, silent:!A.sound && !A.vibrate};
   if (A.vibrate) opts.vibrate = [180, 90, 180];
   if (SWREG && SWREG.showNotification) SWREG.showNotification(title, opts).catch(() => {});
   else { try { new Notification(title, opts); } catch(e) {} }
@@ -2994,6 +3192,8 @@ function busyTyping(){ const a = document.activeElement; return a && a.matches &
 function loop(){
   const m = nowM();
   checkAlerts(); checkNight();
+  if (syncOn()){ showSyncStatus(); if (!syncBlocked && document.visibilityState === 'visible' && Date.now() - lastPull > 45000) syncNow(); }
+  if (pendingRender && !$('#dlg').open && !busyTyping()){ pendingRender = false; render(); }
   if (m !== lastMin){
     lastMin = m;
     const boardChanged = DEV.board === 'auto' && (document.documentElement.dataset.board === 'night') !== isNight();
@@ -3009,9 +3209,14 @@ loadDev(); applyDev();
 setTab((location.hash || '').slice(1) || 'today');
 primeAlerts();
 lastMin = nowM();
+if (syncOn()) syncNow();
 checkNight();
 setInterval(loop, 15000);
-document.addEventListener('visibilitychange', () => { if (!document.hidden) loop(); });
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden){ loop(); if (syncOn() && !syncBlocked && Date.now() - lastPull > 5000) syncNow(); }
+  else if (syncT) syncNow();
+});
+window.addEventListener('online', () => { if (syncOn()) syncNow(); });
 if (S.lastVersion !== APP_VERSION){ if (S.lastVersion) toast('Updated to version ' + APP_VERSION + '. Your ticks are all here.'); S.lastVersion = APP_VERSION; save(); }
 try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch(e) {}
 
@@ -3066,7 +3271,7 @@ window.__planner = {
     return {conflicts: CONFLICTS.slice(), dowBad, overlaps, noCareer, unplanned: watchPlan().none.slice(), sessions: ALLSESS.length, deadlines: DL.length};
   },
   day: d => dayBlocks(d).map(b => tm(b.s) + '-' + tm(b.e) + ' [' + b.cat + '] ' + b.t + ' {' + b.id + '}'),
-  state: () => S, weekText, watch: () => Object.values(watchPlan().byId).map(w => w.sid.split('|').slice(1, 3).join(' ') + ' → ' + w.date + ' ' + tm(w.s) + '–' + tm(w.e) + ' ' + w.how), behind: () => behindLectures().map(x => x.id), plan: () => CP, gp: () => GP
+  state: () => S, weekText, merge3, deepEq, sync: () => ({on:syncOn(), state:syncState, line:syncLine(), sha:SYNC.sha, blocked:syncBlocked}), syncNow, watch: () => Object.values(watchPlan().byId).map(w => w.sid.split('|').slice(1, 3).join(' ') + ' → ' + w.date + ' ' + tm(w.s) + '–' + tm(w.e) + ' ' + w.how), behind: () => behindLectures().map(x => x.id), plan: () => CP, gp: () => GP
 };
 })();
 </script>
