@@ -1,6 +1,6 @@
-# Life Planner
+# Slate
 
-A personal day planner that installs as an app on Android and on a laptop. No app store.
+Formerly Life Planner. A personal day planner that installs as an app on Android and on a laptop. No app store.
 
 **Open:** https://hemsaivp.github.io/life-planner/
 

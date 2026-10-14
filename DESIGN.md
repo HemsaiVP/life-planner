@@ -1,8 +1,8 @@
-# Life Planner design: "Board"
+# Slate design: "Board"
 
 **Whiteboard by day, chalkboard by night.**
 
-Status: approved and applied in version 4.0, 14 October 2026. Previewed first on the design canvas "Life Planner · Board redesign". Every change to how the app looks follows this file.
+Status: approved and applied in version 4.0, 14 October 2026. The app is called Slate from version 4.1, with a chalk tally icon (four chalk strokes and a yellow diagonal on slate green). Previewed first on the design canvas "Life Planner · Board redesign". Every change to how the app looks follows this file.
 
 ---
 

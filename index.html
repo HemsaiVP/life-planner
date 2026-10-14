@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Life Planner</title>
+<title>Slate</title>
 <meta name="theme-color" content="#EEF1F0">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon-192.png">
@@ -95,6 +95,8 @@ body.L-C .topbar h1{font-size:56px;line-height:58px}
 body.L-C .topbar h1.adate{font-size:16px;line-height:21px}
 .sidenav{position:sticky;top:0;height:100vh;height:100dvh;padding:26px 16px 20px;border-right:1.5px solid var(--rule);display:flex;flex-direction:column;gap:2px;overflow-y:auto}
 .sidenav .brand{padding:0 8px 18px}
+.sidenav .brand .bn{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.sidenav .brand img{width:36px;height:36px;border-radius:22%;flex:none}
 .sidenav .brand b{display:block;font-family:Kalam,cursive;font-weight:700;font-size:28px;line-height:32px}
 .sidenav .clock{font-size:13px;color:var(--ink-2)}
 .sidenav button.nav{position:relative;display:flex;align-items:center;gap:12px;min-height:44px;border:0;background:none;padding:0 10px;color:var(--ink-2);font-size:15px;text-align:left}
@@ -634,7 +636,7 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '4.0';
+const APP_VERSION = '4.1';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
@@ -1657,7 +1659,7 @@ function navHtml(){
   if (DEV.layout === 'C'){
     $('#side').hidden = false; $('#bottom').hidden = true;
     const t = today();
-    $('#side').innerHTML = '<div class="brand"><b>Life Planner</b><div class="clock">' + dayName(t) + ' ' + niceDate(t) + ', ' + tm(nowM()) + '</div></div>' +
+    $('#side').innerHTML = '<div class="brand"><div class="bn"><img src="icons/icon-192.png" alt=""><b>Slate</b></div><div class="clock">' + dayName(t) + ' ' + niceDate(t) + ', ' + tm(nowM()) + '</div></div>' +
       ['today','week','behind','deadlines','gym','progress','food','setup'].map(k => '<button class="nav" data-act="go" data-tab="' + k + '"' + (TAB === k ? ' aria-current="page"' : '') + ' style="--tabc:var(' + TABC[k] + ')">' + ic(k) + '<span class="lbl">' + NAMES[k] + (TAB === k ? UL2 : '') + '</span><span class="badge">' + (badge(k) || '') + '</span></button>').join('') +
       '<div class="spacer"></div><button class="btn small dashed" data-act="copyweek">Copy week for Claude</button><button class="nav" data-act="checkupd">Check for updates</button>';
   } else {
@@ -2436,7 +2438,7 @@ function renderSetup(){
   const A = S.alerts, P = S.prefs;
   const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const sysSub = perm === 'granted' ? 'Appears on your lock screen or desktop when the app is in the background.'
-    : perm === 'denied' ? 'Blocked. Allow notifications for this app in Android Settings › Apps › Life Planner, or in your browser\'s site settings.'
+    : perm === 'denied' ? 'Blocked. Allow notifications for this app in Android Settings › Apps › Slate, or in your browser\'s site settings.'
     : perm === 'unsupported' ? 'Not available here.' : 'Turn on and you will be asked for permission.';
   const CATS = [['lse','LSE sessions'],['study','Study'],['academy','Academy'],['gym','Gym'],['career','Career'],['business','Business'],['meal','Meals'],['chores','Shopping'],['admin','Weekly review']];
   const bed = (v, l) => '<button data-act="bed" data-v="' + v + '" aria-pressed="' + (A.bedtime === v) + '">' + l + '</button>';
@@ -2918,12 +2920,12 @@ function alertUser(title, body, force){
     const bn = $('#banner'); bn.innerHTML = '<b>' + esc(title) + '</b>' + esc(body); bn.hidden = false;
     clearTimeout(alertUser.t); alertUser.t = setTimeout(() => bn.hidden = true, 60000);
     document.title = '● ' + title;
-    clearTimeout(alertUser.tt); alertUser.tt = setTimeout(() => document.title = 'Life Planner', 90000);
+    clearTimeout(alertUser.tt); alertUser.tt = setTimeout(() => document.title = 'Slate', 90000);
   }
   chime();
   notifySystem(title, body, force);
 }
-$('#banner').addEventListener('click', () => { $('#banner').hidden = true; document.title = 'Life Planner'; });
+$('#banner').addEventListener('click', () => { $('#banner').hidden = true; document.title = 'Slate'; });
 const alerted = new Set();
 function primeAlerts(){ const m = nowM(); for (const b of dayBlocks(today())) if (b.s <= m) alerted.add(today() + b.id + 's'); }
 function checkAlerts(){

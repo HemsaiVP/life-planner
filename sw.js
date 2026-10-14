@@ -1,5 +1,5 @@
-// Life Planner service worker: works offline, updates itself.
-const CACHE = 'planner-4.0';
+// Slate (formerly Life Planner) service worker: works offline, updates itself.
+const CACHE = 'planner-4.1';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/apple-touch-icon.png'];
 
 self.addEventListener('install', e => {
