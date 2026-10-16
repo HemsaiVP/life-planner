@@ -459,6 +459,12 @@ body:not(.L-C) .wk{display:none} body:not(.L-C) .wklist{display:block}
 .fvline{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .fvline .tally{--tc:var(--business);height:30px}
 .lim{margin:8px 0 0;font-size:14.5px;line-height:20px;color:var(--warn);font-weight:700}
+/* 4.5.2: alarms. A marker frame you would draw round a mistake on a board: orange for too much, red for can't be right */
+.alarm{margin:12px 0 0;padding:10px 12px;border:2px solid var(--warn);border-radius:var(--r3);font-size:15px;line-height:21px;color:var(--ink)}
+.alarm b{color:var(--warn)}
+.alarm.bad{border-color:var(--bad)} .alarm.bad b{color:var(--bad)}
+.pst.warn{color:var(--warn);font-weight:700} .pst.bad{color:var(--bad);font-weight:700}
+.wnote.over{color:var(--warn);font-weight:700}
 .sline{display:flex;align-items:center;height:12px;margin-top:10px;min-width:0}
 .sline i{display:block;flex:none;height:5px;border-radius:2px 4px 3px 2px;background:var(--meal)}
 .sline::after{content:"";flex:1;border-top:2px dashed var(--dash)}
@@ -664,7 +670,7 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '4.5.1';
+const APP_VERSION = '4.5.2';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
@@ -1920,9 +1926,10 @@ function weekText(){
   const wa = weightAdvice(), e = wEntries();
   L.push('Bodyweight: ' + (e.length ? 'latest ' + e[e.length - 1].kg + ' kg on ' + niceDate(e[e.length - 1].d, true) + (wa.avg ? ', 7-day average ' + wa.avg.toFixed(1) + ' kg' : '') + (wa.ch != null ? ', ' + (wa.ch >= 0 ? '+' : '') + wa.ch.toFixed(1) + ' kg over 2 weeks' : '') : 'not logged') + '.');
   L.push('Up at 07:00: ' + r.wake.d + '/' + r.wake.p + '. In bed by 23:00: ' + r.bed.d + '/' + r.bed.p + '.');
-  { let n = 0, sp = 0, sk = 0, sc = 0, sf = 0, ss = 0, sv = 0, hit = 0, fo = 0, so = 0, cr = 0, vd = 0, vdOn = 0;
-    for (let i = 1; i <= 7; i++){ const d = addD(t, -i), Lg = dayLog(d); if (S.food.creatine[d]) cr++; if (vitDOn(d)){ vdOn++; if (S.food.vitD[d]) vd++; }
-      if (Lg.length){ const T = foodTotals(Lg); n++; sp += T.p; sk += T.k; sc += T.c; sf += T.fat; ss += T.s; sv += fvDay(d).n; if (T.p >= S.prefs.proteinLo) hit++; if (fatOver(T, d)) fo++; if (sugarOver(T)) so++; } }
+  { let n = 0, sp = 0, sk = 0, sc = 0, sf = 0, ss = 0, sv = 0, hit = 0, fo = 0, so = 0, cr = 0, vd = 0, vdOn = 0, tm = 0, bad = 0, wo = 0; const need = needKcal();
+    for (let i = 1; i <= 7; i++){ const d = addD(t, -i), Lg = dayLog(d); if (S.food.creatine[d]) cr++; if (vitDOn(d)){ vdOn++; if (S.food.vitD[d]) vd++; } if (waterOf(d) > waterWarnMl()) wo++;
+      if (Lg.length){ const T = foodTotals(Lg); if (dayImpossible(T)){ bad++; continue; } n++; sp += T.p; sk += T.k; sc += T.c; sf += T.fat; ss += T.s; sv += fvDay(d).n; if (T.p >= S.prefs.proteinLo) hit++; if (fatOver(T, d)) fo++; if (sugarOver(T)) so++; if (T.k > need * 1.5) tm++; } }
+    L.push('Safety lines for my weight (' + fmtN(bodyKg()) + ' kg): about ' + kcal(need) + ' kcal is a normal day; too much over ' + kcal(need * 1.5) + '; protein over ' + protMax() + ' g; water plenty at ' + mlText(waterWarnMl()) + ', stop at ' + mlText(waterStopMl()) + '. Last 7 days: too much food on ' + tm + ' day' + (tm === 1 ? '' : 's') + ', water over the plenty line on ' + wo + (bad ? ', ' + bad + ' day' + (bad === 1 ? '' : 's') + " that can't be right left out below" : '') + '.');
     const Tt = foodTotals(dayLog(t)), seen = vitSeen(t);
     L.push('Food, last 7 days: ' + (n ? 'average ' + Math.round(sp / n) + ' g protein, ' + kcal(sk / n) + ' kcal, ' + Math.round(sc / n) + ' g carbs, ' + Math.round(sf / n) + ' g fat (' + Math.round(sk ? sf * 9 / sk * 100 : 0) + '% of calories), ' + Math.round(ss / n) + ' g free sugar, on ' + n + ' logged day' + (n === 1 ? '' : 's') +
       '. Protein ' + S.prefs.proteinLo + ' g or more on ' + hit + ' of ' + n + '. Fat over ' + fatPctMax() + '% of calories on ' + fo + '; free sugar over ' + sugarMax() + ' g on ' + so : 'not logged') + '. Today so far: ' + Math.round(Tt.p) + ' g protein, ' + kcal(Tt.k) + ' kcal (app estimates).');
@@ -2634,6 +2641,75 @@ const spendIn = ws => { const we = addD(ws, 6); return spendList().filter(x => x
 const spendSum = L => L.reduce((a, x) => a + (+x.amt || 0), 0);
 const money = n => '£' + (Math.round((+n || 0) * 100) / 100).toFixed(2).replace(/\.00$/, '');
 const budget = () => +S.prefs.budget > 0 ? +S.prefs.budget : 35;
+/* ---------- safety checks (4.5.2): every line scales with your weight and your own logs ---------- */
+// your weight: the 7-day average, else the last weigh-in, else the start weight
+function bodyKg(){ const e = wEntries(); if (!e.length) return +S.prefs.startKg > 25 ? +S.prefs.startKg : 60; const a = avg7(e[e.length - 1].d); return a || e[e.length - 1].kg; }
+// a normal day for you: 45 kcal per kg (a lean bulk), or your own average over the last 14 logged days if that is higher.
+// Days that were clearly too much are left out, so a mistake never moves the line.
+function needKcal(){
+  const base = Math.round(bodyKg() * 45), t = today(); let n = 0, s = 0;
+  for (let i = 1; i <= 14; i++){ const L = dayLog(addD(t, -i)); if (!L.length) continue; const k = foodTotals(L).k; if (k > base * 1.5) continue; n++; s += k; }
+  return Math.max(base, n >= 3 ? Math.round(s / n) : 0);
+}
+const protMax = () => Math.round(bodyKg() * 3.5);             // above 3.5 g per kg is more than is considered safe
+const needMl = () => Math.round(bodyKg() * 35 / 50) * 50;     // about 35 ml per kg a day
+const waterWarnMl = () => Math.round(bodyKg() * 70 / 50) * 50;  // twice that: plenty
+const waterStopMl = () => Math.round(bodyKg() * 100 / 50) * 50; // nearly three times: stop
+const times = x => 'about ' + (x < 3.95 ? Math.round(x * 10) / 10 : Math.round(x)) + ' times';
+const dayImpossible = T => T.k > needKcal() * 3 || T.p > protMax() * 2;
+// Alarms for a day of food: {cls: 'bad' (can't be right) or 'warn' (too much), h: headline, t: what to do}
+function foodAlarms(T){
+  const need = needKcal(), pm = protMax(), kg = bodyKg(), out = [];
+  if (T.k > need * 3) out.push({cls:'bad', h:"This can't be right.", t:kcal(T.k) + ' kcal is ' + times(T.k / need) + ' what you need in a whole day (about ' + kcal(need) + '). Check the amounts below for a mistake.'});
+  else if (T.k > need * 1.5) out.push({cls:'warn', h:'Too much for one day.', t:kcal(T.k) + ' kcal is ' + times(T.k / need) + ' what you need (about ' + kcal(need) + '). Check the amounts below for a mistake. If it is right, eat normally tomorrow.'});
+  if (T.p > pm) out.push({cls:T.p > pm * 2 ? 'bad' : 'warn', h:'Too much protein.', t:kcal(T.p) + ' g is ' + fmtN(T.p / kg) + ' g per kg of your weight. More than 3.5 g per kg (about ' + pm + ' g for you) is above what is considered safe. Check the amounts below.'});
+  return out;
+}
+const alarmHtml = a => '<div class="alarm ' + a.cls + '" role="alert"><b>' + esc(a.h) + '</b> ' + esc(a.t) + '</div>';
+// Water: plenty at about twice what you need, stop at nearly three times, and no more than about a litre an hour
+function waterAlarm(d){
+  const w = waterOf(d), need = needMl();
+  if (w > waterStopMl()) return {cls:'bad', h:'Stop drinking water today.', t:mlText(w) + ' is ' + times(w / need) + ' what you need. Much more can cause water poisoning. If you feel sick, confused or have a bad headache, call 111, or 999 in an emergency. If it is a mistake, remove a drink below.'};
+  if (w > waterWarnMl()) return {cls:'warn', h:"That's plenty for today.", t:mlText(w) + ' is ' + times(w / need) + ' what you need. Unless you sweated a lot, stop here, and never drink more than about 1 litre an hour.'};
+  return null;
+}
+const lastHourMl = d => { if (d !== today()) return 0; const t0 = now().getTime() - 3600e3; return waterList(d).filter(x => +x.t >= t0).reduce((a, x) => a + (+x.ml || 0), 0); };
+// Is this amount probably a typo? Compared with your usual amount of that food and with a whole day of food.
+function usualQ(id){
+  const fd = foodOf(id); if (!fd) return 1; let mx = +fd.def || 1; const t = today();
+  for (let i = 0; i < 60; i++) for (const e of dayLog(addD(t, -i))) if (!e.o && e.f === id && +e.q > mx && +e.q <= (+fd.def || 1) * 10) mx = +e.q;
+  return mx;
+}
+function amountCheck(e){
+  const m = macros(e), need = needKcal(), fd = e.o ? null : foodOf(e.f), u = fd ? usualQ(e.f) : 1, r = (+e.q || 0) / u;
+  return r > 10 || (m.k > need * 0.6 && r > 3) || m.k > need * 1.5 ? {m, need, u, fd} : null;
+}
+// Do a food's numbers add up? Protein and carbs give about 4 kcal a gram, fat 9.
+function valuesCheck(p, c, f, k){
+  const est = 4 * p + 4 * c + 9 * f, gap = Math.abs(k - est);
+  return gap > 60 && gap / Math.max(k, est, 1) > 0.35 ? {est:Math.round(est), k} : null;
+}
+// The check before an amount goes in. Fix the amount is the default; adding needs a deliberate second tap.
+let GUARD = null;
+function guardEntry(e, go, fix){
+  const c = amountCheck(e); if (!c){ go(); return; }
+  GUARD = {go, fix};
+  const usual = c.fd ? entryLabel({f:e.f, q:c.u}) : '1 serving';
+  showDlg('<h3>Is there a mistake?</h3><p style="margin:8px 0 0">' + esc(entryLabel(e)) + ' is about <b>' + kcal(c.m.k) + ' kcal</b>' + (c.m.k > c.need * 0.9 ? ', ' + times(c.m.k / c.need) + ' what you need in a whole day' : '') + '. You usually have ' + esc(lc1(usual)) + '.</p>' +
+    '<p class="muted small" style="margin:8px 0 0">Check the amount before it goes in.</p>' +
+    '<div class="acts"><button class="btn small" data-act="guardgo">No mistake, add it</button><button class="btn primary" data-act="guardfix">Fix the amount</button></div>', 'meal');
+  setTimeout(() => { const b = $('#dlg [data-act="guardfix"]'); if (b) b.focus(); }, 30);
+}
+// The same check inside a form (New food, Edit): it stops the first Save, says what looks wrong and puts you in that box.
+// Changing any box makes it check again; saving unchanged needs a second, deliberate tap.
+function formCheck(f, msg, field){
+  f.dataset.ok = '1';
+  let p = f.querySelector('[data-chk]');
+  if (!p){ p = document.createElement('div'); p.setAttribute('data-chk', ''); p.setAttribute('role', 'alert'); p.className = 'alarm warn full'; const acts = f.querySelector('.acts'); f.insertBefore(p, acts); }
+  p.innerHTML = '<b>Check this.</b> ' + esc(msg);
+  const b = f.querySelector('button[type="submit"]'); if (b){ if (!b.dataset.label) b.dataset.label = b.textContent; b.textContent = 'No mistake, save'; b.classList.remove('primary'); }
+  const x = f.elements[field]; if (x){ x.focus(); if (x.select) x.select(); }
+}
 /* water: millilitres, one entry per drink, {id, ml} in S.food.waterLog[date] (4.4) */
 const waterList = d => Array.isArray(S.food.waterLog[d]) ? S.food.waterLog[d] : [];
 const waterOf = d => waterList(d).reduce((s, x) => s + (+x.ml || 0), 0);
@@ -2641,7 +2717,7 @@ const goalMl = () => +S.prefs.waterL > 0 ? Math.round(+S.prefs.waterL * 1000) : 
 const prefMl = (k, def) => +S.prefs[k] >= 10 ? Math.round(+S.prefs[k]) : def;
 const glassMl = () => prefMl('glassMl', 250), bottleMl = () => prefMl('bottleMl', 500);
 const mlText = ml => { ml = Math.round(+ml || 0); if (ml < 1000) return ml + ' ml'; const l = Math.round(ml / 10) / 100; return l.toLocaleString('en-GB') + ' litre' + (l === 1 ? '' : 's'); };
-const waterSoFar = d => { const w = waterOf(d), g = goalMl(); return w ? mlText(w) + ' of ' + mlText(g) : 'none yet, aim for ' + mlText(g); };
+const waterSoFar = d => { const w = waterOf(d), g = goalMl(); return w ? mlText(w) + ' of ' + mlText(g) + (w > waterStopMl() ? '. Stop drinking water today' : w > waterWarnMl() ? ". That's plenty for today" : '') : 'none yet, aim for ' + mlText(g); };
 const GLASS = '<path class="gl" d="M5 4c4.6-.4 9.4-.4 14 0-.5 5.4-1 10.8-1.8 16.2-3.4.4-7 .4-10.4 0C6 14.8 5.5 9.4 5 4Z"/>';
 // water in one glass, f = 0 to 1 full
 const wfill = f => { if (!(f > 0)) return ''; const y = 20 - 10.6 * Math.min(1, f), k = (y - 9.4) / 10.6;
@@ -2657,9 +2733,11 @@ function waterHtml(d){
   const groups = [];
   for (const x of waterList(d)){ const ml = Math.round(+x.ml); let gr = groups.find(z => z.ml === ml); if (!gr) groups.push(gr = {ml, ids:[]}); gr.ids.push(x.id); }
   const chips = groups.map(gr => '<span class="wchip">' + (gr.ids.length > 1 ? gr.ids.length + ' × ' : '') + mlText(gr.ml) + xBtn('wxdel','data-d="' + d + '" data-id="' + esc(gr.ids[gr.ids.length - 1]) + '"', 'Remove ' + mlText(gr.ml)) + '</span>').join('');
-  const left = goal - w;
+  const left = goal - w, wa = waterAlarm(d), hr = lastHourMl(d);
   return '<div class="water"><div class="glasses" role="img" aria-label="' + mlText(w) + ' of ' + mlText(goal) + ' of water">' + gl + '</div>' +
-    '<div class="wnote">' + (w ? '<b>' + mlText(w) + '</b> of ' + mlText(goal) + (left > 0 ? '. ' + mlText(left) + ' to go.' : '. Done for the day ✓') : 'Nothing yet. Aim for ' + mlText(goal) + '.') + '</div>' +
+    '<div class="wnote">' + (w ? '<b>' + mlText(w) + '</b> of ' + mlText(goal) + (left > 0 ? '. ' + mlText(left) + ' to go.' : wa ? '.' : '. Done for the day ✓') : 'Nothing yet. Aim for ' + mlText(goal) + '.') + '</div>' +
+    (wa ? alarmHtml(wa) : '') +
+    (hr > 1000 ? '<p class="lim" style="margin:0">' + mlText(hr) + ' in the last hour. Slow down: your kidneys can clear only about a litre an hour.</p>' : '') +
     '<div class="wbtns">' + waterBtns(d, ' small') + '<button class="btn small" data-act="wother" data-d="' + d + '">Other amount</button></div>' +
     (chips ? '<div class="wchips"><span class="muted small">' + (d === today() ? 'Today:' : 'That day:') + '</span>' + chips + '</div>' : '') +
     '<p class="muted small" style="margin:0">One glass is ' + mlText(g) + ' and your bottle ' + mlText(bottleMl()) + '. Change them in Setup › Your numbers.</p></div>';
@@ -2673,12 +2751,23 @@ function openWater(d, typing){
     '<div class="acts"><button class="btn" data-act="close">Close</button></div>', 'meal');
   if (typing) setTimeout(() => { const i = $('#dlg [name="amt"]'); if (i) i.focus(); }, 60);
 }
-function addWater(d, ml){
+let WGUARD = null;
+function addWater(d, ml, force){
+  const after = waterOf(d) + ml, need = needMl();
+  if (!force && after > waterStopMl()){
+    // the stop line: not adding it is the default; logging it anyway takes a deliberate tap
+    WGUARD = {d, ml};
+    showDlg('<h3>Stop drinking water today</h3><p style="margin:8px 0 0">That would make <b>' + mlText(after) + '</b> today, ' + times(after / need) + ' what you need (about ' + mlText(need) + '). Much more can cause water poisoning: it dilutes the salt in your blood.</p>' +
+      '<p style="margin:8px 0 0">If you feel sick, confused or have a bad headache, call 111, or 999 in an emergency.</p>' +
+      '<div class="acts"><button class="btn small" data-act="wforce">I drank it, log it</button><button class="btn primary" data-act="close">Don\'t add it</button></div>', 'meal');
+    setTimeout(() => { const b = $('#dlg [data-act="close"]'); if (b) b.focus(); }, 30);
+    return;
+  }
   const id = 'w' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-  (S.food.waterLog[d] = waterList(d)).push({id, ml});
+  (S.food.waterLog[d] = waterList(d)).push({id, ml, t:now().getTime()});
   save(); if ($('#dlg').open) closeDlg(); render();
   const w = waterOf(d), g = goalMl();
-  toast('Added ' + mlText(ml) + ' of water. ' + (d === today() ? 'Today: ' : '') + mlText(w) + ' of ' + mlText(g) + (w >= g ? ' ✓' : '.'), () => {
+  toast('Added ' + mlText(ml) + ' of water. ' + (d === today() ? 'Today: ' : '') + mlText(w) + ' of ' + mlText(g) + (w > waterStopMl() ? '. Stop drinking water today.' : w > waterWarnMl() ? ". That's plenty for today." : w >= g ? ' ✓' : '.'), () => {
     const L = waterList(d), i = L.findIndex(x => x.id === id);
     if (i >= 0){ L.splice(i, 1); if (!L.length) delete S.food.waterLog[d]; save(); render(); }
   });
@@ -2703,6 +2792,7 @@ function proteinTip(gap, list){
 function proteinStatus(list, T){
   const P = S.prefs, gap = P.proteinLo - T.p;
   if (!list.length) return {t:'Nothing logged yet. Tap what you ate, or log your usual day in one go.', cls:''};
+  const al = foodAlarms(T); if (al.length) return {t:al[0].h + ' ' + al[0].t, cls:al[0].cls, alarms:al};
   if (gap > 0) return {t:Math.round(gap) + '–' + Math.round(P.proteinHi - T.p) + ' g of protein to go. Easiest: ' + proteinTip(gap, list) + '.', cls:'hint'};
   return {t:'Protein target reached ✓' + (T.p > P.proteinHi + 25 ? ' More is fine, but carbs and total food matter more now.' : ''), cls:'good'};
 }
@@ -2746,7 +2836,7 @@ function fvHtml(d){
 function foodCard(){
   const t = today(), d = foodDay || t, isT = d === t, list = dayLog(d), T = foodTotals(list), P = S.prefs, st = proteinStatus(list, T);
   const lbl = isT ? 'Today' : d === addD(t, -1) ? 'Yesterday' : dayName(d, true) + ' ' + niceDate(d);
-  const cr = !!S.food.creatine[d], vd = !!S.food.vitD[d], lim = limitNotes(T, d);
+  const cr = !!S.food.creatine[d], vd = !!S.food.vitD[d], al = st.alarms || [], lim = al.some(a => a.cls === 'bad') ? [] : limitNotes(T, d);
   const pairs = list.map((e, i) => [e, i]), foods = pairs.filter(([e]) => entryKind(e) === 'food'), drinks = pairs.filter(([e]) => entryKind(e) === 'drink');
   const Tf = foodTotals(foods.map(x => x[0])), Td = foodTotals(drinks.map(x => x[0])), first = firstFoodId();
   return '<section class="card c-meal">' +
@@ -2756,7 +2846,7 @@ function foodCard(){
       (vitDOn(d) || vd ? '<button class="crbtn' + (justTicked === 'vd|' + d ? ' fresh' : '') + '" data-act="vitd" data-d="' + d + '" aria-pressed="' + vd + '">' + boxSvg(vd) + 'Vitamin D 10 µg</button>' : '') + '</span></div>' +
     '<div class="ptop"><b class="pbig">' + Math.round(T.p) + ' g</b><span class="muted">protein ' + (isT ? 'so far' : 'that day') + '.<br>Aim for ' + P.proteinLo + '–' + P.proteinHi + ' g.</span></div>' + pbar(T.p) +
     '<div class="pmac">' + kcal(T.k) + ' kcal, ' + Math.round(T.c) + ' g carbs' + (Math.round(T.s) > 0 ? ' (' + Math.round(T.s) + ' g free sugar)' : '') + ' and ' + Math.round(T.fat) + ' g fat.</div>' +
-    '<p class="pst ' + st.cls + '">' + esc(st.t) + '</p>' +
+    (al.length ? al.map(alarmHtml).join('') : '<p class="pst ' + st.cls + '">' + esc(st.t) + '</p>') +
     lim.map(x => '<p class="lim">' + esc(x) + '</p>').join('') +
     (list.length ? '' : '<div class="row-flex" style="margin-top:12px"><button class="btn primary" data-act="logusual" data-d="' + d + '">Log my usual day</button></div>') +
     '<div class="sec">Tap what you ate</div>' + quickHtml(quickFood(), d) +
@@ -2773,16 +2863,18 @@ function foodCard(){
     '<p class="muted small" style="margin:12px 0 0">Estimates, on the low side, for plain food. Log butter or oil if you use it. Rename a food or fix its values under Your foods and drinks.</p></section>';
 }
 function foodWeekCard(){
-  const t = today(), P = S.prefs; let n = 0, sp = 0, sk = 0, hit = 0, cr = 0, vd = 0, vdOn = 0, wn = 0, wg = 0, fvs = 0, fo = 0, so = 0, rows = '';
+  const t = today(), P = S.prefs, need = needKcal(); let n = 0, sp = 0, sk = 0, hit = 0, cr = 0, vd = 0, vdOn = 0, wn = 0, wg = 0, fvs = 0, fo = 0, so = 0, tm = 0, bad = 0, rows = '';
   for (let i = 6; i >= 0; i--){
     const d = addD(t, -i), list = dayLog(d), T = foodTotals(list), w = waterOf(d);
     if (S.food.creatine[d]) cr++;
     if (vitDOn(d)){ vdOn++; if (S.food.vitD[d]) vd++; }
-    if (list.length && d < t){ n++; sp += T.p; sk += T.k; if (T.p >= P.proteinLo) hit++; fvs += fvDay(d).n; if (fatOver(T, d)) fo++; if (sugarOver(T)) so++; }
+    // a day that can't be right stays out of the averages, so one typo never bends them
+    if (list.length && d < t){ if (dayImpossible(T)) bad++; else { n++; sp += T.p; sk += T.k; if (T.p >= P.proteinLo) hit++; fvs += fvDay(d).n; if (fatOver(T, d)) fo++; if (sugarOver(T)) so++; if (T.k > need * 1.5) tm++; } }
     if (w && d < t){ wn++; wg += w; }
     rows += '<button class="wrow" data-act="fgoto" data-d="' + d + '"><span class="lb">' + (d === t ? 'Today' : dayName(d, true) + ' ' + dOf(d).getDate()) + '</span>' + (list.length ? pbar(T.p, true) + '<span class="v">' + Math.round(T.p) + ' g, ' + kcal(T.k) + '</span>' : '<span class="track"></span><span class="v">not logged</span>') + '</button>';
   }
-  const over = [fo ? 'fat over ' + fatPctMax() + '% of calories on ' + fo + ' of ' + n + ' day' + (n === 1 ? '' : 's') : '', so ? 'free sugar over ' + sugarMax() + ' g on ' + so + ' of ' + n : ''].filter(Boolean);
+  const over = [tm ? 'too much food on ' + tm + ' of ' + n + ' day' + (n === 1 ? '' : 's') : '', fo ? 'fat over ' + fatPctMax() + '% of calories on ' + fo + ' of ' + n + ' day' + (n === 1 ? '' : 's') : '', so ? 'free sugar over ' + sugarMax() + ' g on ' + so + ' of ' + n : '',
+    bad ? bad + (bad === 1 ? " day that can't be right left out of the averages; fix it in that day's log" : " days that can't be right left out of the averages; fix them in those days' logs") : ''].filter(Boolean);
   return '<section class="card"><h2>Last 7 days<span class="r">creatine on ' + cr + ' of 7' + (vdOn ? ', vitamin D on ' + vd + ' of ' + vdOn : '') + '</span></h2><div class="wrows">' + rows + '</div>' +
     '<p class="small" style="margin:10px 0 0">' + (n ? 'Average over ' + n + ' finished day' + (n === 1 ? '' : 's') + ': <b>' + Math.round(sp / n) + ' g protein</b> and <b>' + kcal(sk / n) + ' kcal</b>. ' + hit + ' of ' + n + ' reached ' + P.proteinLo + ' g.' : 'Log a few days to see your averages.') + '</p>' +
     (n ? '<p class="small" style="margin:6px 0 0">Fruit and veg: about <b>' + portions(fvs / n) + '</b> a day. Aim for ' + fvGoal() + '.</p>' : '') +
@@ -2947,6 +3039,7 @@ function renderSetup(){
       '<label class="f">Vitamin D tick<select data-pref="vitD">' + [[1, 'October to March'], [2, 'All year'], [0, 'Off']].map(([v, l]) => '<option value="' + v + '"' + (+P.vitD === v ? ' selected' : '') + '>' + l + '</option>').join('') + '</select></label>' +
       num('recDelay', 'Recordings on Echo360: minutes after a lecture ends', 15) + '</div>' +
       '<p class="muted small" style="margin:10px 0 0">Fat and free sugar only show on Food when a day goes over. Fat is a share of calories, so eating more for the bulk never trips it.</p>' +
+      '<p class="muted small" style="margin:6px 0 0">Safety checks move with your weight (' + fmtN(bodyKg()) + ' kg now) and your own days: a normal day is about ' + kcal(needKcal()) + ' kcal, too much is over ' + kcal(needKcal() * 1.5) + ', too much protein is over ' + protMax() + ' g, and water is plenty at ' + mlText(waterWarnMl()) + ' and stops at ' + mlText(waterStopMl()) + '. Any amount far above your usual asks you to check it first.</p>' +
       '<p class="muted small" style="margin:12px 0 0">To move a gym day, a block or a lecture: tap it in Today or Week. To add one: the + button.</p></section>' +
     '<section class="card"><h2>Your changes<span class="r hand">' + edits.length + '</span></h2>' + (edits.length ? edits.map(e => '<div class="li"><div class="tx small">' + esc(editText(e)) + '</div><button class="btn small" data-act="undoedit" data-id="' + esc(e.id) + '">Undo</button></div>').join('') : '<p class="empty">None yet. Changes you make in the app appear here, and each can be undone.</p>') + '</section>' +
     '<section class="card prose"><h2>Install on your phone and laptop</h2>' + (installed ? '<p><b>Installed on this device.</b></p>' : '') +
@@ -3210,8 +3303,10 @@ document.addEventListener('click', e => {
   if (a === 'shopdel'){ const l = el.dataset.l, i = +el.dataset.i, item = S.shopList[l][i]; S.shopList[l].splice(i, 1); S.shop = {}; save(); render(); toast('Removed.', () => { S.shopList[l].splice(i, 0, item); save(); render(); }); return; }
   if (a === 'shopclear'){ Object.keys(S.shop).filter(k => k.startsWith(el.dataset.l)).forEach(k => delete S.shop[k]); save(); render(); return; }
   if (a === 'fadd'){ const d = el.dataset.d || foodDay || today(), id = el.dataset.id, fd = foodOf(id); if (!fd) return;
-    const entry = {f:id, q:fd.def}, msg = addFood(d, entry, entryLabel(entry)); if ($('#dlg').open) closeDlg(); render();
-    toast(msg + '.', () => { const L = S.food.log[d] || []; const i = L.lastIndexOf(entry); if (i >= 0) L.splice(i, 1); save(); render(); }); return; }
+    const entry = {f:id, q:fd.def};
+    guardEntry(entry, () => { const msg = addFood(d, entry, entryLabel(entry)); if ($('#dlg').open) closeDlg(); render();
+      toast(msg + '.', () => { const L = S.food.log[d] || []; const i = L.lastIndexOf(entry); if (i >= 0) L.splice(i, 1); save(); render(); }); });
+    return; }
   if (a === 'logusual'){ const d = el.dataset.d || foodDay || today(), L = (S.food.log[d] = S.food.log[d] || []);
     if (L.length && !confirm('Add your usual day on top of what is already logged?')) return;
     pFrom = foodTotals(L).p;
@@ -3220,8 +3315,15 @@ document.addEventListener('click', e => {
   if (a === 'fq' || a === 'fdel'){ const d = foodDay || today(), L = dayLog(d), i = +el.dataset.i, e = L[i]; if (!e) return;
     if (a === 'fdel'){ L.splice(i, 1); save(); render(); toast('Removed.', () => { L.splice(i, 0, e); save(); render(); }); return; }
     const fd = e.o ? null : foodOf(e.f), stp = fd ? fd.st : 1, nq = Math.round((e.q + (+el.dataset.dir) * stp) * 100) / 100;
-    if (nq > 0){ pFrom = foodTotals(L).p; e.q = nq; save(); render(); } return; }
+    if (!(nq > 0)) return;
+    const apply = () => { pFrom = foodTotals(L).p; e.q = nq; save(); render(); };
+    // only going up can make a mistake, and only the step that crosses the line asks
+    if (+el.dataset.dir > 0 && !amountCheck(e)) guardEntry(o(e, {q:nq}), apply); else apply();
+    return; }
   if (a === 'creatine'){ const d = el.dataset.d || today(); if (S.food.creatine[d]) delete S.food.creatine[d]; else { S.food.creatine[d] = true; justTicked = 'cr|' + d; } save(); render(); return; }
+  if (a === 'guardgo'){ const g = GUARD; GUARD = null; closeDlg(); if (g) g.go(); return; }
+  if (a === 'guardfix'){ closeDlg(); return; }   // the dialog's close event runs the fix
+  if (a === 'wforce'){ const g = WGUARD; WGUARD = null; closeDlg(); if (g) addWater(g.d, g.ml, true); return; }
   if (a === 'vitd'){ const d = el.dataset.d || today(); if (S.food.vitD[d]) delete S.food.vitD[d]; else { S.food.vitD[d] = true; justTicked = 'vd|' + d; } save(); render(); return; }
   if (a === 'fvx'){ const d = el.dataset.d || foodDay || today(), id = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
     (S.food.fvExtra[d] = fvExtras(d)).push({id}); save(); render();
@@ -3328,10 +3430,18 @@ document.addEventListener('submit', e => {
     return; }
   if (k === 'weight'){ const kg = parseFloat(String(v.kg).replace(',', '.')); if (!(kg > 25 && kg < 200)){ toast('Type your weight in kg, e.g. 58.4'); return; } S.weights[today()] = Math.round(kg * 10) / 10; save(); render(); toast('Saved ' + S.weights[today()] + ' kg.'); return; }
   if (k === 'foodadd'){ const fd = foodOf(v.id), q = parseFloat(v.q); if (!fd || !(q > 0)){ toast('Type an amount.'); return; }
-    const d = foodDay || today(), entry = {f:v.id, q}, msg = addFood(d, entry, entryLabel(entry)); render();
-    toast(msg + '.', () => { const L = dayLog(d), i = L.lastIndexOf(entry); if (i >= 0) L.splice(i, 1); save(); render(); }); return; }
+    const d = foodDay || today(), entry = {f:v.id, q};
+    guardEntry(entry, () => { const msg = addFood(d, entry, entryLabel(entry)); render();
+      toast(msg + '.', () => { const L = dayLog(d), i = L.lastIndexOf(entry); if (i >= 0) L.splice(i, 1); save(); render(); }); },
+      () => { const i = document.querySelector('form[data-form="foodadd"] input[name="q"]'); if (i){ i.focus(); i.select(); } });
+    return; }
   if (k === 'foodnew'){ const n = String(v.n || '').trim().slice(0, 60), num = x => Math.max(0, parseFloat(String(x).replace(',', '.')) || 0), q = num(v.q); if (!n) return;
     const vals = {p:num(v.p), c:num(v.c), k:num(v.k), s:num(v.s), fv:num(v.fv)}, d = foodDay || today(), kind = v.kind === 'drink' ? 'drink' : 'food';
+    if (!f.dataset.ok){
+      const chk = valuesCheck(vals.p, vals.c, num(v.f), vals.k), need = needKcal(), tot = vals.k * q;
+      if (chk){ formCheck(f, "These numbers don't add up. " + fmtN(vals.p) + ' g protein, ' + fmtN(vals.c) + ' g carbs and ' + fmtN(num(v.f)) + ' g fat make about ' + kcal(chk.est) + ' kcal, not ' + kcal(vals.k) + '. Is there a typo?', 'k'); return; }
+      if (tot > need * 1.5 || q > 20){ formCheck(f, kcal(tot) + ' kcal for ' + fmtN(q) + ' serving' + (q === 1 ? '' : 's') + (tot > need * 0.9 ? ' is ' + times(tot / need) + ' what you need in a whole day' : '') + '. Is the number of servings right?', 'q'); return; }
+    }
     if (v.keep){ const id = 'u' + Date.now().toString(36); S.food.custom.push(o({id, n, kind, u:String(v.u || 'serving').trim() || 'serving', f:num(v.f)}, vals)); if (q > 0) (S.food.log[d] = S.food.log[d] || []).push({f:id, q}); }
     else if (q > 0) (S.food.log[d] = S.food.log[d] || []).push(o({o:1, n, kind, fat:num(v.f), q}, vals));
     save(); closeDlg(); render(); toast(q > 0 ? 'Logged ' + n + '.' : 'Saved ' + n + ' to Your foods and drinks.'); return; }
@@ -3339,6 +3449,8 @@ document.addEventListener('submit', e => {
     const n = String(v.n || '').trim().slice(0, 60); if (!n){ toast('Type a name.'); return; }
     const num = x => Math.max(0, parseFloat(String(x).replace(',', '.')) || 0);
     const vals = {n, kind:v.kind === 'drink' ? 'drink' : 'food', p:num(v.p), k:num(v.k), c:num(v.c), f:num(v.f), s:num(v.s), fv:num(v.fv)};
+    if (!f.dataset.ok){ const chk = valuesCheck(vals.p, vals.c, vals.f, vals.k);
+      if (chk){ formCheck(f, "These numbers don't add up. " + fmtN(vals.p) + ' g protein, ' + fmtN(vals.c) + ' g carbs and ' + fmtN(vals.f) + ' g fat make about ' + kcal(chk.est) + ' kcal, not ' + kcal(vals.k) + '. Is there a typo?', 'k'); return; } }
     const ci = S.food.custom.findIndex(x => x.id === id), had = S.food.over[id];
     let undo;
     if (ci >= 0){ const before = S.food.custom[ci]; S.food.custom[ci] = o(before, vals, v.u != null ? {u:String(v.u).trim() || 'serving'} : {}); undo = () => { const j = S.food.custom.findIndex(x => x.id === id); if (j >= 0) S.food.custom[j] = before; }; }
@@ -3411,6 +3523,10 @@ document.addEventListener('submit', e => {
   }
 });
 document.addEventListener('toggle', e => { if (e.target && e.target.id === 'foodsDet') foodsOpen = e.target.open; }, true);
+// After a form check, changing any box means it checks again
+document.addEventListener('input', e => { const f = e.target && e.target.form; if (f && f.dataset.ok){ delete f.dataset.ok; const b = f.querySelector('button[type="submit"]'); if (b && b.dataset.label){ b.textContent = b.dataset.label; b.classList.add('primary'); } } });
+// The typo check: closing it any way except "No mistake, add it" (Fix the amount, Escape, the back button) means fix it
+$('#dlg').addEventListener('close', () => { WGUARD = null; if (GUARD){ const g = GUARD; GUARD = null; if (g.fix) setTimeout(g.fix, 0); } });
 document.addEventListener('change', e => {
   const el = e.target;
   if (el.dataset.gx != null){
@@ -3424,12 +3540,21 @@ document.addEventListener('change', e => {
   if (el.dataset.gsday){ const x = S.gym.sessions.find(z => z.id === el.dataset.gsday); if (x){ x.day = +el.value; save(); cache.clear(); render(); toast('Changed to Day ' + x.day + '.'); } return; }
   if (el.dataset.pref){
     if (el.dataset.pref === 'gymnext'){ S.gym.manual = {day:+el.value, ids:S.gym.sessions.map(x => x.id)}; save(); cache.clear(); render(); toast('Next session: Day ' + gymNext() + '.'); return; }
-    const n = parseFloat(el.value); if (!(n >= 0)) return;
-    S.prefs[el.dataset.pref] = n; save(); cache.clear(); toast('Saved.'); return;
+    let n = parseFloat(el.value); if (!(n >= 0)) return;
+    const k = el.dataset.pref;
+    // goals can't be set past the safety lines
+    if (k === 'waterL' && n * 1000 > waterWarnMl()){ n = Math.floor(waterWarnMl() / 250) / 4; el.value = n; S.prefs[k] = n; save(); cache.clear(); toast('More than ' + mlText(waterWarnMl()) + ' a day is more than you need. Set to ' + mlText(n * 1000) + '.'); return; }
+    if ((k === 'proteinLo' || k === 'proteinHi') && n > protMax()){ n = protMax(); el.value = n; S.prefs[k] = n; save(); cache.clear(); toast('Over ' + protMax() + ' g is above what is considered safe for your weight. Set to ' + n + ' g.'); return; }
+    S.prefs[k] = n; save(); cache.clear(); toast('Saved.'); return;
   }
-  if (el.dataset.fqi != null){ const L = dayLog(foodDay || today()), e = L[+el.dataset.fqi], q = parseFloat(el.value); if (e && q > 0){ pFrom = foodTotals(L).p; e.q = q; save(); } render(); return; }
+  if (el.dataset.fqi != null){ const L = dayLog(foodDay || today()), i = +el.dataset.fqi, e = L[i], q = parseFloat(el.value); if (!e || !(q > 0)){ render(); return; }
+    guardEntry(o(e, {q}), () => { pFrom = foodTotals(L).p; e.q = q; save(); render(); },
+      () => { render(); const x = document.querySelector('[data-fqi="' + i + '"]'); if (x){ x.focus(); x.select(); } });
+    return; }
   if (el.dataset.usf != null){ const e = S.food.usual[+el.dataset.usf]; if (e){ e.f = el.value; e.q = foodOf(el.value).def; save(); render(); } return; }
-  if (el.dataset.usq != null){ const e = S.food.usual[+el.dataset.usq], q = parseFloat(el.value); if (e && q > 0){ e.q = q; save(); render(); } return; }
+  if (el.dataset.usq != null){ const i = +el.dataset.usq, e = S.food.usual[i], q = parseFloat(el.value); if (!e || !(q > 0)){ render(); return; }
+    guardEntry(o(e, {q}), () => { e.q = q; save(); render(); }, () => { render(); const x = document.querySelector('[data-usq="' + i + '"]'); if (x){ x.focus(); x.select(); } });
+    return; }
   if (el.dataset.usm != null){ const e = S.food.usual[+el.dataset.usm]; if (e){ e.m = el.value; save(); render(); } return; }
   if (el.dataset.fsel != null){ const fd = foodOf(el.value), f = el.form; if (fd && f){ f.elements.q.value = fd.def; const u = f.querySelector('[data-funit]'); if (u) u.textContent = unitOf(fd); } return; }
 });
