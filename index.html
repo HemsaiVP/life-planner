@@ -65,7 +65,6 @@ a{color:var(--study)}
 #app{min-height:100vh;min-height:100dvh}
 .wrap{max-width:720px;margin:0 auto;padding:0 18px}
 main.wrap{position:relative;padding:6px 18px calc(130px + env(safe-area-inset-bottom))}
-.ghost{position:absolute;right:20px;top:4px;z-index:-1;font-family:Kalam,cursive;font-size:20px;line-height:1.25;color:var(--ink);opacity:.065;transform:rotate(4deg);filter:blur(.4px);pointer-events:none;user-select:none;white-space:pre;text-align:right}
 .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px 0 2px}
 .topbar>div:first-child{min-width:0}
 .topbar h1{font-family:Kalam,cursive;font-weight:700;font-size:46px;line-height:1.05;white-space:nowrap}
@@ -170,6 +169,62 @@ body:not(.L-C) .cols{grid-template-columns:1fr}
 .tag.bad{color:var(--bad);border-color:var(--bad)}
 .tag.warn{color:var(--warn);border-color:var(--warn)}
 .tag.good{color:var(--good);border-color:var(--good)}
+/* 4.6 drafts: lecture tracker. Each week in its own hand-drawn box, the week's name stays in view while you scroll it */
+.termh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:14px 0 4px}
+.termh .hand{font-size:32px;line-height:1.1}
+.tsum{font-size:14.5px;line-height:20px;color:var(--ink-2)}
+.wbox{container:wbox/inline-size;border:2px solid var(--rule);border-radius:var(--r1);padding:0 14px 6px;margin-top:16px}
+.wbox:nth-of-type(2n){border-radius:var(--r2)}
+.wbox.now{border-color:var(--lse)}
+.whead{position:sticky;top:0;z-index:3;background:var(--board);list-style:none;cursor:pointer;display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 10px;padding:12px 0 10px}
+.whead::-webkit-details-marker{display:none}
+.wbox[open]>.whead{border-bottom:2px solid var(--rule)}
+.wn{font-size:27px;line-height:1}
+.wdates{font-size:14.5px;color:var(--ink-2)}
+.wsum{margin-left:auto;display:flex;align-items:baseline;gap:8px;font-size:14.5px;color:var(--ink-2)}
+.wsum .hand{font-size:20px;color:var(--ink)}
+.wst.good{color:var(--good);font-weight:700}
+.wbox .ticks{margin-top:0;flex-wrap:wrap}
+.wbox .tk{padding:4px 11px}
+@container wbox (max-width:420px){ .wbox .lg{display:none} .wbox .ticks{gap:4px} .wbox .tk{padding:4px 8px;font-size:13px;gap:3px} .wbox .tk svg{width:14px;height:14px} }
+/* draft A: a line per session */
+.srow{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:10px;row-gap:8px;padding:10px 0;border-top:1.5px solid var(--rule-soft)}
+.srow.first{border-top:2px solid var(--rule)}
+.srows .srow:first-child{border-top:0}
+.sday{grid-row:span 2;display:flex;flex-direction:column;line-height:1.05}
+.sday b{font-size:13px;color:var(--ink-2)}
+.sday .hand{font-size:24px}
+.sinfo{min-width:0}
+.sinfo .l1{font-size:15.5px;line-height:21px}
+.sinfo small{display:block;font-size:13.5px;line-height:18px;color:var(--ink-2)}
+.srow .ticks{grid-column:2}
+.srow.done>*:not(.sday){opacity:.55}
+.srow.done .sinfo b{text-decoration:line-through;text-decoration-color:var(--lse);text-decoration-thickness:2px}
+.srow.up>*:not(.sday){opacity:.65}
+@container wbox (min-width:640px){
+  .srow{grid-template-columns:56px minmax(0,1fr) auto;align-items:center}
+  .sday{grid-row:auto}
+  .srow .ticks{grid-column:3}
+}
+/* draft B: the week as a board, a column per day */
+.wdays{display:grid;gap:14px;padding:12px 0 6px}
+.dname{display:flex;align-items:baseline;gap:6px;margin-bottom:8px;font-size:13px;color:var(--ink-2)}
+.dname .hand{font-size:24px;color:var(--ink)}
+.scard{border:2px solid var(--rule);border-radius:var(--r3);padding:10px 10px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:3px}
+.dcol .scard:nth-child(2n){border-radius:var(--r4)}
+.scard .l1{font-size:15px;line-height:20px}
+.scard .tag.first{margin-left:0}
+.scard small{font-size:13.5px;color:var(--ink-2)}
+.scard .ticks{margin-top:6px;flex-wrap:wrap}
+.scard.done{opacity:.55}
+.scard.done .l1 b{text-decoration:line-through;text-decoration-color:var(--lse);text-decoration-thickness:2px}
+.scard.up{opacity:.65}
+@container wbox (min-width:640px){
+  .wdays{grid-template-columns:repeat(var(--nd,5),minmax(0,1fr))}
+  .scard .ticks{flex-direction:column;align-items:stretch}
+  .scard .tk{justify-content:flex-start}
+  .scard .lg{display:inline}
+}
 .seg{display:inline-flex;flex-wrap:wrap;gap:6px}
 .seg button{min-height:44px;padding:6px 14px;border:2px solid var(--btn-line);border-radius:var(--r3);background:transparent;color:var(--ink);font-weight:700;font-size:14.5px}
 .seg button:nth-child(2n){border-radius:var(--r4)}
@@ -670,7 +725,7 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '4.5.2';
+const APP_VERSION = '4.6';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
@@ -1991,8 +2046,7 @@ function tally(done, slots, label){
   }
   return '<svg class="tally" viewBox="0 0 ' + W + ' 30" width="' + Math.round(W * 26 / 30) + '" role="img" aria-label="' + esc(label || done + ' done') + '">' + p + '</svg>';
 }
-const GHOST = {today:'£35 a week', week:'reading week 15 Feb', gym:'70 × 6, 6, 5\nrows 4 × 8', food:'bagels ×3 packs', progress:'58 → 65 kg', behind:'EC2C1 5 Oct', deadlines:'Moodle, Sunday', setup:'back up on Sunday', more:'MR = MC'};
-const ghost = () => '<div class="ghost" aria-hidden="true">' + esc(isNight() && TAB === 'today' ? 'MR = MC' : (GHOST[TAB] || '')) + '</div>';
+const ghost = () => '';   // 4.6: plain board, no ghost writing
 const VIEWS = ['today','week','behind','deadlines','gym','progress','food','setup','more'];
 const NAMES = {today:'Today', week:'Week', behind:'Behind', deadlines:'Deadlines', gym:'Gym', progress:'Progress', food:'Food and body', setup:'Setup', more:'More'};
 const TABC = {today:'--study', week:'--admin', gym:'--gym', progress:'--career', behind:'--lse', more:'--business', deadlines:'--business', food:'--meal', setup:'--admin'};
@@ -2334,6 +2388,73 @@ function renderWeek(){
 }
 
 /* ================= BEHIND ================= */
+/* Lecture tracker (4.6): laid out like the spreadsheet. Term tabs, a block per teaching week in order, one row per session,
+   and three tick columns. Done rows (covered and notes made) are struck through. Weeks with nothing left to do fold to one line. */
+const TERMS = [['AT', 'Autumn'], ['WT', 'Winter'], ['ST', 'Spring']];
+const TERM_OF = {AT:'AT', XMAS:'AT', JAN:'AT', WT:'WT', SPRING:'WT', ST:'ST', SUMMER:'ST', OUT:'AT'};
+let trackTerm = null, trackScroll = false;
+const twOpen = new Map();
+const KIND = {lecture:'Lecture', class:'Class', help:'Help', workshop:'Workshop'};
+function trackState(x){
+  const past = isPastS(x), cov = covered(x.id), nts = !!S.notes[x.id], sol = !!S.done['sol|' + x.id];
+  const tag = past && !cov ? (x.kind === 'lecture' ? (isDue(x) ? ['bad', 'behind'] : ['', 'to watch']) : x.kind === 'help' ? ['', 'optional'] : sol ? ['good', 'solutions done'] : ['bad', 'missed']) : null;
+  const done = cov && nts, open = past && (tag ? tag[0] === 'bad' : cov && !nts);
+  return {past, cov, nts, tag, done, open, behind:!!(tag && tag[0] === 'bad')};
+}
+// Two drafts while Hemsai chooses (not live): 'a' = one line per session, 'b' = the week's days side by side.
+// ?tracker=a or ?tracker=b in the address picks one for the preview pictures.
+const TRACK_DRAFT = (/[?&]tracker=([ab])/.exec(location.search) || [])[1] || 'a';
+const tagHtml = s => s.tag ? '<span class="tag' + (s.tag[0] ? ' ' + s.tag[0] : '') + '">' + s.tag[1] + '</span>' : '';
+// The labelled buttons, as before. "back" and "made" drop off when the space is narrow.
+function pills(x){
+  const t = (f, l, lg) => { const on = !!S[f][x.id];
+    return '<button class="tk' + (on ? ' on' : '') + '" data-act="lt" data-f="' + f + '" data-id="' + esc(x.id) + '" aria-pressed="' + on + '" aria-label="' + l + (lg || '') + ': ' + esc(x.label) + ', ' + sessWhen(x) + '">' + (on ? tickSvg() : '') + l + (lg ? '<span class="lg">' + lg + '</span>' : '') + '</button>'; };
+  return '<div class="ticks c-lse">' + t('att', 'Attended') + t('wat', 'Watched', ' back') + t('notes', 'Notes', ' made') + '</div>';
+}
+function weekHead(ws, p, st, xs, isNow){
+  const wn = Math.floor(daysBetween(p.wk, ws) / 7) + 1, past = st.filter(s => s.past).length, cov = st.filter(s => s.past && s.cov).length, behind = st.filter(s => s.behind).length;
+  const allDone = past === xs.length && st.every(s => s.done || (s.tag && (s.tag[1] === 'optional' || s.tag[1] === 'solutions done')));
+  const we = addD(ws, 4), sameM = dOf(ws).getMonth() === dOf(we).getMonth();
+  const dates = dOf(ws).getDate() + (sameM ? '' : ' ' + MONTHS[dOf(ws).getMonth()].slice(0, 3)) + '–' + dOf(we).getDate() + ' ' + MONTHS[dOf(we).getMonth()].slice(0, 3);
+  const status = !past ? '<span class="wst">' + xs.length + ' coming up</span>' : allDone ? '<span class="wst good">All ' + xs.length + ' done ✓</span>'
+    : '<span class="wst"><b class="hand">' + cov + ' of ' + past + '</b> covered</span>' + (behind ? '<span class="tag bad">' + behind + ' behind</span>' : '');
+  return {allDone, html:'<summary class="whead"><span class="wn hand">Week ' + wn + '</span><span class="wdates">' + dates + (p.reading === wn ? ', reading week' : '') + '</span>' +
+    (isNow ? '<span class="tag good">this week</span>' : '') + '<span class="wsum">' + status + '</span></summary>'};
+}
+// Draft A: a line per session. Laptop: day, session and the three buttons on one line. Phone: the buttons sit under the session.
+function weekRowsHtml(xs, st){
+  let last = '';
+  return '<div class="srows">' + xs.map((x, i) => { const s = st[i], first = x.date !== last; last = x.date;
+    return '<div class="srow' + (first ? ' first' : '') + (s.done ? ' done' : '') + (s.past ? '' : ' up') + '">' +
+      '<div class="sday">' + (first ? '<b>' + dayName(x.date, true) + '</b><span class="hand">' + dOf(x.date).getDate() + '</span>' : '') + '</div>' +
+      '<div class="sinfo"><span class="l1"><b>' + esc(x.label) + '</b>' + tagHtml(s) + '</span><small>' + tm(x.s) + '–' + tm(x.e) + '</small></div>' + pills(x) + '</div>'; }).join('') + '</div>';
+}
+// Draft B: the week as a board. Laptop: a column per day, a card per session. Phone: the days stack.
+function weekDaysHtml(xs, st){
+  const days = new Map(); xs.forEach((x, i) => { if (!days.has(x.date)) days.set(x.date, []); days.get(x.date).push(i); });
+  return '<div class="wdays" style="--nd:' + Math.min(5, days.size) + '">' + [...days.entries()].map(([d, ix]) => '<div class="dcol"><div class="dname"><b>' + dayName(d, true) + '</b><span class="hand">' + dOf(d).getDate() + '</span></div>' +
+    ix.map(i => { const x = xs[i], s = st[i];
+      return '<div class="scard' + (s.done ? ' done' : '') + (s.past ? '' : ' up') + '"><span class="l1"><b>' + esc(x.label) + '</b></span>' + (s.tag ? '<span>' + tagHtml(s).replace('class="tag', 'class="tag first') + '</span>' : '') +
+        '<small>' + tm(x.s) + '–' + tm(x.e) + '</small>' + pills(x) + '</div>'; }).join('') + '</div>').join('') + '</div>';
+}
+function trackerHtml(){
+  const t = today(), term = trackTerm || TERM_OF[periodOf(t).id] || 'AT', p = PERIODS.find(z => z.id === term), tw = weekStart(t);
+  const list = ALLSESS.filter(x => x.kind !== 'qa' && x.date >= p.from && x.date <= p.to).sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : a.s - b.s);
+  const weeks = new Map(); for (const x of list){ const k = weekStart(x.date); if (!weeks.has(k)) weeks.set(k, []); weeks.get(k).push(x); }
+  let pc = 0, pn = 0, beh = 0, nw = 0;
+  for (const x of list){ const s = trackState(x); if (!s.past) continue; pn++; if (s.cov) pc++; if (s.behind) beh++; if (s.cov && !s.nts) nw++; }
+  const tabs = '<div class="seg" style="display:flex;margin:0 0 6px" role="group" aria-label="Term">' + TERMS.map(([id, l]) => '<button data-act="tterm" data-t="' + id + '" aria-pressed="' + (term === id) + '">' + l + '</button>').join('') + '</div>';
+  const name = p.lc.replace(/^./, c => c.toUpperCase());
+  const sum = pn ? 'So far: ' + pc + ' of ' + pn + ' sessions covered' + (beh ? ', ' + beh + ' behind' : '') + (nw ? ', ' + nw + ' to write notes for' : '') + '.'
+    : list.length ? 'Nothing has happened yet. ' + list.length + ' sessions are planned.' : 'No lectures or classes in this term.';
+  const blocks = [...weeks.entries()].map(([ws, xs]) => {
+    const st = xs.map(trackState), isNow = ws === tw, H = weekHead(ws, p, st, xs, isNow);
+    const open = twOpen.has(ws) ? twOpen.get(ws) : (isNow || st.some(s => s.open));
+    return '<details class="wbox' + (isNow ? ' now' : '') + '" data-wk="' + ws + '"' + (open ? ' open' : '') + '>' + H.html +
+      '<div class="wbody">' + (TRACK_DRAFT === 'b' ? weekDaysHtml(xs, st) : weekRowsHtml(xs, st)) + '</div></details>';
+  }).join('');
+  return tabs + '<div class="termh"><span class="hand">' + esc(name) + '</span><span class="tsum">' + esc(sum) + '</span></div>' + blocks;
+}
 function renderBehind(){
   const mc = missedClasses(), nw = notesToWrite(), hs = helpSkipped();
   const seg = (k, l) => '<button data-act="bmode" data-f="' + k + '" aria-pressed="' + (behindMode === k) + '">' + l + '</button>';
@@ -2349,22 +2470,11 @@ function renderBehind(){
       dueCard() + weekCard(weekStart(today()), 'This week') +
       (hs.length ? '<section class="card"><details><summary><h2 style="margin:0">Optional help lectures not watched<span class="r">' + hs.length + '</span></h2></summary>' + hs.map(x =>
         '<div class="li"><span class="code">' + x.code + '</span><div class="tx"><div class="t">' + esc(x.label) + '</div><div class="s">' + sessWhen(x) + ', optional</div></div><button class="btn small" data-act="lt1" data-f="wat" data-id="' + esc(x.id) + '">Watched</button></div>').join('') + '</details></section>' : '');
-  } else {
-    const n = now();
-    let list = ALLSESS.filter(x => x.kind !== 'qa');
-    if (!trackAll) list = list.filter(x => at(x.date, x.s) <= n);
-    const groups = {};
-    for (const x of list){ const k = weekStart(x.date); (groups[k] = groups[k] || []).push(x); }
-    const keys = Object.keys(groups).sort().reverse();
-    body = '<div class="row-flex" style="margin-top:12px"><button class="btn small" data-act="trackall">' + (trackAll ? 'Show only so far' : 'Show the whole year') + '</button></div>' +
-      keys.map(k => '<div class="sec">Week of ' + niceDate(k) + ', ' + esc(periodOf(k).lc || periodOf(k).name) + '</div><section class="card">' + groups[k].map((x, i) => {
-        const past = isPastS(x), cov = covered(x.id);
-        const flag = past && !cov ? (x.kind === 'lecture' ? (isDue(x) ? '<span class="tag bad">behind</span>' : '<span class="tag">to watch</span>') : x.kind === 'help' ? '<span class="tag">optional</span>' : S.done['sol|' + x.id] ? '<span class="tag good">solutions done</span>' : '<span class="tag bad">missed</span>') : '';
-        return '<div class="li' + (i ? '' : ' first') + '" style="flex-wrap:wrap' + (past ? '' : ';opacity:.6') + '"><span class="code">' + x.code + '</span><div class="tx"><div class="t">' + esc(x.label) + flag + '</div><div class="s">' + sessWhen(x) + ', ' + tm(x.s) + '–' + tm(x.e) + '</div></div><div style="flex-basis:100%;padding-left:66px;margin-top:-4px">' + lseTicks(x.id) + '</div></div>';
-      }).join('') + '</section>').join('');
-  }
+  } else body = trackerHtml();
   view.innerHTML = ghost() + '<div class="topbar"><div><h1>Behind</h1><div class="sub">What slipped, what is due, and your full lecture tracker.</div></div></div>' +
     '<div class="seg" style="margin:12px 0 18px">' + seg('todo', 'To do') + seg('track', 'Lecture tracker') + '</div>' + body;
+  // opening the tracker brings this week into view if it is below the fold
+  if (trackScroll){ trackScroll = false; requestAnimationFrame(() => { const w = document.querySelector('.wbox.now'); if (w && w.getBoundingClientRect().top > innerHeight * 0.6) w.scrollIntoView({block:'start'}); }); }
 }
 
 /* ================= DEADLINES ================= */
@@ -3270,8 +3380,8 @@ document.addEventListener('click', e => {
   if (a === 'wprev' || a === 'wnext'){ viewWeek = addD(viewWeek || weekStart(today()), a === 'wprev' ? -7 : 7); render(); return; }
   if (a === 'wtoday'){ viewWeek = null; render(); return; }
   if (a === 'afull'){ aFull = !aFull; render(); return; }
-  if (a === 'bmode'){ behindMode = el.dataset.f; render(); return; }
-  if (a === 'trackall'){ trackAll = !trackAll; render(); return; }
+  if (a === 'bmode'){ behindMode = el.dataset.f; trackScroll = behindMode === 'track'; render(); return; }
+  if (a === 'tterm'){ trackTerm = el.dataset.t; twOpen.clear(); trackScroll = true; render(); return; }
   if (a === 'welcomed'){ S.welcomed = true; S.seen4 = true; save(); render(); return; }
   if (a === 'seen4'){ S.seen4 = true; save(); render(); return; }
   if (a === 'copyweek'){ copyWeek(); return; }
@@ -3522,7 +3632,7 @@ document.addEventListener('submit', e => {
     S.custom.push(item); save(); closeDlg(); render(); toast('Deadline added.', () => { S.custom = S.custom.filter(x => x !== item); save(); render(); }); return;
   }
 });
-document.addEventListener('toggle', e => { if (e.target && e.target.id === 'foodsDet') foodsOpen = e.target.open; }, true);
+document.addEventListener('toggle', e => { if (e.target && e.target.id === 'foodsDet') foodsOpen = e.target.open; if (e.target && e.target.dataset && e.target.dataset.wk) twOpen.set(e.target.dataset.wk, e.target.open); }, true);
 // After a form check, changing any box means it checks again
 document.addEventListener('input', e => { const f = e.target && e.target.form; if (f && f.dataset.ok){ delete f.dataset.ok; const b = f.querySelector('button[type="submit"]'); if (b && b.dataset.label){ b.textContent = b.dataset.label; b.classList.add('primary'); } } });
 // The typo check: closing it any way except "No mistake, add it" (Fix the amount, Escape, the back button) means fix it
@@ -3737,7 +3847,7 @@ window.__planner = {
     return {conflicts: CONFLICTS.slice(), dowBad, overlaps, noCareer, unplanned: watchPlan().none.slice(), sessions: ALLSESS.length, deadlines: DL.length};
   },
   day: d => dayBlocks(d).map(b => tm(b.s) + '-' + tm(b.e) + ' [' + b.cat + '] ' + b.t + ' {' + b.id + '}'),
-  state: () => S, weekText, merge3, deepEq, sync: () => ({on:syncOn(), state:syncState, line:syncLine(), sha:SYNC.sha, blocked:syncBlocked, exp:SYNC.exp, left:tokenDaysLeft()}), syncNow, watch: () => Object.values(watchPlan().byId).map(w => w.sid.split('|').slice(1, 3).join(' ') + ' → ' + w.date + ' ' + tm(w.s) + '–' + tm(w.e) + ' ' + w.how), behind: () => behindLectures().map(x => x.id), plan: () => CP, gp: () => GP
+  state: () => S, weekText, sess: () => ALLSESS.map(x => [x.id, x.date, x.code, x.kind]), merge3, deepEq, sync: () => ({on:syncOn(), state:syncState, line:syncLine(), sha:SYNC.sha, blocked:syncBlocked, exp:SYNC.exp, left:tokenDaysLeft()}), syncNow, watch: () => Object.values(watchPlan().byId).map(w => w.sid.split('|').slice(1, 3).join(' ') + ' → ' + w.date + ' ' + tm(w.s) + '–' + tm(w.e) + ' ' + w.how), behind: () => behindLectures().map(x => x.id), plan: () => CP, gp: () => GP
 };
 })();
 </script>

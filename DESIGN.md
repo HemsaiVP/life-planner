@@ -224,7 +224,7 @@ That is the whole list. No looping animation anywhere. With `prefers-reduced-mot
 
 ## 9. Backgrounds
 
-**Day board.** A diagonal sheen like light on a gloss board, plus "ghost writing": two or three faint words left from earlier plans (5–7% opacity, slightly blurred, tilted), never over text you need to read.
+**Day board.** A diagonal sheen like light on a gloss board. Nothing else: no ghost writing, no pattern (removed in 4.6, plain is easier to read at a glance).
 
 ```css
 background:
