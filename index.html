@@ -175,6 +175,10 @@ body:not(.L-C) .cols{grid-template-columns:1fr}
 .seg button:nth-child(2n){border-radius:var(--r4)}
 .seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--board)}
 input[type=text],input[type=password],input[type=number],input[type=date],input[type=time],select,textarea{background:var(--field);border:2px solid var(--field-line);border-radius:var(--r4);padding:8px 11px;min-height:44px;min-width:0;width:100%;font-size:16px;color:var(--ink)}
+/* 4.5.1: the open list of a dropdown is drawn by the browser on a solid colour. Give it the board's own sheet and ink,
+   or Windows Chrome shows chalk-white text on a white list on the Night board. */
+select option,select optgroup{background-color:var(--sheet);color:var(--ink)}
+select option:disabled{color:var(--ink-2)}
 input::placeholder,textarea::placeholder{color:var(--ink-2);opacity:.85}
 textarea{min-height:110px;font-size:13px;line-height:1.4}
 label.f{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:700;color:var(--ink-2)}
@@ -660,7 +664,7 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '4.5';
+const APP_VERSION = '4.5.1';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
