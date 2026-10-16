@@ -191,7 +191,7 @@ Alignment: everything left-aligned to the time column. Only the big figures on s
 
 **Sticky notes** (Today's four counts). Pastel paper, a round magnet in a marker colour at the top, tilted between −1.5° and +1.5°, shadow `0 8px 12px -8px rgba(26,29,35,.4)`. The count is in Kalam, the label in Atkinson. Each one is a button to its screen.
 
-**Tally marks** (gym sessions, home sessions). Drawn strokes for done, dashed strokes for still to do, a diagonal through every fifth. Reads faster than "1 of 4–5".
+**Tally marks** (gym sessions, home sessions, fruit and veg). Drawn strokes for done, dashed strokes for still to do, a diagonal through every fifth. Reads faster than "1 of 4–5".
 
 **Marker bar** (protein, hours). A hand-drawn outline, a marker fill, and the target zone hatched at 45°. On the Night board the fill is a chalk stroke.
 

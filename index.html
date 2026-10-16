@@ -449,6 +449,16 @@ body:not(.L-C) .wk{display:none} body:not(.L-C) .wklist{display:block}
 .wchip{display:inline-flex;align-items:center;padding-left:11px;border:1.5px solid var(--rule);border-radius:var(--r3);font-size:14px;color:var(--ink);background:var(--cell)}
 .wchip .x{min-width:40px;min-height:40px}
 .wchip .x svg{width:13px;height:13px}
+/* 4.5: fruit and veg tally, vitamin D tick, hidden limits, food spend */
+.fhbtns{display:flex;gap:8px;flex-wrap:wrap}
+.fv{display:grid;gap:10px}
+.fvline{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.fvline .tally{--tc:var(--business);height:30px}
+.lim{margin:8px 0 0;font-size:14.5px;line-height:20px;color:var(--warn);font-weight:700}
+.sline{display:flex;align-items:center;height:12px;margin-top:10px;min-width:0}
+.sline i{display:block;flex:none;height:5px;border-radius:2px 4px 3px 2px;background:var(--meal)}
+.sline::after{content:"";flex:1;border-top:2px dashed var(--dash)}
+.sline.over i{background:var(--warn)}
 .wrows{display:flex;flex-direction:column}
 .wrow{display:grid;grid-template-columns:64px minmax(0,1fr) 112px;gap:10px;align-items:center;min-height:44px;border:0;background:none;padding:4px 0;text-align:left;font-size:14px;color:var(--ink)}
 .wrow:hover{background:var(--wash)}
@@ -650,42 +660,65 @@ const o = (...a) => Object.assign({}, ...a);
 
 /* ================= storage ================= */
 const KEY = 'hlp1_state', DKEY = 'hlp1_device';
-const APP_VERSION = '4.4';
+const APP_VERSION = '4.5';
 const APP_URL = 'hemsaivp.github.io/life-planner';
 const V3_START = '2026-10-12';   // career blocks and new features start here; earlier days stay as they were
 const defAlerts = () => ({banner:true, system:false, sound:false, vibrate:false, leave:true, bedtime:'lock',
   cats:{lse:true, study:true, academy:true, gym:true, business:true, career:true, meal:true, chores:true, admin:true}});
 const defPrefs = () => ({recDelay:60, budget:35, careerMin:60, careerBreakMin:120, gymMin:4, gymMax:5, homeMin:2, homeMax:3,
-  proteinLo:120, proteinHi:130, startKg:58, goalKg:65, waterL:2, glassMl:250, bottleMl:500});
+  proteinLo:120, proteinHi:130, startKg:58, goalKg:65, waterL:2, glassMl:250, bottleMl:500,
+  fatPct:35, sugarG:30, fvGoal:5, vitD:1});
 // Food values per base amount. Conservative label-style estimates for plain food: log butter or oil separately.
 // Edit any of them in Food & body › Your foods (use your own labels).
+// s = free sugar g (added sugar and juice; not the sugar in whole fruit or milk). fv = fruit and veg portions (80 g = 1).
+// fvk = counts once a day however much you have (NHS: beans and pulses, juice). vg = what it adds: C vitamin C, G greens, A orange veg.
 const FOODS = {
-  bagel:  {n:'Bagels', per:1, u:'bagel', us:'bagels', cnt:1, def:2, st:1, p:10, c:45, f:1.5, k:235},
-  bot:    {n:'Beans on toast', per:1, u:'serving (½ tin, 2 slices)', us:'servings', def:1, st:0.5, p:16, c:57, f:2.5, k:350},
+  bagel:  {n:'Bagels', per:1, u:'bagel', us:'bagels', cnt:1, def:2, st:1, p:10, c:45, f:1.5, k:235, s:3},
+  bot:    {n:'Beans on toast', per:1, u:'serving (½ tin, 2 slices)', us:'servings', def:1, st:0.5, p:16, c:57, f:2.5, k:350, s:6, fv:1, fvk:'beans'},
   thighR: {n:'Chicken thighs (raw weight)', per:100, u:'g', def:200, st:50, p:17, c:0, f:8, k:140},
   thighC: {n:'Chicken thighs (cooked weight)', per:100, u:'g', def:150, st:50, p:24, c:0, f:9, k:177},
   breastR:{n:'Chicken breast (raw weight)', per:100, u:'g', def:200, st:50, p:22, c:0, f:2, k:106},
   breastC:{n:'Chicken breast (cooked weight)', per:100, u:'g', def:150, st:50, p:30, c:0, f:3.5, k:152},
   rice:   {n:'Rice', per:75, u:'g dry', def:75, st:25, p:5, c:59, f:1, k:265},
-  cereal: {n:'Cereal + milk', per:1, u:'bowl (70 g + 250 ml)', us:'bowls', def:1, st:0.5, p:16, c:62, f:5.5, k:380},
-  shake:  {n:'Protein shake', per:1, u:'scoop, with water', us:'scoops', def:1, st:0.5, p:22, c:3, f:2, k:120, kind:'drink'},
+  cereal: {n:'Cereal + milk', per:1, u:'bowl (70 g + 250 ml)', us:'bowls', def:1, st:0.5, p:16, c:62, f:5.5, k:380, s:8},
+  shake:  {n:'Protein shake', per:1, u:'scoop, with water', us:'scoops', def:1, st:0.5, p:22, c:3, f:2, k:120, s:1, kind:'drink'},
   egg:    {n:'Eggs', per:1, u:'egg', us:'eggs', cnt:1, def:3, st:1, p:6, c:0, f:5, k:70},
-  beans:  {n:'Baked beans', per:1, u:'tin of baked beans', us:'tins of baked beans', cnt:1, def:0.5, st:0.5, p:16, c:50, f:1, k:320},
-  toast:  {n:'Toast', per:1, u:'slice of toast', us:'slices of toast', cnt:1, def:2, st:1, p:4, c:16, f:1, k:95},
+  beans:  {n:'Baked beans', per:1, u:'tin of baked beans', us:'tins of baked beans', cnt:1, def:0.5, st:0.5, p:16, c:50, f:1, k:320, s:10, fv:2, fvk:'beans'},
+  toast:  {n:'Toast', per:1, u:'slice of toast', us:'slices of toast', cnt:1, def:2, st:1, p:4, c:16, f:1, k:95, s:1},
   milk:   {n:'Milk, semi-skimmed', per:250, u:'ml', def:250, st:50, p:9, c:12, f:4, k:120, kind:'drink'},
   tuna:   {n:'Tuna', per:1, u:'tin of tuna (drained)', us:'tins of tuna (drained)', cnt:1, def:1, st:0.5, p:23, c:0, f:1, k:105},
-  pitta:  {n:'Pitta, thin', per:1, u:'thin pitta', us:'thin pittas', cnt:1, def:2, st:1, p:7, c:25, f:1, k:130},
-  wrap:   {n:'Wrap', per:1, u:'wrap', us:'wraps', cnt:1, def:1, st:1, p:5, c:30, f:3.5, k:180},
+  pitta:  {n:'Pitta, thin', per:1, u:'thin pitta', us:'thin pittas', cnt:1, def:2, st:1, p:7, c:25, f:1, k:130, s:0.5},
+  wrap:   {n:'Wrap', per:1, u:'wrap', us:'wraps', cnt:1, def:1, st:1, p:5, c:30, f:3.5, k:180, s:1},
   pot:    {n:'Potatoes', per:100, u:'g', def:300, st:50, p:2, c:17, f:0.1, k:77},
   pasta:  {n:'Pasta', per:100, u:'g dry', def:100, st:25, p:12, c:72, f:1.5, k:355},
-  yog:    {n:'High-protein yoghurt', per:1, u:'high-protein yoghurt', us:'high-protein yoghurts', cnt:1, def:1, st:1, p:20, c:10, f:1, k:130},
-  banana: {n:'Banana', per:1, u:'banana', us:'bananas', cnt:1, def:1, st:1, p:1, c:23, f:0.3, k:95},
-  oil:    {n:'Butter or oil', per:1, u:'tsp butter or oil', us:'tsp butter or oil', cnt:1, def:1, st:1, p:0, c:0, f:4, k:37}
+  yog:    {n:'High-protein yoghurt', per:1, u:'high-protein yoghurt', us:'high-protein yoghurts', cnt:1, def:1, st:1, p:20, c:10, f:1, k:130, s:2},
+  banana: {n:'Banana', per:1, u:'banana', us:'bananas', cnt:1, def:1, st:1, p:1, c:23, f:0.3, k:95, fv:1},
+  oil:    {n:'Butter or oil', per:1, u:'tsp butter or oil', us:'tsp butter or oil', cnt:1, def:1, st:1, p:0, c:0, f:4, k:37},
+  // 4.5: fruit, veg and juice. One portion is 80 g, a medium fruit, 2 small ones, or a 150 ml glass of juice.
+  apple:  {n:'Apple', per:1, u:'apple', us:'apples', cnt:1, def:1, st:1, p:0.6, c:17, f:0.2, k:75, fv:1},
+  orange: {n:'Orange', per:1, u:'orange', us:'oranges', cnt:1, def:1, st:1, p:1.5, c:13, f:0.2, k:60, fv:1, vg:'C'},
+  satsuma:{n:'Satsumas', per:1, u:'satsuma', us:'satsumas', cnt:1, def:2, st:1, p:0.6, c:6, f:0.1, k:26, fv:0.5, vg:'C'},
+  kiwi:   {n:'Kiwi', per:1, u:'kiwi', us:'kiwis', cnt:1, def:2, st:1, p:0.8, c:7, f:0.4, k:34, fv:0.5, vg:'C'},
+  berries:{n:'Frozen berries', sn:'Berries', per:80, u:'g', def:80, st:40, p:0.8, c:5, f:0.2, k:30, fv:1, vg:'C'},
+  pine:   {n:'Pineapple', per:80, u:'g', def:80, st:40, p:0.3, c:8, f:0.1, k:33, fv:1, vg:'C'},
+  fveg:   {n:'Frozen mixed veg', sn:'Frozen veg', per:80, u:'g', def:80, st:40, p:2.3, c:5.4, f:0.7, k:42, fv:1, vg:'A'},
+  spinach:{n:'Spinach', per:80, u:'g', def:80, st:40, p:2.2, c:1.2, f:0.6, k:20, fv:1, vg:'GA'},
+  broc:   {n:'Broccoli', per:80, u:'g', def:80, st:40, p:3.5, c:1.5, f:0.7, k:27, fv:1, vg:'GC'},
+  carrot: {n:'Carrots', per:80, u:'g', def:80, st:40, p:0.5, c:6.3, f:0.2, k:28, fv:1, vg:'A'},
+  pepper: {n:'Pepper', per:80, u:'g', def:80, st:40, p:0.8, c:5, f:0.3, k:26, fv:1, vg:'C'},
+  salad:  {n:'Salad (leaves, cucumber, tomato)', sn:'Salad', per:80, u:'g', def:80, st:40, p:0.8, c:2, f:0.2, k:14, fv:1, vg:'G'},
+  ttom:   {n:'Tinned tomatoes', per:80, u:'g', def:80, st:40, p:0.9, c:2.4, f:0.1, k:16, fv:1},
+  ojuice: {n:'Orange juice', per:150, u:'ml', def:150, st:50, p:1, c:13, f:0, k:65, s:13, fv:1, fvk:'juice', vg:'C', kind:'drink'},
+  ajuice: {n:'Apple juice', per:150, u:'ml', def:150, st:50, p:0.2, c:15, f:0, k:68, s:15, fv:1, fvk:'juice', kind:'drink'},
+  pjuice: {n:'Pineapple juice', per:150, u:'ml', def:150, st:50, p:0.5, c:17, f:0, k:72, s:17, fv:1, fvk:'juice', kind:'drink'},
+  pomj:   {n:'Pomegranate juice', per:150, u:'ml', def:150, st:50, p:0.3, c:20, f:0, k:85, s:20, fv:1, fvk:'juice', kind:'drink'}
 };
+// Quick fruit and veg buttons until you have logged some of your own
+const FV_QUICK = ['banana', 'apple', 'fveg', 'ojuice'];
 const QUICK = ['bagel','bot','thighR','cereal','egg','rice','shake','milk'];
 const MEALS = ['Breakfast','Lunch','Dinner','Snack','Every day','Extra'];
 const USUAL_DEF = () => [{f:'bagel', q:2, m:'Breakfast'}, {f:'bot', q:1, m:'Lunch'}, {f:'thighR', q:200, m:'Dinner'}, {f:'rice', q:75, m:'Dinner'}, {f:'cereal', q:1, m:'Snack'}, {f:'shake', q:1, m:'Every day'}];
-const foodDefault = () => ({log:{}, usual:USUAL_DEF(), custom:[], over:{}, creatine:{}, water:{}, waterLog:{}});
+const foodDefault = () => ({log:{}, usual:USUAL_DEF(), custom:[], over:{}, creatine:{}, water:{}, waterLog:{}, fvExtra:{}, vitD:{}, spend:[]});
 const OLD_SHOP = {
   sat:['Chicken thighs, about 1.5 kg (curry, stir-fry, wraps)','Eggs ×15','Milk, 4 pints','Greek-style yoghurt 1 kg','Oats 1 kg',
        'Rice 1 kg','Pasta 1 kg','Wraps ×8','Bread, 1 loaf','Potatoes 2.5 kg','Onions, garlic','Tinned tomatoes ×3',
@@ -743,8 +776,14 @@ function normalise(obj){
   }
   if (!st.gym.manual) st.gym.manual = {day:st.gym.next || 1, ids:st.gym.sessions.map(x => x.id)};
   st.food = Object.assign(foodDefault(), obj.food || {});
-  for (const k of ['log','over','creatine','water']) if (!st.food[k] || typeof st.food[k] !== 'object') st.food[k] = {};
+  for (const k of ['log','over','creatine','water','fvExtra','vitD']) if (!st.food[k] || typeof st.food[k] !== 'object' || Array.isArray(st.food[k])) st.food[k] = {};
   if (!Array.isArray(st.food.custom)) st.food.custom = [];
+  // 4.5: receipts ({id, d, amt}) and extra fruit and veg portions ({id} per day)
+  st.food.spend = Array.isArray(st.food.spend) ? st.food.spend.filter(x => x && typeof x === 'object' && x.id != null && /^\d{4}-\d{2}-\d{2}$/.test(x.d) && +x.amt > 0) : [];
+  for (const d of Object.keys(st.food.fvExtra)){
+    const L = Array.isArray(st.food.fvExtra[d]) ? st.food.fvExtra[d].filter(x => x && typeof x === 'object' && x.id != null) : [];
+    if (L.length) st.food.fvExtra[d] = L; else delete st.food.fvExtra[d];
+  }
   if (!Array.isArray(st.food.usual)) st.food.usual = USUAL_DEF();
   // 4.4: water in millilitres, one entry per drink. Glasses counted before 4.4 become one entry per glass,
   // with the same ids on every device, so sync never counts them twice. The goal moves from glasses to litres.
@@ -1851,7 +1890,9 @@ function weightAdvice(){
     const flat3 = b21 != null && a - b21 < 0.2;
     return {avg:a, ch, flat:true, txt:'Your average has been flat for ' + (flat3 ? 'three' : 'two') + ' weeks (' + (ch >= 0 ? '+' : '') + ch.toFixed(1) + ' kg). If you have eaten the plan consistently, eat a little more: about 250–400 kcal a day, such as a second bowl of cereal or an extra bagel. Check again in two weeks.'};
   }
-  if (ch > 1.0) return {avg:a, ch, txt:'Up ' + ch.toFixed(1) + ' kg in two weeks. That is quicker than a lean bulk needs; keep portions as they are and check again next week.'};
+  // 4.5: a lean bulk gains at most about 0.5% of bodyweight a week, so more than 1% in two weeks is too fast
+  const fast = Math.max(0.4, Math.round(a * 0.01 * 10) / 10);
+  if (ch > fast) return {avg:a, ch, fast:true, txt:'Up ' + ch.toFixed(1) + ' kg in two weeks. A lean bulk needs at most about ' + fast.toFixed(1) + ' kg (1% of your weight). Eat about 200 kcal a day less, such as one bagel fewer, and check again in two weeks.'};
   return {avg:a, ch, txt:'Up ' + ch.toFixed(1) + ' kg in two weeks. On track for a lean bulk toward ' + S.prefs.goalKg + ' kg. Keep going.'};
 }
 
@@ -1875,9 +1916,16 @@ function weekText(){
   const wa = weightAdvice(), e = wEntries();
   L.push('Bodyweight: ' + (e.length ? 'latest ' + e[e.length - 1].kg + ' kg on ' + niceDate(e[e.length - 1].d, true) + (wa.avg ? ', 7-day average ' + wa.avg.toFixed(1) + ' kg' : '') + (wa.ch != null ? ', ' + (wa.ch >= 0 ? '+' : '') + wa.ch.toFixed(1) + ' kg over 2 weeks' : '') : 'not logged') + '.');
   L.push('Up at 07:00: ' + r.wake.d + '/' + r.wake.p + '. In bed by 23:00: ' + r.bed.d + '/' + r.bed.p + '.');
-  { let n = 0, sp = 0, sk = 0, cr = 0; for (let i = 1; i <= 7; i++){ const d = addD(t, -i), Lg = dayLog(d); if (S.food.creatine[d]) cr++; if (Lg.length){ const T = foodTotals(Lg); n++; sp += T.p; sk += T.k; } }
-    const Tt = foodTotals(dayLog(t));
-    L.push('Food, last 7 days: ' + (n ? 'average ' + Math.round(sp / n) + ' g protein and ' + kcal(sk / n) + ' kcal on ' + n + ' logged day' + (n === 1 ? '' : 's') : 'not logged') + '; creatine ' + cr + ' of 7 days. Today so far: ' + Math.round(Tt.p) + ' g protein, ' + kcal(Tt.k) + ' kcal (app estimates).');
+  { let n = 0, sp = 0, sk = 0, sc = 0, sf = 0, ss = 0, sv = 0, hit = 0, fo = 0, so = 0, cr = 0, vd = 0, vdOn = 0;
+    for (let i = 1; i <= 7; i++){ const d = addD(t, -i), Lg = dayLog(d); if (S.food.creatine[d]) cr++; if (vitDOn(d)){ vdOn++; if (S.food.vitD[d]) vd++; }
+      if (Lg.length){ const T = foodTotals(Lg); n++; sp += T.p; sk += T.k; sc += T.c; sf += T.fat; ss += T.s; sv += fvDay(d).n; if (T.p >= S.prefs.proteinLo) hit++; if (fatOver(T, d)) fo++; if (sugarOver(T)) so++; } }
+    const Tt = foodTotals(dayLog(t)), seen = vitSeen(t);
+    L.push('Food, last 7 days: ' + (n ? 'average ' + Math.round(sp / n) + ' g protein, ' + kcal(sk / n) + ' kcal, ' + Math.round(sc / n) + ' g carbs, ' + Math.round(sf / n) + ' g fat (' + Math.round(sk ? sf * 9 / sk * 100 : 0) + '% of calories), ' + Math.round(ss / n) + ' g free sugar, on ' + n + ' logged day' + (n === 1 ? '' : 's') +
+      '. Protein ' + S.prefs.proteinLo + ' g or more on ' + hit + ' of ' + n + '. Fat over ' + fatPctMax() + '% of calories on ' + fo + '; free sugar over ' + sugarMax() + ' g on ' + so : 'not logged') + '. Today so far: ' + Math.round(Tt.p) + ' g protein, ' + kcal(Tt.k) + ' kcal (app estimates).');
+    L.push('Fruit and veg: ' + (n ? 'about ' + portions(sv / n) + ' a day (aim ' + fvGoal() + ')' : 'not logged') + '. Today: ' + halfText(fvDay(t).n) + '. This week had vitamin C food: ' + (seen.has('C') ? 'yes' : 'no') + ', leafy greens: ' + (seen.has('G') ? 'yes' : 'no') + ', orange veg: ' + (seen.has('A') ? 'yes' : 'no') + '.');
+    L.push('Supplements, last 7 days: creatine ' + cr + ' of 7' + (vdOn ? ', vitamin D ' + vd + ' of ' + vdOn : '') + '.');
+    { const ws0 = weekStart(t), a = spendIn(ws0), b = spendIn(addD(ws0, -7));
+      L.push('Food spend: ' + money(spendSum(a)) + ' this week so far (budget ' + money(budget()) + ', ' + a.length + ' receipt' + (a.length === 1 ? '' : 's') + ')' + (b.length ? '; last week ' + money(spendSum(b)) : '') + '.'); }
     let wn = 0, wm = 0; for (let i = 1; i <= 7; i++){ const w = waterOf(addD(t, -i)); if (w){ wn++; wm += w; } }
     L.push('Water, last 7 days: ' + (wn ? 'about ' + mlText(wm / wn) + ' a day on ' + wn + ' counted day' + (wn === 1 ? '' : 's') : 'not counted') + '. Today: ' + mlText(waterOf(t)) + ' of ' + mlText(goalMl()) + '.'); }
   const od = allDL().filter(x => !isDone(x) && dueDate(x) < n), soon = allDL().filter(x => !isDone(x) && dueDate(x) >= n && dueDate(x) <= new Date(n.getTime() + 7 * 864e5));
@@ -2242,7 +2290,7 @@ function bodyCard(short){
   const e = wEntries(), wa = weightAdvice(), t = today();
   return '<section class="card"><h2>Bodyweight<span class="r">' + (wa.avg ? '7-day average ' + wa.avg.toFixed(1) + ' kg' : 'from ' + S.prefs.startKg + ' to ' + S.prefs.goalKg + ' kg') + '</span></h2>' +
     '<form class="row-flex" data-form="weight" style="margin-top:8px"><input type="number" name="kg" step="0.1" min="30" max="150" inputmode="decimal" placeholder="kg today" aria-label="Weight in kg" value="' + (S.weights[t] || '') + '" style="flex:1"><button class="btn primary" type="submit">Save</button></form>' +
-    sparkSvg() + '<p class="small" style="margin:10px 0 0;color:' + (wa.flat ? 'var(--warn)' : 'var(--ink-2)') + '">' + esc(wa.txt) + '</p>' +
+    sparkSvg() + '<p class="small" style="margin:10px 0 0;color:' + (wa.flat || wa.fast ? 'var(--warn)' : 'var(--ink-2)') + '">' + esc(wa.txt) + '</p>' +
     (short ? '' : (e.length ? '<details style="margin-top:10px"><summary class="muted small" style="min-height:44px;display:flex;align-items:center">Log (' + e.length + ')</summary>' + e.slice(-21).reverse().map(x => '<div class="li"><div class="tx">' + niceDate(x.d, true) + '</div><b>' + x.kg + ' kg</b><button class="btn small" data-act="wdel" data-d="' + x.d + '">Delete</button></div>').join('') + '</details>' : '')) + '</section>';
 }
 
@@ -2514,11 +2562,14 @@ function foodOptions(sel){
 }
 const firstFoodId = () => { const g = foodGroups(); return g.top[0] || g.food[0] || g.drink[0]; };
 const fmtN = n => Math.round((+n || 0) * 10) / 10;
+// Drinks that count as fruit (juice, smoothies) count once a day, like beans (NHS 5 A Day).
+const fvGroup = fd => fd ? (fd.fvk || (kindOf(fd) === 'drink' && +fd.fv > 0 ? 'juice' : '')) : '';
 function macros(e){
-  if (e.o) return {p:(+e.p || 0) * e.q, c:(+e.c || 0) * e.q, fat:(+e.fat || 0) * e.q, k:(+e.k || 0) * e.q, name:e.n};
-  const fd = foodOf(e.f); if (!fd) return {p:0, c:0, fat:0, k:0, name:'Deleted food'};
+  if (e.o) return {p:(+e.p || 0) * e.q, c:(+e.c || 0) * e.q, fat:(+e.fat || 0) * e.q, k:(+e.k || 0) * e.q, s:(+e.s || 0) * e.q, fv:(+e.fv || 0) * e.q,
+    fg:e.kind === 'drink' && +e.fv > 0 ? 'juice' : '', vg:'', name:e.n};
+  const fd = foodOf(e.f); if (!fd) return {p:0, c:0, fat:0, k:0, s:0, fv:0, fg:'', vg:'', name:'Deleted food'};
   const m = (+e.q || 0) / fd.per;
-  return {p:fd.p * m, c:fd.c * m, fat:fd.f * m, k:fd.k * m, name:fd.n};
+  return {p:fd.p * m, c:fd.c * m, fat:fd.f * m, k:fd.k * m, s:(+fd.s || 0) * m, fv:(+fd.fv || 0) * m, fg:fvGroup(fd), vg:fd.vg || '', name:fd.n};
 }
 const fmtQ = q => { const w = Math.floor(q), h = Math.abs(q - w - 0.5) < 1e-9; return h ? (w ? w + '½' : '½') : String(Math.round(q * 100) / 100); };
 function entryLabel(e){
@@ -2530,12 +2581,55 @@ function entryLabel(e){
 }
 const unitOf = fd => fd ? (fd.per >= 25 ? fd.u : (fd.us || fd.u)) : '';
 function foodTotals(list){
-  const t = {p:0, c:0, fat:0, k:0};
-  for (const e of list || []){ const m = macros(e); t.p += m.p; t.c += m.c; t.fat += m.fat; t.k += m.k; }
+  const t = {p:0, c:0, fat:0, k:0, s:0};
+  for (const e of list || []){ const m = macros(e); t.p += m.p; t.c += m.c; t.fat += m.fat; t.k += m.k; t.s += m.s; }
   return t;
 }
 const kcal = n => Math.round(n).toLocaleString('en-GB');
 const dayLog = d => S.food.log[d] || [];
+/* fruit and veg (4.5): 80 g is one portion. Beans count once a day, and so does juice, however much you have. */
+const fvExtras = d => Array.isArray(S.food.fvExtra[d]) ? S.food.fvExtra[d] : [];
+const fvGoal = () => +S.prefs.fvGoal > 0 ? Math.round(+S.prefs.fvGoal) : 5;
+const halfText = x => fmtQ(Math.floor((+x || 0) * 2 + 1e-9) / 2);
+const portions = x => halfText(x) + ' portion' + (halfText(x) === '1' ? '' : 's');
+function fvDay(d){
+  let n = 0; const cap = {}, names = [], vg = new Set();
+  for (const e of dayLog(d)){
+    const m = macros(e); if (!(m.fv > 0)) continue;
+    if (m.fg) cap[m.fg] = (cap[m.fg] || 0) + m.fv; else n += m.fv;
+    for (const ch of m.vg) vg.add(ch);
+    const nm = lc1(m.name); if (!names.includes(nm)) names.push(nm);
+  }
+  for (const g of Object.keys(cap)) n += Math.min(1, cap[g]);
+  const extra = fvExtras(d).length;
+  return {n:n + extra, names, extra, capped:Object.keys(cap).filter(g => cap[g] > 1), vg};
+}
+// Which kinds of fruit and veg the last 7 days had. One gap at a time, as a tip.
+const VG = [['C', 'No vitamin C food this week. An orange, 2 kiwis, a pepper or a glass of orange juice covers a day.'],
+  ['G', 'No leafy greens this week. Spinach, broccoli or salad twice a week adds folate, vitamin K and some iron.'],
+  ['A', 'No carrots or other orange veg this week. 80 g of carrots gives nearly a day of vitamin A.']];
+function vitSeen(t){ const s = new Set(); for (let i = 0; i < 7; i++) for (const ch of fvDay(addD(t, -i)).vg) s.add(ch); return s; }
+function vitTip(t){ const s = vitSeen(t), miss = VG.find(([k]) => !s.has(k)); return miss ? miss[1] : 'This week had vitamin C, greens and orange veg ✓'; }
+// Vitamin D: the NHS advises 10 micrograms a day from October to March. Setting 1 = October to March, 2 = all year, 0 = off.
+const vitDOn = d => { const v = +S.prefs.vitD; return v === 2 || (v === 1 && [9, 10, 11, 0, 1, 2].includes(dOf(d).getMonth())); };
+// Hidden limits: nothing shows until a day goes over. Fat as a share of calories, so eating more for the bulk never trips it.
+const fatPctMax = () => +S.prefs.fatPct > 0 ? +S.prefs.fatPct : 35, sugarMax = () => +S.prefs.sugarG > 0 ? +S.prefs.sugarG : 30;
+const fatPctOf = T => T.k > 0 ? T.fat * 9 / T.k * 100 : 0;
+// today counts once most of the day is logged (1,500 kcal), so a breakfast of eggs does not trip it
+const fatOver = (T, d) => T.k > 0 && (d !== today() || T.k >= 1500) && fatPctOf(T) >= fatPctMax() + 0.5;
+const sugarOver = T => T.s >= sugarMax() + 0.5;
+function limitNotes(T, d){
+  const isT = d === today(), out = [];
+  if (fatOver(T, d)) out.push('Fat is ' + Math.round(fatPctOf(T)) + '% of ' + (isT ? "today's calories so far" : "that day's calories") + ', over the ' + fatPctMax() + '% guide. Swap something fatty for carbs rather than eating less.');
+  if (sugarOver(T)) out.push('Free sugar is ' + Math.round(T.s) + ' g, over the ' + sugarMax() + ' g guide. Juice and sweet cereal are the usual sources.');
+  return out;
+}
+/* food spend (4.5): receipt totals, {id, d, amt}, Monday to Sunday weeks */
+const spendList = () => Array.isArray(S.food.spend) ? S.food.spend : (S.food.spend = []);
+const spendIn = ws => { const we = addD(ws, 6); return spendList().filter(x => x.d >= ws && x.d <= we); };
+const spendSum = L => L.reduce((a, x) => a + (+x.amt || 0), 0);
+const money = n => '£' + (Math.round((+n || 0) * 100) / 100).toFixed(2).replace(/\.00$/, '');
+const budget = () => +S.prefs.budget > 0 ? +S.prefs.budget : 35;
 /* water: millilitres, one entry per drink, {id, ml} in S.food.waterLog[date] (4.4) */
 const waterList = d => Array.isArray(S.food.waterLog[d]) ? S.food.waterLog[d] : [];
 const waterOf = d => waterList(d).reduce((s, x) => s + (+x.ml || 0), 0);
@@ -2558,7 +2652,7 @@ function waterHtml(d){
   // what you drank, grouped by amount in the order you first had it; × takes one away
   const groups = [];
   for (const x of waterList(d)){ const ml = Math.round(+x.ml); let gr = groups.find(z => z.ml === ml); if (!gr) groups.push(gr = {ml, ids:[]}); gr.ids.push(x.id); }
-  const chips = groups.map(gr => '<span class="wchip">' + (gr.ids.length > 1 ? gr.ids.length + ' × ' : '') + mlText(gr.ml) + xBtn('wdel', 'data-d="' + d + '" data-id="' + esc(gr.ids[gr.ids.length - 1]) + '"', 'Remove ' + mlText(gr.ml)) + '</span>').join('');
+  const chips = groups.map(gr => '<span class="wchip">' + (gr.ids.length > 1 ? gr.ids.length + ' × ' : '') + mlText(gr.ml) + xBtn('wxdel','data-d="' + d + '" data-id="' + esc(gr.ids[gr.ids.length - 1]) + '"', 'Remove ' + mlText(gr.ml)) + '</span>').join('');
   const left = goal - w;
   return '<div class="water"><div class="glasses" role="img" aria-label="' + mlText(w) + ' of ' + mlText(goal) + ' of water">' + gl + '</div>' +
     '<div class="wnote">' + (w ? '<b>' + mlText(w) + '</b> of ' + mlText(goal) + (left > 0 ? '. ' + mlText(left) + ' to go.' : '. Done for the day ✓') : 'Nothing yet. Aim for ' + mlText(goal) + '.') + '</div>' +
@@ -2625,22 +2719,45 @@ function foodRows(pairs){
       '<input type="number" inputmode="decimal" step="any" min="0" value="' + e.q + '" data-fqi="' + i + '" aria-label="Amount of ' + esc(m.name) + (fd ? ' in ' + esc(unitOf(fd)) : '') + '">' +
       '<button data-act="fq" data-i="' + i + '" data-dir="1" aria-label="More ' + esc(m.name) + '">+</button></div>' + xBtn('fdel', 'data-i="' + i + '"', 'Remove ' + esc(m.name)) + '</div>'; }).join('');
 }
+// Fruit and veg buttons: the ones you log most (last 30 days), then banana, apple, frozen veg and orange juice
+function fvQuick(){
+  const t = today(), cnt = {};
+  // meals that happen to count (beans on toast, your own dishes) stay in the food buttons above
+  for (let i = 0; i < 30; i++) for (const e of dayLog(addD(t, -i))) if (!e.o){ const fd = foodOf(e.f); if (fd && +fd.fv > 0 && fd.fvk !== 'beans' && +fd.p < 5) cnt[e.f] = (cnt[e.f] || 0) + 1; }
+  const mine = Object.keys(cnt).sort((a, b) => cnt[b] - cnt[a] || byName(a, b));
+  return [...mine, ...FV_QUICK.filter(id => !mine.includes(id))].filter(id => foodOf(id)).slice(0, 4);
+}
+function fvHtml(d){
+  const F = fvDay(d), goal = fvGoal(), n = F.n, isT = d === today(), left = goal - n;
+  const btn = id => { const fd = foodOf(id); return '<button class="btn small" data-act="fadd" data-id="' + esc(id) + '" data-d="' + d + '">+ ' + esc(fd.sn && !fd.renamed ? fd.sn : fd.n) + '</button>'; };
+  const ex = fvExtras(d).map(x => '<span class="wchip">Other portion' + xBtn('fvxdel', 'data-d="' + d + '" data-id="' + esc(x.id) + '"', 'Remove one other portion') + '</span>').join('');
+  const counted = F.names.length ? 'Counted ' + (isT ? 'today' : 'that day') + ': ' + F.names.join(', ') + '.' +
+    (F.capped.length ? ' ' + F.capped.map(g => g === 'beans' ? 'Beans' : 'Juice').join(' and ') + ' count' + (F.capped.length > 1 ? '' : 's') + ' once a day.' : '') : '';
+  return '<div class="fv"><div class="fvline">' + tally(Math.floor(n + 1e-9), goal, halfText(n) + ' of ' + goal + ' portions of fruit and veg') +
+      '<span class="wnote">' + (n > 0 ? '<b>' + halfText(n) + '</b> of ' + goal + (left > 0 ? '. ' + halfText(left) + ' to go.' : '. Done for the day ✓') : 'None yet. Aim for ' + goal + '.') + '</span></div>' +
+    '<div class="wbtns">' + fvQuick().map(btn).join('') + '<button class="btn small" data-act="fvx" data-d="' + d + '">+ Other portion</button></div>' +
+    (counted || ex ? '<div class="wchips">' + (counted ? '<span class="muted small">' + esc(counted) + '</span>' : '') + ex + '</div>' : '') +
+    '<p class="muted small" style="margin:0">' + esc(vitTip(d)) + '</p></div>';
+}
 function foodCard(){
   const t = today(), d = foodDay || t, isT = d === t, list = dayLog(d), T = foodTotals(list), P = S.prefs, st = proteinStatus(list, T);
   const lbl = isT ? 'Today' : d === addD(t, -1) ? 'Yesterday' : dayName(d, true) + ' ' + niceDate(d);
-  const cr = !!S.food.creatine[d];
+  const cr = !!S.food.creatine[d], vd = !!S.food.vitD[d], lim = limitNotes(T, d);
   const pairs = list.map((e, i) => [e, i]), foods = pairs.filter(([e]) => entryKind(e) === 'food'), drinks = pairs.filter(([e]) => entryKind(e) === 'drink');
   const Tf = foodTotals(foods.map(x => x[0])), Td = foodTotals(drinks.map(x => x[0])), first = firstFoodId();
   return '<section class="card c-meal">' +
     '<div class="fhead"><div class="dnav"><button class="btn small sq" data-act="fday" data-n="-1" aria-label="Previous day">' + ic('left', 'width:16px;height:16px') + '</button><span class="dlbl">' + esc(lbl) + '</span>' +
       '<button class="btn small sq" data-act="fday" data-n="1" aria-label="Next day"' + (d >= t ? ' disabled' : '') + '>' + ic('right', 'width:16px;height:16px') + '</button></div>' +
-      '<button class="crbtn' + (justTicked === 'cr|' + d ? ' fresh' : '') + '" data-act="creatine" data-d="' + d + '" aria-pressed="' + cr + '">' + boxSvg(cr) + 'Creatine 5 g</button></div>' +
+      '<span class="fhbtns"><button class="crbtn' + (justTicked === 'cr|' + d ? ' fresh' : '') + '" data-act="creatine" data-d="' + d + '" aria-pressed="' + cr + '">' + boxSvg(cr) + 'Creatine 5 g</button>' +
+      (vitDOn(d) || vd ? '<button class="crbtn' + (justTicked === 'vd|' + d ? ' fresh' : '') + '" data-act="vitd" data-d="' + d + '" aria-pressed="' + vd + '">' + boxSvg(vd) + 'Vitamin D 10 µg</button>' : '') + '</span></div>' +
     '<div class="ptop"><b class="pbig">' + Math.round(T.p) + ' g</b><span class="muted">protein ' + (isT ? 'so far' : 'that day') + '.<br>Aim for ' + P.proteinLo + '–' + P.proteinHi + ' g.</span></div>' + pbar(T.p) +
-    '<div class="pmac">' + kcal(T.k) + ' kcal, ' + Math.round(T.c) + ' g carbs and ' + Math.round(T.fat) + ' g fat.</div>' +
+    '<div class="pmac">' + kcal(T.k) + ' kcal, ' + Math.round(T.c) + ' g carbs' + (Math.round(T.s) > 0 ? ' (' + Math.round(T.s) + ' g free sugar)' : '') + ' and ' + Math.round(T.fat) + ' g fat.</div>' +
     '<p class="pst ' + st.cls + '">' + esc(st.t) + '</p>' +
+    lim.map(x => '<p class="lim">' + esc(x) + '</p>').join('') +
     (list.length ? '' : '<div class="row-flex" style="margin-top:12px"><button class="btn primary" data-act="logusual" data-d="' + d + '">Log my usual day</button></div>') +
     '<div class="sec">Tap what you ate</div>' + quickHtml(quickFood(), d) +
     '<div class="sec">Water</div>' + waterHtml(d) +
+    '<div class="sec">Fruit and veg</div>' + fvHtml(d) +
     '<div class="sec">Tap what you drank</div>' + quickHtml(quickDrinks(), d) +
     (list.length ? '<div class="sec" style="margin-bottom:0">Logged ' + (isT ? 'today' : 'that day') + '</div>' +
       (foods.length ? '<div class="fsub"><b>Food</b><span>' + Math.round(Tf.p) + ' g protein, ' + kcal(Tf.k) + ' kcal</span></div>' + foodRows(foods) : '') +
@@ -2652,18 +2769,22 @@ function foodCard(){
     '<p class="muted small" style="margin:12px 0 0">Estimates, on the low side, for plain food. Log butter or oil if you use it. Rename a food or fix its values under Your foods and drinks.</p></section>';
 }
 function foodWeekCard(){
-  const t = today(), P = S.prefs; let n = 0, sp = 0, sk = 0, hit = 0, cr = 0, wn = 0, wg = 0, rows = '';
+  const t = today(), P = S.prefs; let n = 0, sp = 0, sk = 0, hit = 0, cr = 0, vd = 0, vdOn = 0, wn = 0, wg = 0, fvs = 0, fo = 0, so = 0, rows = '';
   for (let i = 6; i >= 0; i--){
     const d = addD(t, -i), list = dayLog(d), T = foodTotals(list), w = waterOf(d);
     if (S.food.creatine[d]) cr++;
-    if (list.length && d < t){ n++; sp += T.p; sk += T.k; if (T.p >= P.proteinLo) hit++; }
+    if (vitDOn(d)){ vdOn++; if (S.food.vitD[d]) vd++; }
+    if (list.length && d < t){ n++; sp += T.p; sk += T.k; if (T.p >= P.proteinLo) hit++; fvs += fvDay(d).n; if (fatOver(T, d)) fo++; if (sugarOver(T)) so++; }
     if (w && d < t){ wn++; wg += w; }
     rows += '<button class="wrow" data-act="fgoto" data-d="' + d + '"><span class="lb">' + (d === t ? 'Today' : dayName(d, true) + ' ' + dOf(d).getDate()) + '</span>' + (list.length ? pbar(T.p, true) + '<span class="v">' + Math.round(T.p) + ' g, ' + kcal(T.k) + '</span>' : '<span class="track"></span><span class="v">not logged</span>') + '</button>';
   }
-  return '<section class="card"><h2>Last 7 days<span class="r">creatine on ' + cr + ' of 7</span></h2><div class="wrows">' + rows + '</div>' +
+  const over = [fo ? 'fat over ' + fatPctMax() + '% of calories on ' + fo + ' of ' + n + ' day' + (n === 1 ? '' : 's') : '', so ? 'free sugar over ' + sugarMax() + ' g on ' + so + ' of ' + n : ''].filter(Boolean);
+  return '<section class="card"><h2>Last 7 days<span class="r">creatine on ' + cr + ' of 7' + (vdOn ? ', vitamin D on ' + vd + ' of ' + vdOn : '') + '</span></h2><div class="wrows">' + rows + '</div>' +
     '<p class="small" style="margin:10px 0 0">' + (n ? 'Average over ' + n + ' finished day' + (n === 1 ? '' : 's') + ': <b>' + Math.round(sp / n) + ' g protein</b> and <b>' + kcal(sk / n) + ' kcal</b>. ' + hit + ' of ' + n + ' reached ' + P.proteinLo + ' g.' : 'Log a few days to see your averages.') + '</p>' +
+    (n ? '<p class="small" style="margin:6px 0 0">Fruit and veg: about <b>' + portions(fvs / n) + '</b> a day. Aim for ' + fvGoal() + '.</p>' : '') +
+    (over.length ? '<p class="lim" style="margin-top:6px">' + esc(over.join('; ').replace(/^./, c => c.toUpperCase())) + '.</p>' : '') +
     (wn ? '<p class="small" style="margin:6px 0 0">Water: about <b>' + mlText(wg / wn) + '</b> a day on the ' + wn + ' day' + (wn === 1 ? '' : 's') + ' you counted. Aim for ' + mlText(goalMl()) + '.</p>' : '') +
-    '<p class="muted small" style="margin:6px 0 0">No fixed calorie target: your weight trend decides. If the 7-day average weight is flat for 2–3 weeks, eat about 250–400 kcal more a day.</p></section>';
+    '<p class="muted small" style="margin:6px 0 0">No fixed calorie target: your weight trend decides. If the 7-day average weight is flat for 2–3 weeks, eat about 250–400 kcal more a day. If it rises more than 1% of your weight in 2 weeks, eat about 200 kcal less.</p></section>';
 }
 function usualCard(){
   const U = S.food.usual, T = foodTotals(U), P = S.prefs, gap = P.proteinLo - T.p;
@@ -2687,7 +2808,8 @@ function foodsCard(){
   const g = foodGroups();
   const row = id => { const fd = foodOf(id), base = fd.per >= 25 ? 'Per ' + fd.per + ' ' + fd.u : 'Per ' + fd.u, c = g.cnt[id];
     return '<div class="li"><div class="tx"><div class="t">' + esc(fd.n) + (fd.edited ? '<span class="tag">changed</span>' : '') + (fd.mine ? '<span class="tag">yours</span>' : '') + '</div>' +
-      '<div class="s">' + esc(base) + ': ' + fmtN(fd.p) + ' g protein, ' + fmtN(fd.k) + ' kcal' + (c ? '. Logged ' + c + ' time' + (c === 1 ? '' : 's') : '') + '.</div></div>' +
+      '<div class="s">' + esc(base) + ': ' + fmtN(fd.p) + ' g protein, ' + fmtN(fd.k) + ' kcal' + (+fd.s ? ', ' + fmtN(fd.s) + ' g free sugar' : '') +
+      (+fd.fv ? ', ' + fmtQ(+fd.fv) + ' fruit or veg portion' + (+fd.fv > 1 ? 's' : '') : '') + (c ? '. Logged ' + c + ' time' + (c === 1 ? '' : 's') : '') + '.</div></div>' +
       '<button class="btn small" data-act="fedit" data-id="' + esc(id) + '" aria-label="Edit ' + esc(fd.n) + '">Edit</button></div>'; };
   return '<section class="card foods"><details><summary><h2 style="margin:0">Your foods and drinks<span class="r hand">' + allFoodIds().length + '</span></h2></summary>' +
     '<p class="muted small" style="margin:10px 0 0">Tap Edit to rename one, mark it as food or a drink, or match its values to your packet. Changes apply to every day, including days already logged.</p>' +
@@ -2699,14 +2821,14 @@ function foodMiniCard(){
   const t = today(), list = dayLog(t), T = foodTotals(list), P = S.prefs, st = proteinStatus(list, T);
   return '<section class="frame foodmini"><h2>Food today<span class="r">' + (S.food.creatine[t] ? 'creatine ✓' : 'creatine not ticked') + '</span></h2>' +
     '<div class="ptop" style="margin-top:2px"><b class="pbig sm">' + Math.round(T.p) + ' g</b><span class="muted">protein of ' + P.proteinLo + '–' + P.proteinHi + ' g, ' + kcal(T.k) + ' kcal</span></div>' + pbar(T.p, true) +
-    '<p class="small pst ' + st.cls + '">' + esc(st.t) + '</p><p class="small muted" style="margin:6px 0 0">Water: ' + waterSoFar(t) + '.</p>' +
+    '<p class="small pst ' + st.cls + '">' + esc(st.t) + '</p><p class="small muted" style="margin:6px 0 0">Water: ' + waterSoFar(t) + '. Fruit and veg: ' + halfText(fvDay(t).n) + ' of ' + fvGoal() + '.</p>' +
     '<div class="row-flex" style="margin-top:12px"><button class="btn small primary" data-act="go" data-tab="food">Log food</button><button class="btn small" data-act="wopen" data-d="' + t + '">Add water</button></div></section>';
 }
 function addFood(d, entry, label){
   pFrom = foodTotals(dayLog(d)).p;
   const L = (S.food.log[d] = S.food.log[d] || []); L.push(entry); justAdded = L.length - 1; save();
-  const T = foodTotals(L);
-  return 'Added ' + label + '. ' + (d === today() ? 'Today: ' : '') + Math.round(T.p) + ' g protein';
+  const T = foodTotals(L), m = macros(entry);
+  return 'Added ' + label + '. ' + (d === today() ? 'Today: ' : '') + (m.fv > 0 && m.p < 5 ? halfText(fvDay(d).n) + ' of ' + fvGoal() + ' fruit and veg' : Math.round(T.p) + ' g protein');
 }
 function foodDayText(d){
   const list = dayLog(d), T = foodTotals(list), w = waterOf(d);
@@ -2715,7 +2837,8 @@ function foodDayText(d){
   return 'Food on ' + dayName(d) + ' ' + niceDate(d) + ' (estimates from my planner, plain food unless butter or oil is listed):\n' +
     (fs.length ? 'Food:\n' + fs.map(line).join('\n') + '\n' : '') + (ds.length ? 'Drinks:\n' + ds.map(line).join('\n') + '\n' : '') +
     'Water: ' + (w ? mlText(w) : 'not counted') + '.\n' +
-    'Total: ~' + Math.round(T.p) + ' g protein, ~' + kcal(T.k) + ' kcal, ~' + Math.round(T.c) + ' g carbs, ~' + Math.round(T.fat) + ' g fat. Creatine: ' + (S.food.creatine[d] ? 'yes' : 'no') + '.' +
+    'Total: ~' + Math.round(T.p) + ' g protein, ~' + kcal(T.k) + ' kcal, ~' + Math.round(T.c) + ' g carbs (~' + Math.round(T.s) + ' g free sugar), ~' + Math.round(T.fat) + ' g fat (' + Math.round(fatPctOf(T)) + '% of calories).\n' +
+    'Fruit and veg: ' + halfText(fvDay(d).n) + ' of ' + fvGoal() + ' portions. Creatine: ' + (S.food.creatine[d] ? 'yes' : 'no') + '.' + (vitDOn(d) ? ' Vitamin D: ' + (S.food.vitD[d] ? 'yes' : 'no') + '.' : '') +
     '\nPlease check the estimates against my usual foods and tell me what I still need today.';
 }
 const kindSeg = sel => '<fieldset class="full" style="border:0;padding:0;margin:0"><legend class="small" style="font-weight:700;color:var(--ink-2);padding:0;margin-bottom:4px">Food or drink</legend><div class="seg">' +
@@ -2725,6 +2848,8 @@ function openFoodNew(){
     '<label class="f full">One serving is<input type="text" name="u" value="serving" placeholder="e.g. bar, 100 g, mug"></label>' +
     '<label class="f">Protein g<input type="number" name="p" step="any" min="0" inputmode="decimal" required></label><label class="f">kcal<input type="number" name="k" step="any" min="0" inputmode="decimal" required></label>' +
     '<label class="f">Carbs g<input type="number" name="c" step="any" min="0" inputmode="decimal" value="0"></label><label class="f">Fat g<input type="number" name="f" step="any" min="0" inputmode="decimal" value="0"></label>' +
+    '<label class="f">Free sugar g<input type="number" name="s" step="any" min="0" inputmode="decimal" value="0"></label><label class="f">Fruit or veg portions<input type="number" name="fv" step="0.5" min="0" inputmode="decimal" value="0"></label>' +
+    '<p class="muted small full" style="margin:0">Free sugar is added sugar, honey, syrup and juice, not the sugar in whole fruit or milk. One portion of fruit or veg is 80 g.</p>' +
     '<label class="f full">How many servings now (0 = just save it)<input type="number" name="q" step="any" min="0" inputmode="decimal" value="1"></label>' +
     '<label class="f full" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" name="keep" checked style="width:22px;height:22px;min-height:0;margin:11px 0"> Save it to Your foods and drinks for next time</label>' +
     '<p class="muted small full" style="margin:0">Use the values per serving from the packet.</p>' +
@@ -2738,10 +2863,23 @@ function openFoodEdit(id){
     '<label class="f full">Name<input type="text" name="n" value="' + esc(fd.n) + '" maxlength="60" required></label>' + kindSeg(kindOf(fd)) +
     (fd.mine ? '<label class="f full">One serving is<input type="text" name="u" value="' + esc(fd.u) + '"></label>' : '') +
     '<p class="muted small full" style="margin:0">Values ' + esc(per) + '.' + (base && fd.edited ? ' The original: ' + base.n + ', ' + base.p + ' g protein, ' + base.k + ' kcal.' : '') + '</p>' +
-    num('p', 'Protein g') + num('k', 'kcal') + num('c', 'Carbs g') + num('f', 'Fat g') +
+    num('p', 'Protein g') + num('k', 'kcal') + num('c', 'Carbs g') + num('f', 'Fat g') + num('s', 'Free sugar g') + num('fv', 'Fruit or veg portions') +
+    '<p class="muted small full" style="margin:0">Free sugar is added sugar, honey, syrup and juice. One portion of fruit or veg is 80 g.' + (fd.fvk === 'beans' ? ' Beans count once a day.' : fvGroup(fd) === 'juice' ? ' Juice counts once a day.' : '') + '</p>' +
     '<div class="full acts" style="justify-content:space-between"><span class="row-flex">' + (fd.edited ? '<button type="button" class="btn small" data-act="freset" data-id="' + esc(id) + '">Back to the original</button>' : '') +
       (fd.mine ? '<button type="button" class="btn small danger" data-act="fcdel" data-id="' + esc(id) + '">Delete</button>' : '') + '</span>' +
     '<span class="row-flex"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn primary" type="submit">Save</button></span></div></form>', 'meal');
+}
+
+function spendCard(){
+  const t = today(), ws = weekStart(t), L = spendIn(ws).slice().sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : 0), tot = spendSum(L), B = budget(), left = B - tot;
+  let n = 0, s = 0; for (let i = 1; i <= 4; i++){ const l = spendIn(addD(ws, -7 * i)); if (l.length){ n++; s += spendSum(l); } }
+  return '<section class="card"><h2>Food spend<span class="r">' + money(tot) + ' of ' + money(B) + ' this week</span></h2>' +
+    '<div class="sline' + (tot > B ? ' over' : '') + '" role="img" aria-label="' + money(tot) + ' of ' + money(B) + ' spent this week"><i style="width:' + Math.min(100, tot / B * 100) + '%"></i></div>' +
+    '<p class="small" style="margin:8px 0 0' + (tot > B ? ';color:var(--warn);font-weight:700' : '') + '">' + (L.length ? (left >= 0 ? money(left) + ' left this week.' : money(-left) + ' over this week.') : 'Nothing logged this week. After each shop, type the total from the receipt.') + '</p>' +
+    (L.length ? '<div class="wchips" style="margin-top:8px">' + L.map(x => '<span class="wchip">' + dayName(x.d, true) + ' ' + money(x.amt) + xBtn('spdel', 'data-id="' + esc(x.id) + '"', 'Remove the ' + money(x.amt) + ' receipt from ' + niceDate(x.d)) + '</span>').join('') + '</div>' : '') +
+    '<form class="row-flex" data-form="spend" style="margin-top:12px;align-items:flex-end"><label class="f" style="flex:1;min-width:120px">Receipt total (£)<input type="text" name="amt" inputmode="decimal" placeholder="e.g. 18.40" autocomplete="off" required></label>' +
+      '<label class="f" style="flex:1;min-width:150px">Day<input type="date" name="d" value="' + t + '" max="' + t + '"></label><button class="btn primary" type="submit">Add receipt</button></form>' +
+    (n ? '<p class="muted small" style="margin:10px 0 0">Average over the ' + (n === 1 ? 'last week' : 'last ' + n + ' weeks') + ' you logged: ' + money(s / n) + ' a week.</p>' : '') + '</section>';
 }
 
 /* ================= FOOD & BODY ================= */
@@ -2752,7 +2890,7 @@ function renderFood(){
     '<form class="row-flex" style="margin-top:10px" data-form="shop" data-l="' + k + '"><input type="text" name="item" placeholder="Add an item" aria-label="Add an item" style="flex:1"><button class="btn small" type="submit">Add</button><button class="btn small" type="button" data-act="shopclear" data-l="' + k + '">Untick all</button></form>';
   view.innerHTML = ghost() + '<div class="topbar"><div><h1>Food and body</h1><div class="sub">Lean bulk from ' + P.startKg + ' to about ' + P.goalKg + ' kg. Protein ' + P.proteinLo + '–' + P.proteinHi + ' g a day, £' + P.budget + ' a week for food.</div></div></div>' +
     '<div class="cols" style="margin-top:16px"><div>' + foodCard() + foodWeekCard() + '</div>' +
-    '<div>' + bodyCard(false) + usualCard() +
+    '<div>' + bodyCard(false) + usualCard() + spendCard() +
     '<section class="card"><h2>Saturday main shop</h2>' + list('sat') + '</section>' +
     '<section class="card"><h2>Wednesday top-up</h2>' + list('wed') + '<p class="muted small" style="margin:12px 0 0">Own-brand at Aldi or Lidl should keep this around £' + P.budget + ' a week. Change the budget in Setup.</p></section>' +
     foodsCard().replace('<details>', '<details id="foodsDet"' + (foodsOpen ? ' open' : '') + '>') + '</div></div>';
@@ -2800,7 +2938,11 @@ function renderSetup(){
       '<p class="muted small" style="margin:8px 0 0">Saved on this device only, so your phone and laptop can look different. Backups do not change it.</p></section>' +
     '<section class="card"><h2>Your numbers</h2><div class="fgrid" style="margin-top:10px">' + num('budget', 'Food budget (£ a week)') + num('careerMin', 'Career, minutes each weekday', 15) + num('careerBreakMin', 'Career in the breaks (min)', 15) +
       num('gymMin', 'Gym sessions a week, at least') + num('gymMax', 'Gym sessions a week, at most') + num('homeMin', 'Home sessions, at least') + num('homeMax', 'Home sessions, at most') +
-      num('proteinLo', 'Protein g a day, from') + num('proteinHi', 'Protein g a day, to') + num('waterL', 'Water a day (litres)', 0.25) + num('glassMl', 'One glass (ml)', 50) + num('bottleMl', 'Your bottle (ml)', 50) + num('goalKg', 'Goal weight (kg)', 0.5) + num('recDelay', 'Recordings on Echo360: minutes after a lecture ends', 15) + '</div>' +
+      num('proteinLo', 'Protein g a day, from') + num('proteinHi', 'Protein g a day, to') + num('waterL', 'Water a day (litres)', 0.25) + num('glassMl', 'One glass (ml)', 50) + num('bottleMl', 'Your bottle (ml)', 50) + num('goalKg', 'Goal weight (kg)', 0.5) +
+      num('fvGoal', 'Fruit and veg portions a day') + num('fatPct', 'Fat, most % of calories') + num('sugarG', 'Free sugar g a day, at most') +
+      '<label class="f">Vitamin D tick<select data-pref="vitD">' + [[1, 'October to March'], [2, 'All year'], [0, 'Off']].map(([v, l]) => '<option value="' + v + '"' + (+P.vitD === v ? ' selected' : '') + '>' + l + '</option>').join('') + '</select></label>' +
+      num('recDelay', 'Recordings on Echo360: minutes after a lecture ends', 15) + '</div>' +
+      '<p class="muted small" style="margin:10px 0 0">Fat and free sugar only show on Food when a day goes over. Fat is a share of calories, so eating more for the bulk never trips it.</p>' +
       '<p class="muted small" style="margin:12px 0 0">To move a gym day, a block or a lecture: tap it in Today or Week. To add one: the + button.</p></section>' +
     '<section class="card"><h2>Your changes<span class="r hand">' + edits.length + '</span></h2>' + (edits.length ? edits.map(e => '<div class="li"><div class="tx small">' + esc(editText(e)) + '</div><button class="btn small" data-act="undoedit" data-id="' + esc(e.id) + '">Undo</button></div>').join('') : '<p class="empty">None yet. Changes you make in the app appear here, and each can be undone.</p>') + '</section>' +
     '<section class="card prose"><h2>Install on your phone and laptop</h2>' + (installed ? '<p><b>Installed on this device.</b></p>' : '') +
@@ -2817,7 +2959,7 @@ function renderSetup(){
       '<p class="muted">Last backup on this device: ' + (S.lastBackup ? niceDate(S.lastBackup) : 'never') + '.' + (syncOn() ? ' Sync also keeps every version on GitHub, and you can go back to any day under Sync.' : '') + '</p>' +
       '<div class="row-flex"><button class="btn primary" data-act="export">Export backup</button><button class="btn" data-act="copy">Copy as text</button><label class="btn">Import backup<input type="file" accept=".json,application/json" id="imp" hidden></label></div>' +
       '<textarea id="impText" placeholder="Or paste backup text here, then press Import text" style="margin-top:10px"></textarea><div class="row-flex" style="margin-top:8px"><button class="btn small" data-act="importText">Import text</button></div></section>' +
-    '<section class="card prose"><h2>Claude</h2><p>One tap copies a short summary of your week: ticks, gym log, weight trend, what is behind and what is due. Paste it into any chat.</p><button class="btn primary" data-act="copyweek">Copy week for Claude</button><p class="muted" style="margin-top:10px">Small changes you make here. Big ones (new term timetable, new templates): ask Claude.</p></section>' +
+    '<section class="card prose"><h2>Claude</h2><p>One tap copies a short summary of your week: ticks, gym log, weight trend, food, fruit and veg, food spend, what is behind and what is due. Paste it into any chat.</p><button class="btn primary" data-act="copyweek">Copy week for Claude</button><p class="muted" style="margin-top:10px">Small changes you make here. Big ones (new term timetable, new templates): ask Claude.</p></section>' +
     '<section class="card prose"><h2>How your days are built</h2><ul>' +
       '<li>Times come from your LSE calendar. Campus only on days with a class or workshop; lectures those days are in person. Lectures you watch are planned into study time after the recording goes up on Echo360 (about ' + recDelay() + ' min after they end); the live time shows as a reminder line. Leave 45 minutes before the first in-person session.</li>' +
       '<li>Every lecture and class: Attended, Watched back, Notes made. Either of the first two covers it. Uncovered lectures go to Behind with a suggested study block; missed classes become "go through the solutions".</li>' +
@@ -3076,9 +3218,23 @@ document.addEventListener('click', e => {
     const fd = e.o ? null : foodOf(e.f), stp = fd ? fd.st : 1, nq = Math.round((e.q + (+el.dataset.dir) * stp) * 100) / 100;
     if (nq > 0){ pFrom = foodTotals(L).p; e.q = nq; save(); render(); } return; }
   if (a === 'creatine'){ const d = el.dataset.d || today(); if (S.food.creatine[d]) delete S.food.creatine[d]; else { S.food.creatine[d] = true; justTicked = 'cr|' + d; } save(); render(); return; }
+  if (a === 'vitd'){ const d = el.dataset.d || today(); if (S.food.vitD[d]) delete S.food.vitD[d]; else { S.food.vitD[d] = true; justTicked = 'vd|' + d; } save(); render(); return; }
+  if (a === 'fvx'){ const d = el.dataset.d || foodDay || today(), id = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    (S.food.fvExtra[d] = fvExtras(d)).push({id}); save(); render();
+    toast('Added a portion of fruit or veg. ' + (d === today() ? 'Today: ' : '') + halfText(fvDay(d).n) + ' of ' + fvGoal() + '.', () => {
+      const L = fvExtras(d), i = L.findIndex(x => x.id === id); if (i >= 0){ L.splice(i, 1); if (!L.length) delete S.food.fvExtra[d]; save(); render(); } });
+    return; }
+  if (a === 'fvxdel'){ const d = el.dataset.d, L = fvExtras(d), i = L.findIndex(x => x.id === el.dataset.id); if (i < 0) return;
+    const [x] = L.splice(i, 1); if (!L.length) delete S.food.fvExtra[d]; save(); render();
+    toast('Removed one portion.', () => { const M = (S.food.fvExtra[d] = fvExtras(d)); M.splice(Math.min(i, M.length), 0, x); save(); render(); });
+    return; }
+  if (a === 'spdel'){ const L = spendList(), i = L.findIndex(x => x.id === el.dataset.id); if (i < 0) return;
+    const [x] = L.splice(i, 1); save(); render();
+    toast('Removed the ' + money(x.amt) + ' receipt.', () => { const M = spendList(); M.splice(Math.min(i, M.length), 0, x); save(); render(); });
+    return; }
   if (a === 'wadd'){ const ml = Math.round(+el.dataset.ml); if (ml > 0) addWater(el.dataset.d || foodDay || today(), ml); return; }
   if (a === 'wopen' || a === 'wother'){ openWater(el.dataset.d || foodDay || today(), a === 'wother'); return; }
-  if (a === 'wdel'){ const d = el.dataset.d, L = waterList(d), i = L.findIndex(x => x.id === el.dataset.id); if (i < 0) return;
+  if (a === 'wxdel'){ const d = el.dataset.d, L = waterList(d), i = L.findIndex(x => x.id === el.dataset.id); if (i < 0) return;
     const [x] = L.splice(i, 1); if (!L.length) delete S.food.waterLog[d]; save(); render();
     toast('Removed ' + mlText(x.ml) + ' of water.', () => { const M = (S.food.waterLog[d] = waterList(d)); M.splice(Math.min(i, M.length), 0, x); save(); render(); });
     return; }
@@ -3096,7 +3252,7 @@ document.addEventListener('click', e => {
   if (a === 'freset'){ const id = el.dataset.id, before = S.food.over[id]; delete S.food.over[id]; save(); closeDlg(); foodsOpen = true; render();
     toast('Back to the original: ' + foodOf(id).n + '.', () => { if (before) S.food.over[id] = before; save(); render(); }); return; }
   if (a === 'fcdel'){ const id = el.dataset.id, c = S.food.custom.find(x => x.id === id); if (!c || !confirm('Delete ' + c.n + ' from your foods and drinks? Days you already logged keep it.')) return;
-    for (const L of Object.values(S.food.log)) L.forEach((e, i) => { if (e.f === id) L[i] = {o:1, n:c.n, p:c.p, c:c.c, fat:c.f, k:c.k, q:e.q, kind:c.kind === 'drink' ? 'drink' : 'food'}; });
+    for (const L of Object.values(S.food.log)) L.forEach((e, i) => { if (e.f === id) L[i] = {o:1, n:c.n, p:c.p, c:c.c, fat:c.f, k:c.k, s:+c.s || 0, fv:+c.fv || 0, q:e.q, kind:c.kind === 'drink' ? 'drink' : 'food'}; });
     S.food.usual = S.food.usual.filter(e => e.f !== id);
     S.food.custom = S.food.custom.filter(x => x !== c); save(); closeDlg(); foodsOpen = true; render(); toast('Deleted ' + c.n + '.'); return; }
   if (a === 'wdel'){ const d = el.dataset.d, v = S.weights[d]; delete S.weights[d]; save(); render(); toast('Deleted.', () => { S.weights[d] = v; save(); render(); }); return; }
@@ -3158,25 +3314,34 @@ document.addEventListener('submit', e => {
     if (ml < 10 || ml > 5000){ toast('Type an amount between 10 ml and 5 litres.'); return; }
     addWater(f.dataset.d || foodDay || today(), ml); return;
   }
+  if (k === 'spend'){
+    const x = parseFloat(String(v.amt || '').replace(/[£\s]/g, '').replace(/,(?=\d{3}\b)/g, '').replace(',', '.'));
+    if (!(x > 0 && x < 1000)){ toast('Type the receipt total, like 18.40.'); return; }
+    const t = today(), d = /^\d{4}-\d{2}-\d{2}$/.test(v.d || '') && v.d <= t ? v.d : t, id = 'r' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), item = {id, d, amt:Math.round(x * 100) / 100};
+    spendList().push(item); save(); render();
+    const ws = weekStart(d), tot = spendSum(spendIn(ws));
+    toast('Added ' + money(item.amt) + '. ' + (ws === weekStart(t) ? 'This week: ' + money(tot) + ' of ' + money(budget()) + '.' : 'Week of ' + niceDate(ws) + ': ' + money(tot) + '.'), () => { S.food.spend = spendList().filter(z => z.id !== id); save(); render(); });
+    return; }
   if (k === 'weight'){ const kg = parseFloat(String(v.kg).replace(',', '.')); if (!(kg > 25 && kg < 200)){ toast('Type your weight in kg, e.g. 58.4'); return; } S.weights[today()] = Math.round(kg * 10) / 10; save(); render(); toast('Saved ' + S.weights[today()] + ' kg.'); return; }
   if (k === 'foodadd'){ const fd = foodOf(v.id), q = parseFloat(v.q); if (!fd || !(q > 0)){ toast('Type an amount.'); return; }
     const d = foodDay || today(), entry = {f:v.id, q}, msg = addFood(d, entry, entryLabel(entry)); render();
     toast(msg + '.', () => { const L = dayLog(d), i = L.lastIndexOf(entry); if (i >= 0) L.splice(i, 1); save(); render(); }); return; }
   if (k === 'foodnew'){ const n = String(v.n || '').trim().slice(0, 60), num = x => Math.max(0, parseFloat(String(x).replace(',', '.')) || 0), q = num(v.q); if (!n) return;
-    const vals = {p:num(v.p), c:num(v.c), k:num(v.k)}, d = foodDay || today(), kind = v.kind === 'drink' ? 'drink' : 'food';
+    const vals = {p:num(v.p), c:num(v.c), k:num(v.k), s:num(v.s), fv:num(v.fv)}, d = foodDay || today(), kind = v.kind === 'drink' ? 'drink' : 'food';
     if (v.keep){ const id = 'u' + Date.now().toString(36); S.food.custom.push(o({id, n, kind, u:String(v.u || 'serving').trim() || 'serving', f:num(v.f)}, vals)); if (q > 0) (S.food.log[d] = S.food.log[d] || []).push({f:id, q}); }
     else if (q > 0) (S.food.log[d] = S.food.log[d] || []).push(o({o:1, n, kind, fat:num(v.f), q}, vals));
     save(); closeDlg(); render(); toast(q > 0 ? 'Logged ' + n + '.' : 'Saved ' + n + ' to Your foods and drinks.'); return; }
   if (k === 'foodedit'){ const id = f.dataset.id, fd = foodOf(id); if (!fd) return;
     const n = String(v.n || '').trim().slice(0, 60); if (!n){ toast('Type a name.'); return; }
     const num = x => Math.max(0, parseFloat(String(x).replace(',', '.')) || 0);
-    const vals = {n, kind:v.kind === 'drink' ? 'drink' : 'food', p:num(v.p), k:num(v.k), c:num(v.c), f:num(v.f)};
+    const vals = {n, kind:v.kind === 'drink' ? 'drink' : 'food', p:num(v.p), k:num(v.k), c:num(v.c), f:num(v.f), s:num(v.s), fv:num(v.fv)};
     const ci = S.food.custom.findIndex(x => x.id === id), had = S.food.over[id];
     let undo;
     if (ci >= 0){ const before = S.food.custom[ci]; S.food.custom[ci] = o(before, vals, v.u != null ? {u:String(v.u).trim() || 'serving'} : {}); undo = () => { const j = S.food.custom.findIndex(x => x.id === id); if (j >= 0) S.food.custom[j] = before; }; }
     else {
       const b = FOODS[id], ov = {};
       for (const key of ['n','p','k','c','f']) if (vals[key] !== b[key]) ov[key] = vals[key];
+      for (const key of ['s','fv']) if (vals[key] !== (+b[key] || 0)) ov[key] = vals[key];
       if (vals.kind !== kindOf(b)) ov.kind = vals.kind;
       if (Object.keys(ov).length) S.food.over[id] = ov; else delete S.food.over[id];
       undo = () => { if (had) S.food.over[id] = had; else delete S.food.over[id]; };
