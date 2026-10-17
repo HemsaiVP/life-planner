@@ -193,6 +193,8 @@ Alignment: everything left-aligned to the time column. Only the big figures on s
 
 **Tally marks** (gym sessions, home sessions, fruit and veg). Drawn strokes for done, dashed strokes for still to do, a diagonal through every fifth. Reads faster than "1 of 4–5".
 
+**Week box** (lecture tracker, 4.6). Each teaching week in its own hand-drawn frame (irregular radii, `--rule`; the current week in the lecture colour) with "Week 3" in Kalam, the dates and how much is covered. The heading stays in view while you scroll that week; finished and future weeks fold to one line. Term tabs and the term name in Kalam above. A phone shows a line per session with the labelled Attended / Watched / Notes buttons underneath; a laptop shows a column per weekday (Monday always first) and a card per session. Same markup, chosen by container width.
+
 **Marker bar** (protein, hours). A hand-drawn outline, a marker fill, and the target zone hatched at 45°. On the Night board the fill is a chalk stroke.
 
 **Chalk or marker frame** (the focus card). An irregular border (`border-radius: 18px 22px 16px 24px / 20px 16px 24px 18px`) with a 2 px marker or chalk line. The irregular radii are what make a box look hand-drawn; use them only on frames you would draw by hand.

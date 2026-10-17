@@ -40,7 +40,7 @@
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-html,body{margin:0;overflow-x:hidden}
+html,body{margin:0;overflow-x:clip}
 body{background:var(--board);color:var(--ink);font:400 16px/1.45 "Atkinson Hyperlegible",sans-serif;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
   background:linear-gradient(118deg,rgba(255,255,255,0) 30%,rgba(255,255,255,.75) 46%,rgba(255,255,255,0) 62%),radial-gradient(120% 60% at 85% -10%,rgba(30,79,194,.05),rgba(30,79,194,0) 60%),var(--board)}
@@ -169,7 +169,9 @@ body:not(.L-C) .cols{grid-template-columns:1fr}
 .tag.bad{color:var(--bad);border-color:var(--bad)}
 .tag.warn{color:var(--warn);border-color:var(--warn)}
 .tag.good{color:var(--good);border-color:var(--good)}
-/* 4.6 drafts: lecture tracker. Each week in its own hand-drawn box, the week's name stays in view while you scroll it */
+/* 4.6: lecture tracker. Each week in its own hand-drawn box; its heading stays in view while you scroll that week.
+   One set of markup, three widths: phone = a line per session with the buttons under it, narrow laptop window = buttons on the right,
+   laptop = a column per weekday and a card per session. */
 .termh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:14px 0 4px}
 .termh .hand{font-size:32px;line-height:1.1}
 .tsum{font-size:14.5px;line-height:20px;color:var(--ink-2)}
@@ -187,44 +189,44 @@ body:not(.L-C) .cols{grid-template-columns:1fr}
 .wbox .ticks{margin-top:0;flex-wrap:wrap}
 .wbox .tk{padding:4px 11px}
 @container wbox (max-width:420px){ .wbox .lg{display:none} .wbox .ticks{gap:4px} .wbox .tk{padding:4px 8px;font-size:13px;gap:3px} .wbox .tk svg{width:14px;height:14px} }
-/* draft A: a line per session */
-.srow{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:10px;row-gap:8px;padding:10px 0;border-top:1.5px solid var(--rule-soft)}
-.srow.first{border-top:2px solid var(--rule)}
-.srows .srow:first-child{border-top:0}
-.sday{grid-row:span 2;display:flex;flex-direction:column;line-height:1.05}
-.sday b{font-size:13px;color:var(--ink-2)}
-.sday .hand{font-size:24px}
+/* phone: a line per session, the day on the left */
+.dgrp{container:dgrp/inline-size;display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:10px}
+.dgrp.empty{display:none}
+.dgrp:not(.empty)~.dgrp{border-top:2px solid var(--rule)}
+.dname{display:flex;flex-direction:column;line-height:1.05;padding-top:10px}
+.dname b{font-size:13px;color:var(--ink-2)}
+.dname .hand{font-size:24px}
+.dnone{margin:0;font-size:13.5px;color:var(--ink-2)}
+.sess{display:grid;row-gap:8px;padding:10px 0}
+.sess+.sess{border-top:1.5px solid var(--rule-soft)}
 .sinfo{min-width:0}
 .sinfo .l1{font-size:15.5px;line-height:21px}
 .sinfo small{display:block;font-size:13.5px;line-height:18px;color:var(--ink-2)}
-.srow .ticks{grid-column:2}
-.srow.done>*:not(.sday){opacity:.55}
-.srow.done .sinfo b{text-decoration:line-through;text-decoration-color:var(--lse);text-decoration-thickness:2px}
-.srow.up>*:not(.sday){opacity:.65}
-@container wbox (min-width:640px){
-  .srow{grid-template-columns:56px minmax(0,1fr) auto;align-items:center}
-  .sday{grid-row:auto}
-  .srow .ticks{grid-column:3}
+.sess.done>*{opacity:.55}
+.sess.done .sinfo b{text-decoration:line-through;text-decoration-color:var(--lse);text-decoration-thickness:2px}
+.sess.up>*{opacity:.65}
+/* narrow laptop window: the buttons move to the right of the session */
+@container wbox (min-width:600px){
+  .dgrp{grid-template-columns:56px minmax(0,1fr)}
+  .sess{grid-template-columns:minmax(0,1fr) auto;align-items:center;column-gap:12px}
 }
-/* draft B: the week as a board, a column per day */
-.wdays{display:grid;gap:14px;padding:12px 0 6px}
-.dname{display:flex;align-items:baseline;gap:6px;margin-bottom:8px;font-size:13px;color:var(--ink-2)}
-.dname .hand{font-size:24px;color:var(--ink)}
-.scard{border:2px solid var(--rule);border-radius:var(--r3);padding:10px 10px 12px;margin-bottom:10px;display:flex;flex-direction:column;gap:3px}
-.dcol .scard:nth-child(2n){border-radius:var(--r4)}
-.scard .l1{font-size:15px;line-height:20px}
-.scard .tag.first{margin-left:0}
-.scard small{font-size:13.5px;color:var(--ink-2)}
-.scard .ticks{margin-top:6px;flex-wrap:wrap}
-.scard.done{opacity:.55}
-.scard.done .l1 b{text-decoration:line-through;text-decoration-color:var(--lse);text-decoration-thickness:2px}
-.scard.up{opacity:.65}
-@container wbox (min-width:640px){
-  .wdays{grid-template-columns:repeat(var(--nd,5),minmax(0,1fr))}
-  .scard .ticks{flex-direction:column;align-items:stretch}
-  .scard .tk{justify-content:flex-start}
-  .scard .lg{display:inline}
+/* laptop: the week as a board, a column per weekday, a card per session */
+@container wbox (min-width:820px){
+  .wdays{display:grid;grid-template-columns:repeat(var(--nd,5),minmax(0,1fr));gap:14px;padding:12px 0 6px}
+  .dgrp,.dgrp.empty{display:block}
+  .dgrp:not(.empty)~.dgrp{border-top:0}
+  .dname{flex-direction:row;align-items:baseline;gap:6px;margin-bottom:8px;padding-top:0}
+  .dgrp.empty .dname{opacity:.55}
+  .sess{display:flex;flex-direction:column;align-items:stretch;gap:3px;border:2px solid var(--rule);border-radius:var(--r3);padding:10px 10px 12px;margin-bottom:10px}
+  .sess+.sess{border-top:2px solid var(--rule)}
+  .dlist .sess:nth-child(2n){border-radius:var(--r4)}
+  .sess.done{opacity:.55} .sess.done>*{opacity:1}
+  .sess.up{opacity:.65} .sess.up>*{opacity:1}
+  .sess .ticks{flex-direction:column;align-items:stretch;margin-top:6px}
+  .sess .tk{justify-content:flex-start}
 }
+/* a narrow day column drops "back" and "made" */
+@container dgrp (max-width:170px){ .sess .lg{display:none} }
 .seg{display:inline-flex;flex-wrap:wrap;gap:6px}
 .seg button{min-height:44px;padding:6px 14px;border:2px solid var(--btn-line);border-radius:var(--r3);background:transparent;color:var(--ink);font-weight:700;font-size:14.5px}
 .seg button:nth-child(2n){border-radius:var(--r4)}
@@ -2050,7 +2052,7 @@ const ghost = () => '';   // 4.6: plain board, no ghost writing
 const VIEWS = ['today','week','behind','deadlines','gym','progress','food','setup','more'];
 const NAMES = {today:'Today', week:'Week', behind:'Behind', deadlines:'Deadlines', gym:'Gym', progress:'Progress', food:'Food and body', setup:'Setup', more:'More'};
 const TABC = {today:'--study', week:'--admin', gym:'--gym', progress:'--career', behind:'--lse', more:'--business', deadlines:'--business', food:'--meal', setup:'--admin'};
-let TAB = 'today', viewDay = null, viewWeek = null, aFull = false, aEx = 0, behindMode = 'todo', trackAll = false, dlFilter = 'ALL', editMeals = false;
+let TAB = 'today', viewDay = null, viewWeek = null, aFull = false, aEx = 0, behindMode = 'todo', dlFilter = 'ALL', editMeals = false;
 
 function setTab(t){
   TAB = VIEWS.includes(t) ? t : 'today';
@@ -2388,8 +2390,9 @@ function renderWeek(){
 }
 
 /* ================= BEHIND ================= */
-/* Lecture tracker (4.6): laid out like the spreadsheet. Term tabs, a block per teaching week in order, one row per session,
-   and three tick columns. Done rows (covered and notes made) are struck through. Weeks with nothing left to do fold to one line. */
+/* Lecture tracker (4.6). Term tabs, then each teaching week in its own hand-drawn box whose heading stays in view while you
+   scroll it. Done sessions (covered and notes made) are struck through; weeks with nothing to do fold to one line.
+   One set of markup, two layouts chosen by the space available: a line per session on a phone, a column per weekday on a laptop. */
 const TERMS = [['AT', 'Autumn'], ['WT', 'Winter'], ['ST', 'Spring']];
 const TERM_OF = {AT:'AT', XMAS:'AT', JAN:'AT', WT:'WT', SPRING:'WT', ST:'ST', SUMMER:'ST', OUT:'AT'};
 let trackTerm = null, trackScroll = false;
@@ -2401,9 +2404,6 @@ function trackState(x){
   const done = cov && nts, open = past && (tag ? tag[0] === 'bad' : cov && !nts);
   return {past, cov, nts, tag, done, open, behind:!!(tag && tag[0] === 'bad')};
 }
-// Two drafts while Hemsai chooses (not live): 'a' = one line per session, 'b' = the week's days side by side.
-// ?tracker=a or ?tracker=b in the address picks one for the preview pictures.
-const TRACK_DRAFT = (/[?&]tracker=([ab])/.exec(location.search) || [])[1] || 'a';
 const tagHtml = s => s.tag ? '<span class="tag' + (s.tag[0] ? ' ' + s.tag[0] : '') + '">' + s.tag[1] + '</span>' : '';
 // The labelled buttons, as before. "back" and "made" drop off when the space is narrow.
 function pills(x){
@@ -2421,21 +2421,19 @@ function weekHead(ws, p, st, xs, isNow){
   return {allDone, html:'<summary class="whead"><span class="wn hand">Week ' + wn + '</span><span class="wdates">' + dates + (p.reading === wn ? ', reading week' : '') + '</span>' +
     (isNow ? '<span class="tag good">this week</span>' : '') + '<span class="wsum">' + status + '</span></summary>'};
 }
-// Draft A: a line per session. Laptop: day, session and the three buttons on one line. Phone: the buttons sit under the session.
-function weekRowsHtml(xs, st){
-  let last = '';
-  return '<div class="srows">' + xs.map((x, i) => { const s = st[i], first = x.date !== last; last = x.date;
-    return '<div class="srow' + (first ? ' first' : '') + (s.done ? ' done' : '') + (s.past ? '' : ' up') + '">' +
-      '<div class="sday">' + (first ? '<b>' + dayName(x.date, true) + '</b><span class="hand">' + dOf(x.date).getDate() + '</span>' : '') + '</div>' +
-      '<div class="sinfo"><span class="l1"><b>' + esc(x.label) + '</b>' + tagHtml(s) + '</span><small>' + tm(x.s) + '–' + tm(x.e) + '</small></div>' + pills(x) + '</div>'; }).join('') + '</div>';
-}
-// Draft B: the week as a board. Laptop: a column per day, a card per session. Phone: the days stack.
-function weekDaysHtml(xs, st){
-  const days = new Map(); xs.forEach((x, i) => { if (!days.has(x.date)) days.set(x.date, []); days.get(x.date).push(i); });
-  return '<div class="wdays" style="--nd:' + Math.min(5, days.size) + '">' + [...days.entries()].map(([d, ix]) => '<div class="dcol"><div class="dname"><b>' + dayName(d, true) + '</b><span class="hand">' + dOf(d).getDate() + '</span></div>' +
-    ix.map(i => { const x = xs[i], s = st[i];
-      return '<div class="scard' + (s.done ? ' done' : '') + (s.past ? '' : ' up') + '"><span class="l1"><b>' + esc(x.label) + '</b></span>' + (s.tag ? '<span>' + tagHtml(s).replace('class="tag', 'class="tag first') + '</span>' : '') +
-        '<small>' + tm(x.s) + '–' + tm(x.e) + '</small>' + pills(x) + '</div>'; }).join('') + '</div>').join('') + '</div>';
+// The days of a week. Weekday columns stay in place on a laptop (Monday always first), so empty days are kept but hidden on a phone.
+function weekBody(xs, st){
+  const by = {}; xs.forEach((x, i) => { const k = (dow(x.date) + 6) % 7 + 1; (by[k] = by[k] || []).push(i); });
+  const nd = Math.max(5, ...Object.keys(by).map(Number)), ws = weekStart(xs[0].date);
+  let h = '';
+  for (let k = 1; k <= nd; k++){
+    const d = addD(ws, k - 1), ix = by[k] || [];
+    h += '<div class="dgrp' + (ix.length ? '' : ' empty') + '"><div class="dname"><b>' + dayName(d, true) + '</b><span class="hand">' + dOf(d).getDate() + '</span></div><div class="dlist">' +
+      (ix.length ? ix.map(i => { const x = xs[i], s = st[i];
+        return '<div class="sess' + (s.done ? ' done' : '') + (s.past ? '' : ' up') + '"><div class="sinfo"><span class="l1"><b>' + esc(x.label) + '</b>' + tagHtml(s) + '</span><small>' + tm(x.s) + '–' + tm(x.e) + '</small></div>' + pills(x) + '</div>'; }).join('')
+        : '<p class="dnone">No sessions</p>') + '</div></div>';
+  }
+  return '<div class="wdays" style="--nd:' + nd + '">' + h + '</div>';
 }
 function trackerHtml(){
   const t = today(), term = trackTerm || TERM_OF[periodOf(t).id] || 'AT', p = PERIODS.find(z => z.id === term), tw = weekStart(t);
@@ -2451,7 +2449,7 @@ function trackerHtml(){
     const st = xs.map(trackState), isNow = ws === tw, H = weekHead(ws, p, st, xs, isNow);
     const open = twOpen.has(ws) ? twOpen.get(ws) : (isNow || st.some(s => s.open));
     return '<details class="wbox' + (isNow ? ' now' : '') + '" data-wk="' + ws + '"' + (open ? ' open' : '') + '>' + H.html +
-      '<div class="wbody">' + (TRACK_DRAFT === 'b' ? weekDaysHtml(xs, st) : weekRowsHtml(xs, st)) + '</div></details>';
+      '<div class="wbody">' + weekBody(xs, st) + '</div></details>';
   }).join('');
   return tabs + '<div class="termh"><span class="hand">' + esc(name) + '</span><span class="tsum">' + esc(sum) + '</span></div>' + blocks;
 }
@@ -3055,7 +3053,7 @@ function openFoodNew(){
     '<label class="f">Protein g<input type="number" name="p" step="any" min="0" inputmode="decimal" required></label><label class="f">kcal<input type="number" name="k" step="any" min="0" inputmode="decimal" required></label>' +
     '<label class="f">Carbs g<input type="number" name="c" step="any" min="0" inputmode="decimal" value="0"></label><label class="f">Fat g<input type="number" name="f" step="any" min="0" inputmode="decimal" value="0"></label>' +
     '<label class="f">Free sugar g<input type="number" name="s" step="any" min="0" inputmode="decimal" value="0"></label><label class="f">Fruit or veg portions<input type="number" name="fv" step="0.5" min="0" inputmode="decimal" value="0"></label>' +
-    '<p class="muted small full" style="margin:0">Free sugar is added sugar, honey, syrup and juice, not the sugar in whole fruit or milk. One portion of fruit or veg is 80 g.</p>' +
+    '<p class="muted small full" style="margin:0">Free sugar: on a packet, use \"of which sugars\" unless it has milk or fruit in it. Plain milk, plain yoghurt and whole fruit are 0; juice counts in full. One portion of fruit or veg is 80 g.</p>' +
     '<label class="f full">How many servings now (0 = just save it)<input type="number" name="q" step="any" min="0" inputmode="decimal" value="1"></label>' +
     '<label class="f full" style="flex-direction:row;align-items:center;gap:8px;color:var(--ink)"><input type="checkbox" name="keep" checked style="width:22px;height:22px;min-height:0;margin:11px 0"> Save it to Your foods and drinks for next time</label>' +
     '<p class="muted small full" style="margin:0">Use the values per serving from the packet.</p>' +
@@ -3070,7 +3068,7 @@ function openFoodEdit(id){
     (fd.mine ? '<label class="f full">One serving is<input type="text" name="u" value="' + esc(fd.u) + '"></label>' : '') +
     '<p class="muted small full" style="margin:0">Values ' + esc(per) + '.' + (base && fd.edited ? ' The original: ' + base.n + ', ' + base.p + ' g protein, ' + base.k + ' kcal.' : '') + '</p>' +
     num('p', 'Protein g') + num('k', 'kcal') + num('c', 'Carbs g') + num('f', 'Fat g') + num('s', 'Free sugar g') + num('fv', 'Fruit or veg portions') +
-    '<p class="muted small full" style="margin:0">Free sugar is added sugar, honey, syrup and juice. One portion of fruit or veg is 80 g.' + (fd.fvk === 'beans' ? ' Beans count once a day.' : fvGroup(fd) === 'juice' ? ' Juice counts once a day.' : '') + '</p>' +
+    '<p class="muted small full" style="margin:0">Free sugar: on a packet, use \"of which sugars\" unless it has milk or fruit in it. Plain milk, plain yoghurt and whole fruit are 0; juice counts in full. One portion of fruit or veg is 80 g.' + (fd.fvk === 'beans' ? ' Beans count once a day.' : fvGroup(fd) === 'juice' ? ' Juice counts once a day.' : '') + '</p>' +
     '<div class="full acts" style="justify-content:space-between"><span class="row-flex">' + (fd.edited ? '<button type="button" class="btn small" data-act="freset" data-id="' + esc(id) + '">Back to the original</button>' : '') +
       (fd.mine ? '<button type="button" class="btn small danger" data-act="fcdel" data-id="' + esc(id) + '">Delete</button>' : '') + '</span>' +
     '<span class="row-flex"><button type="button" class="btn" data-act="close">Cancel</button><button class="btn primary" type="submit">Save</button></span></div></form>', 'meal');
